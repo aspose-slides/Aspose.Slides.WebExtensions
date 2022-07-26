@@ -20,7 +20,7 @@
 {
     @Raw("<a href=\"" + hyperlink + "\">");
 }
-<span class="portion" style="@GetTextStyle(contextObject, parentTextFrame, tableContentFlag)">@contextObject.Text</span>
+<span class="portion" style="@GetTextStyle(contextObject, parentTextFrame, tableContentFlag)">@Raw(@contextObject.Text)</span>
 @if (!string.IsNullOrEmpty(hyperlink))
 {
     @Raw("</a>");
