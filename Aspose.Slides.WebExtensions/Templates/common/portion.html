@@ -14,13 +14,17 @@
     {
         return TextHelper.GetTextStyle(portion.PortionFormat.GetEffective(), textFrame.TextFrameFormat.GetEffective(), isTableContent, Model);
     }
+    string FixVerticalTabulation(string text)
+    {
+        return text.Replace("\v", "<br>");
+    }
 }
 
 @if (!string.IsNullOrEmpty(hyperlink))
 {
     @Raw("<a href=\"" + hyperlink + "\">");
 }
-<span class="portion" style="@GetTextStyle(contextObject, parentTextFrame, tableContentFlag)">@Raw(@contextObject.Text)</span>
+<span class="portion" style="@GetTextStyle(contextObject, parentTextFrame, tableContentFlag)">@Raw(FixVerticalTabulation(contextObject.Text))</span>
 @if (!string.IsNullOrEmpty(hyperlink))
 {
     @Raw("</a>");
