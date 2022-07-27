@@ -91,6 +91,10 @@ namespace Aspose.Slides.WebExtensions.Helpers
                         paddingTop = (parentShape.Height - paraHeights - textFrameFormatEffective.MarginTop - textFrameFormatEffective.MarginBottom) / 2;
                         break;
                 }
+                if ((int)parentShape.Rotation != 0)
+                {
+                    writingModeStyle += String.Format("transform: rotate({0}deg);", (int)parentShape.Rotation);
+                }
             }
             else
             {

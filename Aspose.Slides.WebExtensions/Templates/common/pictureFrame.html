@@ -4,11 +4,6 @@
     PictureFrame contextObject = Model.Object;
     
     var origin = Model.Local.Get<Point>("origin");
-    var positionStyle = string.Format("left: {0}px; top: {1}px; width: {2}px; height: {3}px;",
-                                        (int)contextObject.X + origin.X,
-                                        (int)contextObject.Y + origin.Y,
-                                        (int)contextObject.Width,
-                                        (int)contextObject.Height);
     
     string imgSrc = ImageHelper.GetImageURL(contextObject.PictureFormat.Picture.Image, Model);
     
@@ -20,5 +15,12 @@
         animationAttributes = Model.Local.Get<string>("animationAttributes");
     }
 }
+@functions
+{
+    string GetImagePositioningStyle(PictureFrame pictureFrame, Point origin)
+    {
+        return ImageHelper.GetImagePositioningStyle(pictureFrame, origin);
+    }
+}
 
-<img src="@imgSrc" id="@id" class="pictureframe" style="@positionStyle" @Raw(animationAttributes)/>
+<img src="@imgSrc" id="@id" class="pictureframe" style="@GetImagePositioningStyle(contextObject, origin)" @Raw(animationAttributes)/>
