@@ -22,6 +22,7 @@
     }
     
     var shapeStyle = positionStyle + " background-image: url(" + imgSrc + "); background-size: 100% 100%;";
+    shapeStyle += String.Format(" transform: rotate({0}deg);", (int)contextObject.Rotation);
 }
 
 @{
