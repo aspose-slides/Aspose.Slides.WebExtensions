@@ -38,9 +38,13 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 var slidesPath = model.Global.Get<string>("slidesPath");
                 string convertedFileName = GetImageURL<T>(image, model) + ".png";
                 string convertedFilePath = Path.Combine(slidesPath, convertedFileName);
-                MemoryStream tiffData = new MemoryStream(image.BinaryData);
-                Image initialImage = System.Drawing.Bitmap.FromStream(tiffData);
-                initialImage.Save(convertedFilePath, ImageFormat.Png);
+                using (MemoryStream tiffData = new MemoryStream(image.BinaryData))
+                {
+                    using (Image initialImage = System.Drawing.Bitmap.FromStream(tiffData))
+                    {
+                        initialImage.Save(convertedFilePath, ImageFormat.Png);
+                    }
+                }
             }
         }
         public static Bitmap MetafileToBitmap(IPPImage image)
