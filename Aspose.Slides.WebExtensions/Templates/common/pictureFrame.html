@@ -6,6 +6,11 @@
     var origin = Model.Local.Get<Point>("origin");
     
     string imgSrc = ImageHelper.GetImageURL(contextObject.PictureFormat.Picture.Image, Model);
+    if (contextObject.PictureFormat.Picture.Image.ContentType == "image/tiff")
+    {
+        ImageHelper.ConvertTiffToPng(contextObject.PictureFormat.Picture.Image, Model);
+        imgSrc += ".png";
+    }
     
     string id = "slide-" + contextObject.Slide.SlideId + "-shape-" + contextObject.UniqueId;
     string animationAttributes = "";
@@ -14,6 +19,8 @@
     {
         animationAttributes = Model.Local.Get<string>("animationAttributes");
     }
+    string svgFilter = ImageHelper.CreateSvgFilter(contextObject, id + "-effect");
+    string filterStyle = string.IsNullOrEmpty(svgFilter) ? "" : "filter: url(#" + id + "-effect)";
 }
 @functions
 {
@@ -22,5 +29,5 @@
         return ImageHelper.GetImagePositioningStyle(pictureFrame, origin);
     }
 }
-
-<img src="@imgSrc" id="@id" class="pictureframe" style="@GetImagePositioningStyle(contextObject, origin)" @Raw(animationAttributes)/>
+@Raw(svgFilter)
+<img src="@imgSrc" id="@id" class="pictureframe" style="@GetImagePositioningStyle(contextObject, origin) @Raw(filterStyle)" @Raw(animationAttributes)/>

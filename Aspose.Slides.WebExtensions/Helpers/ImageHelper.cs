@@ -31,6 +31,18 @@ namespace Aspose.Slides.WebExtensions.Helpers
             return result;
         }
 
+        public static void ConvertTiffToPng<T>(IPPImage image, TemplateContext<T> model)
+        {
+            if (image.ContentType == "image/tiff")
+            {
+                var slidesPath = model.Global.Get<string>("slidesPath");
+                string convertedFileName = GetImageURL<T>(image, model) + ".png";
+                string convertedFilePath = Path.Combine(slidesPath, convertedFileName);
+                MemoryStream tiffData = new MemoryStream(image.BinaryData);
+                Image initialImage = System.Drawing.Bitmap.FromStream(tiffData);
+                initialImage.Save(convertedFilePath, ImageFormat.Png);
+            }
+        }
         public static Bitmap MetafileToBitmap(IPPImage image)
         {
             Metafile metafile = (Metafile)image.SystemImage;
@@ -71,6 +83,47 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 (int)pictureFrame.Height,
                 transform);
             return positionStyle;
+        }
+        public static string CreateSvgFilter(PictureFrame pictureFrame, string id)
+        {
+            string svgFilter = "";
+            foreach(var effect in pictureFrame.PictureFormat.Picture.ImageTransform)
+            {
+                if (effect.GetType() == typeof(Effects.ColorChange))
+                {
+                    Effects.ColorChange colorChange = (Effects.ColorChange)effect;
+                    string funcR = "", funcG = "", funcB = "";
+                    for (int i = 0; i< 256; i++)
+                    {
+                        funcR += (i == colorChange.FromColor.R) ? "1 " : "0 ";
+                        funcG += (i == colorChange.FromColor.G) ? "1 " : "0 ";
+                        funcB += (i == colorChange.FromColor.B) ? "1 " : "0 ";
+                    }
+                    funcR = funcR.Trim();
+                    funcG = funcG.Trim();
+                    funcB = funcB.Trim();
+                    string floodColor = string.Format("#{0:X2}{1:X2}{2:X2}", colorChange.ToColor.R, colorChange.ToColor.G, colorChange.ToColor.B);
+
+                    svgFilter = string.Format(
+                        "<svg width=\"{3}\" height=\"{4}\" viewBox=\"0 0 {3} {4}\">" +
+                            "<defs>" +
+                                "<filter id=\"{5}\" color-interpolation-filters=\"sRGB\">" +
+                                    "<feComponentTransfer>" +
+                                        "<feFuncR type=\"discrete\" tableValues=\"{0}\"></feFuncR>" +
+                                        "<feFuncG type=\"discrete\" tableValues=\"{1}\"></feFuncG>" +
+                                        "<feFuncB type=\"discrete\" tableValues=\"{2}\"></feFuncB>" +
+                                    "</feComponentTransfer>" +
+                                    "<feColorMatrix type=\"matrix\" values=\"1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 1 1 1 1 -3\" result=\"selectedColor\"></feColorMatrix>" +
+                                    "<feComposite operator=\"out\" in=\"SourceGraphic\" result=\"notSelectedColor\"></feComposite>" +
+                                    "<feFlood flood-color=\"{6}\" flood-opacity=\"{7}\"></feFlood>" +
+                                    "<feComposite operator=\"in\" in2=\"selectedColor\"></feComposite>" +
+                                    "<feComposite operator=\"over\" in2=\"notSelectedColor\"></feComposite>" +
+                                "</filter>" +
+                            "</defs>" +
+                        "</svg>", funcR, funcG, funcB, (int)pictureFrame.Width, (int)pictureFrame.Height, id, floodColor,  ((float)colorChange.ToColor.Color.A/255f).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture));
+                }
+            }
+            return svgFilter;
         }
     }
 }
