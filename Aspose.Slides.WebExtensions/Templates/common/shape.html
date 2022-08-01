@@ -4,11 +4,12 @@
     Shape contextObject = Model.Object;
     
     var origin = Model.Local.Get<Point>("origin");
-    var positionStyle = string.Format("left: {0}px; top: {1}px; width: {2}px; height: {3}px;",
+    var positionStyle = ShapeHelper.GetPositionStyle(contextObject, origin);
+    /*var positionStyle = string.Format("left: {0}px; top: {1}px; width: {2}px; height: {3}px;",
                                         (int)contextObject.X + origin.X,
                                         (int)contextObject.Y + origin.Y,
                                         (int)contextObject.Width,
-                                        (int)contextObject.Height);
+                                        (int)contextObject.Height);*/
     var textStyle = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);";
 
     string imgSrc = ShapeHelper.GetShapeAsImageURL<Shape>(contextObject, Model);

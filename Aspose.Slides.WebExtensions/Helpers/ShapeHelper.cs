@@ -81,5 +81,18 @@ namespace Aspose.Slides.WebExtensions.Helpers
         {
             return null;
         }
+        public static string GetPositionStyle(Shape shape, Point origin)
+        {
+            int left = (int)shape.X + origin.X;
+            int top = (int)shape.Y + origin.Y;
+            int width = (int)shape.Width;
+            int height = (int)shape.Height;
+
+            if (shape is Connector connector && height == 0)
+            {
+                height = (int)connector.LineFormat.Width;
+            }
+            return string.Format("left: {0}px; top: {1}px; width: {2}px; height: {3}px;", left, top, width, height);
+        }
     }
 }
