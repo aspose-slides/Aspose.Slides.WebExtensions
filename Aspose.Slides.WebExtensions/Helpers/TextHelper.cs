@@ -117,8 +117,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     writingModeStyle += "transform: rotate(180deg);";
             }
 
-            string paddingTopStyle = string.Format("padding-top: {0}px;", paddingTop);
-            string paddingLeftStyle = string.Format("padding-left: {0}px;", paddingLeft);
+            string paddingTopStyle = string.Format("padding-top: {0}px;", (int)paddingTop);
+            string paddingLeftStyle = string.Format("padding-left: {0}px;", (int)paddingLeft);
 
             return string.Join(" ", paddingTopStyle, paddingLeftStyle, writingModeStyle);
         }
@@ -143,7 +143,12 @@ namespace Aspose.Slides.WebExtensions.Helpers
         {
             string result = "";
             if (format.SpaceWithin != 100 && format.SpaceWithin != 90)
-                result = string.Format("line-height: {0};", format.SpaceWithin / 100);
+            {
+                if (format.SpaceWithin < 0)
+                    result = string.Format("line-height: {0}px;", -format.SpaceWithin);
+                else
+                    result = string.Format("line-height: {0};", format.SpaceWithin / 100);
+            }
 
             return result;
         }
@@ -353,7 +358,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
             double[] margins = new double[] { format.MarginLeft + textFrameFormat.MarginLeft,
                                               0,
                                               format.MarginRight + textFrameFormat.MarginRight,
-                                              0 };
+                                              0,
+                                              0, 0 /* paddings */};
 
             // margins adjustment for vertical text (...)
             switch (format.Alignment)
@@ -410,8 +416,10 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 margins[1] = lineSpacingAdjustment;
                 margins[3] = lineSpacingAdjustment;
             }
-
             
+            margins[4] = format.SpaceBefore * ((format.SpaceBefore < 0)?(-1):(1));
+            margins[5] = format.SpaceAfter * ((format.SpaceAfter < 0)?(-1):(1));
+
             return margins;
         }
 

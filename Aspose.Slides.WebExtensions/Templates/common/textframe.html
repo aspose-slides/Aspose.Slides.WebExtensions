@@ -28,6 +28,8 @@
         subModel.Local.Put("parent", contextObject);
         subModel.Local.Put("parentContainerSize", new SizeF(parentAutoShape.Width, parentAutoShape.Height));
         subModel.Local.Put("tableContent", false);
+        subModel.Local.Put("isFirst", i == 0);
+        subModel.Local.Put("isLast", i == (contextObject.Paragraphs.Count - 1));
 
         @Include("paragraph", subModel)
     }
