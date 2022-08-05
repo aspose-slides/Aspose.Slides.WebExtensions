@@ -117,8 +117,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     writingModeStyle += "transform: rotate(180deg);";
             }
 
-            string paddingTopStyle = string.Format("padding-top: {0}px;", paddingTop);
-            string paddingLeftStyle = string.Format("padding-left: {0}px;", paddingLeft);
+            string paddingTopStyle = string.Format("padding-top: {0}px;", (int)paddingTop);
+            string paddingLeftStyle = string.Format("padding-left: {0}px;", (int)paddingLeft);
 
             return string.Join(" ", paddingTopStyle, paddingLeftStyle, writingModeStyle);
         }
@@ -139,11 +139,13 @@ namespace Aspose.Slides.WebExtensions.Helpers
             }
         }
 
-        public static string GetLineSpacingStyle(IParagraphFormatEffectiveData format)
+        public static string GetLineSpacingStyle(IParagraphFormatEffectiveData format, float fontHeight)
         {
             string result = "";
-            if (format.SpaceWithin != 100 && format.SpaceWithin != 90)
-                result = string.Format("line-height: {0};", format.SpaceWithin / 100);
+            if (format.SpaceWithin < 0)
+                result = string.Format("line-height: {0}px;", -format.SpaceWithin);
+            else
+                result = string.Format("line-height: {0}px;", (8f/7f)*(fontHeight) * format.SpaceWithin / 100f);
 
             return result;
         }
@@ -270,7 +272,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
         public static string GetTextStyle<T>(IParagraphFormatEffectiveData format, TemplateContext<T> model)
         {
             string alignment = TextHelper.GetHorizontalAlignmentStyle(format.Alignment);
-            string lineSpacingStyle = TextHelper.GetLineSpacingStyle(format);
+            float fontHeight = (model.Object as Paragraph).Portions[0].PortionFormat.GetEffective().FontHeight;
+            string lineSpacingStyle = TextHelper.GetLineSpacingStyle(format, fontHeight);
 
             return string.Join(" ", alignment, lineSpacingStyle);
         }

@@ -6,12 +6,39 @@
     var parentTextFrame = Model.Local.Get<TextFrame>("parent");
     var tableContentFlag = Model.Local.Get<bool>("tableContent");
     var parentContainerSize = Model.Local.Get<SizeF>("parentContainerSize");
+    bool isFirst = Model.Local.Get<bool>("isFirst");
+    bool isLast = Model.Local.Get<bool>("isLast");
     
     var paragraphFormatEffective = contextObject.ParagraphFormat.GetEffective();
     
     double[] margins = TextHelper.GetParagraphMargins(paragraphFormatEffective, parentTextFrame, parentContainerSize, Model);
-    var marginStyle = "margin-left: " + margins[0] + "px; margin-top: " + margins[1] + "px; margin-right: " + margins[2] + "px; margin-bottom: " + margins[3] + "px; ";
-    var paragraphStyle = marginStyle + GetTextStyle(contextObject);
+    var marginStyle = "margin-left: " + (int)margins[0] + "px; margin-top: " + (int)margins[1] + "px; margin-right: " + (int)margins[2] + "px; margin-bottom: " + (int)margins[3] + "px; ";
+    var paddingStyle = "";
+    float fontHeight = contextObject.Portions[0].PortionFormat.GetEffective().FontHeight;
+    double spaceFixCoefficient = 5d/4d;
+    if (!isFirst)
+    {
+        if (paragraphFormatEffective.SpaceBefore < 0)
+        {
+            paddingStyle += "padding-top: " + (int)(-paragraphFormatEffective.SpaceBefore) + "px; ";
+        }
+        else 
+        {
+            paddingStyle += "padding-top: " + (int)(spaceFixCoefficient * fontHeight * paragraphFormatEffective.SpaceBefore/100) + "px; ";        
+        }
+    }
+    if (!isLast)
+    {
+        if (paragraphFormatEffective.SpaceAfter < 0)
+        {
+            paddingStyle += "padding-bottom: " + (int)(-paragraphFormatEffective.SpaceAfter) + "px; ";
+        }
+        else 
+        {
+            paddingStyle += "padding-bottom: " + (int)(spaceFixCoefficient * fontHeight * paragraphFormatEffective.SpaceAfter/100) + "px; ";        
+        }
+    }
+    var paragraphStyle = marginStyle + paddingStyle + GetTextStyle(contextObject);
 }
 
 @functions
