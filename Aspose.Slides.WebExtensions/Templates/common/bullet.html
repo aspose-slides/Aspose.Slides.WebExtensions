@@ -22,7 +22,7 @@
     }
     
     var bulletSymbol = paragraphFormatEffective.Bullet.ActualBulletValue;
-    var marginStyle = "margin-left: " + margins[0] + "px; margin-top: " + margins[1] + "px; margin-right: " + margins[2] + "px; margin-bottom: " + margins[3] + "px; ";
+    var marginStyle = "margin-left: " + (int)margins[0] + "px; margin-top: " + (int)margins[1] + "px; margin-right: " + (int)margins[2] + "px; margin-bottom: " + (int)margins[3] + "px; ";
     var fixBullet = "display: inline-block; width: " + (int)Math.Abs(paragraphFormatEffective.Indent) + "px; ";
     var bulletStyle = marginStyle + GetTextBulletStyle(contextObject, parentTextFrame, tableContentFlag) + fixBullet;
 }

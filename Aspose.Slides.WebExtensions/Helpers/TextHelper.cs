@@ -143,9 +143,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
         {
             string result = "";
             if (format.SpaceWithin < 0)
-                result = string.Format("line-height: {0}px;", -format.SpaceWithin);
+                result = string.Format("line-height: {0}px;", -(int)format.SpaceWithin);
             else
-                result = string.Format("line-height: {0}px;", (8f/7f)*(fontHeight) * format.SpaceWithin / 100f);
+                result = string.Format("line-height: {0}px;", (int)((8f/7f)*(fontHeight) * format.SpaceWithin / 100f));
 
             return result;
         }
