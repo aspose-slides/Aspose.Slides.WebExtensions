@@ -38,6 +38,11 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 var slidesPath = model.Global.Get<string>("slidesPath");
                 string convertedFileName = GetImageURL<T>(image, model) + ".png";
                 string convertedFilePath = Path.Combine(slidesPath, convertedFileName);
+                string imagesPath = Path.GetDirectoryName(convertedFilePath);
+                if (!Directory.Exists(imagesPath))
+                {
+                    Directory.CreateDirectory(imagesPath);
+                }
                 using (MemoryStream tiffData = new MemoryStream(image.BinaryData))
                 {
                     using (Image initialImage = System.Drawing.Bitmap.FromStream(tiffData))
