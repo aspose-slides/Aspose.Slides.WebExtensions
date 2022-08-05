@@ -253,6 +253,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
             else if (format.TextCapType == TextCapType.Small)
                 fontCapStyle = "font-variant: small-caps;";
 
+            string whiteSpacePreStyle = "white-space: pre-wrap;";
             return string.Join(" ",
                             fontBoldItalicStyle,
                             fontFamilyStyle,
@@ -263,7 +264,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
                             outerShadowStyle,
                             strokeStyle,
                             spacingStyle,
-                            fontCapStyle);
+                            fontCapStyle,
+                            whiteSpacePreStyle);
 
         }
 
