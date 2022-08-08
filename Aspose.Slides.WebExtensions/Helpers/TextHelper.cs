@@ -269,10 +269,10 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
         }
 
-        public static string GetTextStyle<T>(IParagraphFormatEffectiveData format, TemplateContext<T> model)
+        public static string GetTextStyle(IParagraphFormatEffectiveData format, TemplateContext<Paragraph> model)
         {
             string alignment = TextHelper.GetHorizontalAlignmentStyle(format.Alignment);
-            float fontHeight = (model.Object as Paragraph).Portions[0].PortionFormat.GetEffective().FontHeight;
+            float fontHeight = ((Paragraph)(model.Object)).Portions[0].PortionFormat.GetEffective().FontHeight;
             string lineSpacingStyle = TextHelper.GetLineSpacingStyle(format, fontHeight);
 
             return string.Join(" ", alignment, lineSpacingStyle);
