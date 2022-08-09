@@ -270,7 +270,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
         public static string GetTextStyle(IParagraphFormatEffectiveData format, TemplateContext<Paragraph> model)
         {
             string alignment = TextHelper.GetHorizontalAlignmentStyle(format.Alignment);
-            float fontHeight = ((Paragraph)(model.Object)).Portions[0].PortionFormat.GetEffective().FontHeight;
+            float fontHeight = (((Paragraph)(model.Object)).Portions.Count == 0) ? 0 : ((Paragraph)(model.Object)).Portions[0].PortionFormat.GetEffective().FontHeight;
             string lineSpacingStyle = TextHelper.GetLineSpacingStyle(format, fontHeight);
 
             return string.Join(" ", alignment, lineSpacingStyle);
@@ -278,7 +278,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
         public static string GetTextBulletStyle<T>(IParagraphFormatEffectiveData format, ITextFrameFormatEffectiveData textFrameFormat, bool isTableContent, TemplateContext<T> model)
         {
-            var firstPortionFormatEffective = (model.Object as Paragraph).Portions[0].PortionFormat.GetEffective();
+            var firstPortionFormatEffective = ((model.Object as Paragraph).Portions.Count == 0) ? null : (model.Object as Paragraph).Portions[0].PortionFormat.GetEffective();
 
             string fontBoldItalicStyle = GetTextFontItalicStyle(firstPortionFormatEffective);
 
@@ -311,7 +311,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     break;
             }
 
-            IFontData bulletFont = firstPortionFormatEffective.LatinFont;
+            IFontData bulletFont = firstPortionFormatEffective?.LatinFont;
             if (format.Bullet.IsBulletHardFont && format.Bullet.Type != BulletType.Numbered)
                 bulletFont = format.Bullet.Font;
 
@@ -319,7 +319,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                              * (isTableContent ? 0.5f : 1);
 
             string outerShadowStyle = "";
-            if (firstPortionFormatEffective.EffectFormat.OuterShadowEffect != null)
+            if (firstPortionFormatEffective?.EffectFormat.OuterShadowEffect != null)
                 outerShadowStyle = string.Format("text-shadow: {0}px {1}px {2}px {3};",
                                                     shadowFix * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Distance * Math.Cos((Math.PI / 180) * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Direction),
                                                     shadowFix * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Distance * Math.Sin((Math.PI / 180) * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Direction),
@@ -339,8 +339,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
         public static float GetPictureBulletSize<T>(IParagraphFormatEffectiveData format, TemplateContext<T> model)
         {
-            var firstPortionFormatEffective = (model.Object as Paragraph).Portions[0].PortionFormat.GetEffective();
-            return format.Bullet.Height * firstPortionFormatEffective.FontHeight / 100 * 0.75f;
+            var fontHeight = ((model.Object as Paragraph).Portions.Count == 0) ? 0 : (model.Object as Paragraph).Portions[0].PortionFormat.GetEffective().FontHeight;
+            return format.Bullet.Height * fontHeight / 100 * 0.75f;
         }
 
         public static double[] GetParagraphMargins<T>(IParagraphFormatEffectiveData format, TextFrame parentTextFrame, SizeF parentContainerSize, TemplateContext<T> model)
@@ -348,7 +348,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
             Paragraph contextObject = model.Object as Paragraph;
             var textFrameFormat = parentTextFrame.TextFrameFormat.GetEffective();
 
-            var firstPortionFormatEffective = (model.Object as Paragraph).Portions[0].PortionFormat.GetEffective();
+            var fontHeight = ((model.Object as Paragraph).Portions.Count == 0) ? 0 : (model.Object as Paragraph).Portions[0].PortionFormat.GetEffective().FontHeight;
+
 
             // left, top, right, bottom
             double[] margins = new double[] { format.MarginLeft + textFrameFormat.MarginLeft,
@@ -405,8 +406,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
             if (textFrameFormat.TextVerticalType == TextVerticalType.Horizontal)
             {
                 double lineSpacingAdjustment = 0;
-                if (firstPortionFormatEffective.FontHeight > 25)
-                    lineSpacingAdjustment = -firstPortionFormatEffective.FontHeight / 10;
+                if (fontHeight > 25)
+                    lineSpacingAdjustment = -fontHeight / 10;
 
                 margins[1] = lineSpacingAdjustment;
                 margins[3] = lineSpacingAdjustment;

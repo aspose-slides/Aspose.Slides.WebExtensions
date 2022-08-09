@@ -4,7 +4,7 @@
     Portion contextObject = Model.Object;
     var parentTextFrame = Model.Local.Get<TextFrame>("parentTextFrame");
     var tableContentFlag = Model.Local.Get<bool>("tableContent");
-    var isLast = Model.Local.Get<bool>("isLast");
+    var isLast = Model.Local.ContainsKey("isLast") && Model.Local.Get<bool>("isLast");
     var clickHyperlink = contextObject.PortionFormat.GetEffective().HyperlinkClick;
     string hyperlink = clickHyperlink != null ? clickHyperlink.ExternalUrl : "";
 }

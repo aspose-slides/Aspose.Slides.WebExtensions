@@ -6,15 +6,15 @@
     var parentTextFrame = Model.Local.Get<TextFrame>("parent");
     var tableContentFlag = Model.Local.Get<bool>("tableContent");
     var parentContainerSize = Model.Local.Get<SizeF>("parentContainerSize");
-    bool isFirst = Model.Local.Get<bool>("isFirst");
-    bool isLast = Model.Local.Get<bool>("isLast");
+    bool isFirst = Model.Local.ContainsKey("isFirst") && Model.Local.Get<bool>("isFirst");
+    bool isLast = Model.Local.ContainsKey("isLast") && Model.Local.Get<bool>("isLast");
     
     var paragraphFormatEffective = contextObject.ParagraphFormat.GetEffective();
     
     double[] margins = TextHelper.GetParagraphMargins(paragraphFormatEffective, parentTextFrame, parentContainerSize, Model);
     var marginStyle = "margin-left: " + (int)margins[0] + "px; margin-top: " + (int)margins[1] + "px; margin-right: " + (int)margins[2] + "px; margin-bottom: " + (int)margins[3] + "px; ";
     var paddingStyle = "";
-    float fontHeight = contextObject.Portions[0].PortionFormat.GetEffective().FontHeight;
+    float fontHeight = (contextObject.Portions.Count == 0) ? 0 : contextObject.Portions[0].PortionFormat.GetEffective().FontHeight;
     double spaceFixCoefficient = 5d/4d;
     if (!isFirst)
     {

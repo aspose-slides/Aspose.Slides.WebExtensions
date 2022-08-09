@@ -29,9 +29,25 @@ namespace Aspose.Slides.WebExtensions.Helpers
             }
             else
             {
-                var imgSrcPath = model.Output.GetResourcePath(shape);
+                var imgSrcPath = "";
                 var slidesPath = model.Global.Get<string>("slidesPath");
-                
+
+                try
+                {
+                    imgSrcPath = model.Output.GetResourcePath(shape as Shape);
+                }
+                catch (ArgumentException)
+                {
+                    if (shape is OleObjectFrame frame)
+                    {
+                        imgSrcPath = model.Output.GetResourcePath(frame.SubstitutePictureFormat?.Picture?.Image);
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
                 string result = ShapeHelper.ConvertPathToRelative(imgSrcPath, slidesPath);
                 return result;
             }
