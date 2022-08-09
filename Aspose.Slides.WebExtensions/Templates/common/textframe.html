@@ -31,6 +31,6 @@
         subModel.Local.Put("isFirst", i == 0);
         subModel.Local.Put("isLast", i == (contextObject.Paragraphs.Count - 1));
 
-        @Include("paragraph", subModel)
+        @Raw(TextHelper.CleanSpanSpace(@Include("paragraph", subModel).ToString()));
     }
 </div>

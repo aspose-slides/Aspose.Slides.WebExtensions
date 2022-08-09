@@ -9,16 +9,12 @@
     
     double[] margins = new double[] { - Math.Abs(paragraphFormatEffective.Indent), 
                                         0, 
-                                        Math.Abs(paragraphFormatEffective.Indent),
+                                        0,
                                         0 };
                                         
     if (paragraphFormatEffective.Bullet.Type == BulletType.Picture)
     {
         margins[2] -= TextHelper.GetPictureBulletSize(paragraphFormatEffective, Model);
-    }
-    else
-    {
-        margins[2] = -4;
     }
     
     var bulletSymbol = paragraphFormatEffective.Bullet.ActualBulletValue;

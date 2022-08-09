@@ -430,5 +430,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
         {
             return paragraph.ParagraphFormat.GetEffective().Bullet.Type > BulletType.None && (paragraph.Text.Length > 0 || paragraph.Text.Contains("\\n"));
         }
+        public static string CleanSpanSpace(string paragraph) 
+        {
+            return System.Text.RegularExpressions.Regex.Replace(paragraph, @"span>\s+<span", "span><span");
+        }
     }
 }
