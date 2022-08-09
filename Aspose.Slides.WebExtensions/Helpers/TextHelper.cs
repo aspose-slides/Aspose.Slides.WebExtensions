@@ -165,7 +165,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
             string escapedTextStyle = "";
             if (format.Escapement != 0)
             {
-                escapedTextStyle = string.Format("position: relative; top: {0}px;", -fontHeight * format.Escapement / 100);
+                escapedTextStyle = string.Format("position: relative; top: {0}px;", (-fontHeight * format.Escapement / 100).ToCssNumber());
                 fontHeight *= 0.67f;
             }
 
@@ -227,9 +227,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
             string outerShadowStyle = "";
             if (format.EffectFormat.OuterShadowEffect != null)
                 outerShadowStyle = string.Format("text-shadow: {0}px {1}px {2}px {3};",
-                                                    shadowFix * format.EffectFormat.OuterShadowEffect.Distance * Math.Cos((Math.PI / 180) * format.EffectFormat.OuterShadowEffect.Direction),
-                                                    shadowFix * format.EffectFormat.OuterShadowEffect.Distance * Math.Sin((Math.PI / 180) * format.EffectFormat.OuterShadowEffect.Direction),
-                                                    format.EffectFormat.OuterShadowEffect.BlurRadius,
+                                                    (shadowFix * format.EffectFormat.OuterShadowEffect.Distance * Math.Cos((Math.PI / 180) * format.EffectFormat.OuterShadowEffect.Direction)).ToCssNumber(),
+                                                    (shadowFix * format.EffectFormat.OuterShadowEffect.Distance * Math.Sin((Math.PI / 180) * format.EffectFormat.OuterShadowEffect.Direction)).ToCssNumber(),
+                                                    format.EffectFormat.OuterShadowEffect.BlurRadius.ToCssNumber(),
                                                     ColorHelper.GetRrbaColorString(format.EffectFormat.OuterShadowEffect.ShadowColor));
 
             string strokeStyle = "";
@@ -240,11 +240,11 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
             string spacingStyle = "";
             if (format.Spacing != 0)
-                spacingStyle = string.Format("letter-spacing: {0}px;", format.Spacing);
+                spacingStyle = string.Format("letter-spacing: {0}px;", format.Spacing.ToCssNumber());
 
             string fontBoldItalicStyle = GetTextFontItalicStyle(format);
             string fontFamilyStyle = string.Format("font-family: {0};", format.LatinFont);
-            string fontHeightStyle = string.Format("font-size: {0}px;", fontHeight);
+            string fontHeightStyle = string.Format("font-size: {0}px;", fontHeight.ToCssNumber());
             string fontCapStyle = "";
             if (format.TextCapType == TextCapType.All)
                 fontCapStyle = "text-transform: uppercase;";
@@ -321,12 +321,12 @@ namespace Aspose.Slides.WebExtensions.Helpers
             string outerShadowStyle = "";
             if (firstPortionFormatEffective.EffectFormat.OuterShadowEffect != null)
                 outerShadowStyle = string.Format("text-shadow: {0}px {1}px {2}px {3};",
-                                                    shadowFix * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Distance * Math.Cos((Math.PI / 180) * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Direction),
-                                                    shadowFix * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Distance * Math.Sin((Math.PI / 180) * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Direction),
-                                                    firstPortionFormatEffective.EffectFormat.OuterShadowEffect.BlurRadius,
+                                                    (shadowFix * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Distance * Math.Cos((Math.PI / 180) * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Direction)).ToCssNumber(),
+                                                    (shadowFix * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Distance * Math.Sin((Math.PI / 180) * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Direction)).ToCssNumber(),
+                                                    (firstPortionFormatEffective.EffectFormat.OuterShadowEffect.BlurRadius).ToCssNumber(),
                                                     ColorHelper.GetRrbaColorString(firstPortionFormatEffective.EffectFormat.OuterShadowEffect.ShadowColor));
 
-            string fontHeightStyle = string.Format("font-size: {0}px;", format.Bullet.Height * firstPortionFormatEffective.FontHeight / 100);
+            string fontHeightStyle = string.Format("font-size: {0}px;", (format.Bullet.Height * firstPortionFormatEffective.FontHeight / 100f).ToCssNumber());
             string fontFamilyStyle = string.Format("font-family: {0};", bulletFont);
 
             return string.Join(" ", fontBoldItalicStyle, fontFill, outerShadowStyle, fontHeightStyle, fontFamilyStyle);

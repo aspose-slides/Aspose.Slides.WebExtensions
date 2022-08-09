@@ -8,7 +8,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
     {
         public static string GetRrbaColorString(Color color)
         {
-            return string.Format("rgba({0}, {1}, {2}, {3})", color.R, color.G, color.B, color.A / 255f);
+            return string.Format("rgba({0}, {1}, {2}, {3})", color.R, color.G, color.B, (color.A / 255f).ToCssNumber());
         }
     }
 }

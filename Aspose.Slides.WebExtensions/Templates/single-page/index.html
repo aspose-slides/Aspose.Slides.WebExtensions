@@ -76,7 +76,7 @@
         </div>
     </div>
         
-    <button class="navigationButton" id="PrevSlide" style="left: @(Model.Object.SlideSize.Size.Width / 2 - 100 - 5)px; top: @(Model.Object.SlideSize.Size.Height + 40)px;">Prev Slide</button>    
-    <button class="navigationButton" id="NextSlide" style="left: @(Model.Object.SlideSize.Size.Width / 2 + 5)px; top: @(Model.Object.SlideSize.Size.Height + 40)px;">Next Slide</button>
+    <button class="navigationButton" id="PrevSlide" style="left: @((Model.Object.SlideSize.Size.Width / 2 - 100 - 5).ToCssNumber())px; top: @((Model.Object.SlideSize.Size.Height + 40).ToCssNumber())px;">Prev Slide</button>    
+    <button class="navigationButton" id="NextSlide" style="left: @((Model.Object.SlideSize.Size.Width / 2 + 5).ToCssNumber())px; top: @((Model.Object.SlideSize.Size.Height + 40).ToCssNumber())px;">Next Slide</button>
 </body>
 </html>
