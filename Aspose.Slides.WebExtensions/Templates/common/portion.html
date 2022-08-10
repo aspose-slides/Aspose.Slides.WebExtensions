@@ -5,6 +5,7 @@
     var parentTextFrame = Model.Local.Get<TextFrame>("parentTextFrame");
     var tableContentFlag = Model.Local.Get<bool>("tableContent");
     var isLast = Model.Local.ContainsKey("isLast") && Model.Local.Get<bool>("isLast");
+    var isFirst = Model.Local.ContainsKey("isFirst") && Model.Local.Get<bool>("isFirst");
     var clickHyperlink = contextObject.PortionFormat.GetEffective().HyperlinkClick;
     string hyperlink = clickHyperlink != null ? clickHyperlink.ExternalUrl : "";
 }
@@ -15,9 +16,10 @@
     {
         return TextHelper.GetTextStyle(portion.PortionFormat.GetEffective(), textFrame.TextFrameFormat.GetEffective(), isTableContent, Model);
     }
-    string FixVerticalTabulation(string text, bool isLast)
+    string FixVerticalTabulation(string text, bool isLast, bool isFirst)
     {
         if (text.Length > 1 && text.EndsWith("\v") && isLast) text = text.Substring(0, text.Length - 1) + "<br /><br />";
+        else if (string.IsNullOrEmpty(text) && isLast && isFirst) text = " ";
         return text.Replace("\v", "<br />");
     }
 }
@@ -26,7 +28,7 @@
 {
     @Raw("<a href=\"" + hyperlink + "\">");
 }
-<span class="portion" style="@GetTextStyle(contextObject, parentTextFrame, tableContentFlag)">@Raw(FixVerticalTabulation(contextObject.Text, isLast))</span>
+<span class="portion" style="@GetTextStyle(contextObject, parentTextFrame, tableContentFlag)">@Raw(FixVerticalTabulation(contextObject.Text, isLast, isFirst))</span>
 @if (!string.IsNullOrEmpty(hyperlink))
 {
     @Raw("</a>");

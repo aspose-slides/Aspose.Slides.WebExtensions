@@ -59,6 +59,7 @@
         var subModel = Model.SubModel(portion);
         subModel.Local.Put("parentTextFrame", parentTextFrame);
         subModel.Local.Put("tableContent", tableContentFlag);
+        subModel.Local.Put("isFirst", portion == contextObject.Portions[0]);
         subModel.Local.Put("isLast", portion == contextObject.Portions[contextObject.Portions.Count - 1]);
         @Raw(Include("portion", subModel).ToString().Replace(Environment.NewLine, ""));
     }
