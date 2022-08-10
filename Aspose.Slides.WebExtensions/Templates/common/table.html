@@ -39,7 +39,7 @@
 <table class="table" id="@id" style="@positionStyle" @Raw(animationAttributes)>
     @for (int i = 0; i < contextObject.Rows.Count; i++)
     {
-        var rowHeight = string.Format("height: {0}px", contextObject.Rows[i].Height);
+        var rowHeight = string.Format("height: {0}px", (int)(contextObject.Rows[i].Height));
         <tr style="@rowHeight">
         @for (int j = 0; j < contextObject.Columns.Count; j++)
         {
@@ -47,7 +47,7 @@
             if (cell.FirstRowIndex ==  i && cell.FirstColumnIndex == j)
             {
                 var spans = cell.IsMergedCell ? string.Format("rowspan=\"{0}\" colspan=\"{1}\"", cell.RowSpan, cell.ColSpan) : "";
-                var cellWidth = cell.Width + " px";
+                var cellWidth = (int)(cell.Width) + " px";
                 <td width="@cellWidth" @Raw(spans) style="@GetCellStyle(cell)">
                     @{
                         for(int k = 0; k < cell.TextFrame.Paragraphs.Count; k++)
