@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\ColorHelper.cs" />
-    <Compile Include="Helpers\CssNumbersExtension.cs" />
+    <Compile Include="Helpers\NumberHelper.cs" />
     <Compile Include="Helpers\FontHelper.cs" />
     <Compile Include="Helpers\PatternGenerator.cs" />
     <Compile Include="Helpers\ShapeHelper.cs" />
