@@ -60,6 +60,7 @@
         subModel.Local.Put("parentTextFrame", parentTextFrame);
         subModel.Local.Put("tableContent", tableContentFlag);
         subModel.Local.Put("isLast", portion == contextObject.Portions[contextObject.Portions.Count - 1]);
+        subModel.Local.Put("paragraph", contextObject);
         @Raw(Include("portion", subModel).ToString().Replace(Environment.NewLine, ""));
     }
 </p>

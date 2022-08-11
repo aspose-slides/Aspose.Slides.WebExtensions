@@ -252,6 +252,15 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 fontCapStyle = "font-variant: small-caps;";
 
             string whiteSpacePreStyle = "white-space: pre-wrap;";
+
+            string lineSpacingStyle = "";
+            if (model.Local.ContainsKey("paragraph")) 
+            {
+                Paragraph nestingParagraph = model.Local.Get<Paragraph>("paragraph");
+                var nestingFormat = nestingParagraph.ParagraphFormat.GetEffective();
+                lineSpacingStyle = TextHelper.GetLineSpacingStyle(nestingFormat, fontHeight);
+            }
+
             return string.Join(" ",
                             fontBoldItalicStyle,
                             fontFamilyStyle,
@@ -263,16 +272,28 @@ namespace Aspose.Slides.WebExtensions.Helpers
                             strokeStyle,
                             spacingStyle,
                             fontCapStyle,
-                            whiteSpacePreStyle);
+                            whiteSpacePreStyle,
+                            lineSpacingStyle);
 
         }
 
         public static string GetTextStyle(IParagraphFormatEffectiveData format, TemplateContext<Paragraph> model)
         {
             string alignment = TextHelper.GetHorizontalAlignmentStyle(format.Alignment);
-            float fontHeight = (((Paragraph)(model.Object)).Portions.Count == 0) ? 0 : ((Paragraph)(model.Object)).Portions[0].PortionFormat.GetEffective().FontHeight;
-            string lineSpacingStyle = TextHelper.GetLineSpacingStyle(format, fontHeight);
+            float fontHeight = float.MaxValue;
+            Paragraph paragraph = (Paragraph)(model.Object);
+            IPortionCollection portions = paragraph.Portions;
+            foreach(Portion portion in portions)
+            {
+                float portionLocalFontHeight = portion.PortionFormat.GetEffective().FontHeight;
+                if (portionLocalFontHeight < fontHeight) fontHeight = portionLocalFontHeight;
+            }
 
+            string lineSpacingStyle = "";
+            if (fontHeight < float.MaxValue) lineSpacingStyle = TextHelper.GetLineSpacingStyle(format, fontHeight);
+            if (portions.Count < 2 && format.Bullet.Type == BulletType.None) lineSpacingStyle = "";
+
+            
             return string.Join(" ", alignment, lineSpacingStyle);
         }
 
