@@ -38,9 +38,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 }
                 catch (ArgumentException)
                 {
-                    if (shape is OleObjectFrame frame)
+                    if (shape is OleObjectFrame frame && frame.SubstitutePictureFormat != null && frame.SubstitutePictureFormat.Picture != null)
                     {
-                        imgSrcPath = model.Output.GetResourcePath(frame.SubstitutePictureFormat?.Picture?.Image);
+                        imgSrcPath = model.Output.GetResourcePath(frame.SubstitutePictureFormat.Picture.Image);
                     }
                     else
                     {

@@ -311,7 +311,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     break;
             }
 
-            IFontData bulletFont = firstPortionFormatEffective?.LatinFont;
+            IFontData bulletFont = (firstPortionFormatEffective != null) ? firstPortionFormatEffective.LatinFont : null;
             if (format.Bullet.IsBulletHardFont && format.Bullet.Type != BulletType.Numbered)
                 bulletFont = format.Bullet.Font;
 
@@ -319,7 +319,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                              * (isTableContent ? 0.5f : 1);
 
             string outerShadowStyle = "";
-            if (firstPortionFormatEffective?.EffectFormat.OuterShadowEffect != null)
+            if (firstPortionFormatEffective !=null && firstPortionFormatEffective.EffectFormat.OuterShadowEffect != null)
                 outerShadowStyle = string.Format("text-shadow: {0}px {1}px {2}px {3};",
                                                     shadowFix * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Distance * Math.Cos((Math.PI / 180) * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Direction),
                                                     shadowFix * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Distance * Math.Sin((Math.PI / 180) * firstPortionFormatEffective.EffectFormat.OuterShadowEffect.Direction),
