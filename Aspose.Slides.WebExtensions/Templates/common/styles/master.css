@@ -2,9 +2,9 @@
 
 @{
     var effectiveBg = Model.Object.Background.GetEffective();
-    var color = ColorHelper.GetRrbaColorString(effectiveBg.FillFormat.SolidFillColor); 
+    var backgroundStyle = FillHelper.GetFillStyle(effectiveBg.FillFormat, Model);
 }
 
 .master-bg {
-    background-color: @color;
+    @Raw(backgroundStyle)
 }
