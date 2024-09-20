@@ -52,8 +52,43 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
             return result;
         }
+        public static string Crop<T>(IPPImage image, TemplateContext<T> model, float cropLeft, float cropTop, float cropRight, float cropBottom)
+        {
+            if (cropLeft != 0f || cropTop != 0f || cropRight != 0f || cropBottom != 0f)
+            {
+                Image originImage = Image.FromStream(new MemoryStream(image.BinaryData));
 
-        public static string Crop(string imgSrc, float cropLeft, float cropTop, float cropRight, float cropBottom)
+                Rectangle srcRect = new Rectangle(
+                            (int)(originImage.Width * cropLeft / 100),
+                            (int)(originImage.Height * cropTop / 100),
+                            (int)(originImage.Width * (100 - cropLeft - cropRight) / 100),
+                            (int)(originImage.Height * (100 - cropTop - cropBottom) / 100));
+                Rectangle destRect = new Rectangle(0, 0, srcRect.Width, srcRect.Height);
+
+                Bitmap resultBmp = new Bitmap(destRect.Width, destRect.Height);
+                using (Graphics g = Graphics.FromImage(resultBmp))
+                {
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.DrawImage(originImage, destRect, srcRect, GraphicsUnit.Pixel);
+                    g.Flush();
+                }
+
+                var slidesPath = model.Global.Get<string>("slidesPath");
+                string convertedFileName = GetImageURL<T>(image, model).Replace(".png", "cr.png");
+                string convertedFilePath = Path.Combine(slidesPath, convertedFileName);
+                string imagesPath = Path.GetDirectoryName(convertedFilePath);
+                if (!Directory.Exists(imagesPath))
+                {
+                    Directory.CreateDirectory(imagesPath);
+                }
+
+                resultBmp.Save(convertedFilePath, ImageFormat.Png);
+                return convertedFileName;
+            }
+            return GetImageURL<T>(image, model);
+        }
+        public static string CropEmbed(string imgSrc, float cropLeft, float cropTop, float cropRight, float cropBottom)
         {
             const string b64prefix = "data:image/png;base64, ";
             if (cropLeft != 0f || cropTop != 0f || cropRight != 0f || cropBottom != 0f)
