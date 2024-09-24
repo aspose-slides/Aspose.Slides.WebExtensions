@@ -19,6 +19,11 @@
       var commentsType = Model.Global.ContainsKey("commentsPosition") ? Model.Global.Get<string>("commentsPosition") : null;
       var hasComments = (commentsType != null) && (commentsType != "None");
       var commentsAreaWidth = Model.Global.ContainsKey("commentsAreaWidth") ? Model.Global.Get<int>("commentsAreaWidth") : 170;
+      var commentsAreaColor = Model.Global.ContainsKey("commentsAreaColor") ? Model.Global.Get<Color>("commentsAreaColor") : Color.FromArgb(0x87, 0xcd, 0xeb);
+      var commentsBorderColor = ColorHelper.DensifyColor(commentsAreaColor);
+
+      var areaColor = ColorHelper.GetRrbaColorString(commentsAreaColor);
+      var borderColor = ColorHelper.GetRrbaColorString(commentsBorderColor);
 
       float slideWidth = Model.Object.SlideSize.Size.Width + margin / 2;
       float slideHeight = Model.Object.SlideSize.Size.Height + margin / 2;
@@ -67,8 +72,8 @@
             width: @(NumberHelper.ToCssNumber(commentsAreaWidth + 1) + "px");
             height: @(NumberHelper.ToCssNumber(Model.Object.SlideSize.Size.Height + 1) + "px");
             font-size: 0.7em;
-            background: #87cdeb;
-            border: 2px solid #2f528f;
+            background: @(areaColor);
+            border: 2px solid @(borderColor);
         </text>
     }
 }

@@ -10,5 +10,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
         {
             return string.Format("rgba({0}, {1}, {2}, {3})", color.R, color.G, color.B, NumberHelper.ToCssNumber(color.A / 255f));
         }
+        public static Color DensifyColor(Color color)
+        {
+            return Color.FromArgb((byte)(color.R / 2.5), (byte)(color.G / 2.5), (byte)(color.B / 2.5));
+        }
     }
 }
