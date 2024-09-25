@@ -79,7 +79,7 @@ namespace Aspose.Slides.WebExtensions.Tests
                     {
                         CommentsPosition = CommentsPositions.Right,
                         CommentsAreaWidth = 250,
-                        CommentsAreaColor = Color.DarkSeaGreen
+                        CommentsAreaColor = Color.FromArgb(143, 188, 143)
 
                     });
                 document.Save();

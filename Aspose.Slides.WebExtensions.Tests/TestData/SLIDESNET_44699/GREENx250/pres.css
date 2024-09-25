@@ -18,7 +18,7 @@
     }
     
     .slide {
-        width: 1115px;
+        width: 1215px;
         height: 545px;
         outline: 1px solid #c6c6c6;
         overflow: hidden;
@@ -34,11 +34,11 @@
             display: block;
             position: relative;
             left: 960px;
-            width: 151px;
+            width: 251px;
             height: 541px;
             font-size: 0.7em;
-            background: rgba(135, 206, 235, 1);
-            border: 2px solid rgba(54, 82, 94, 1);
+            background: rgba(143, 188, 143, 1);
+            border: 2px solid rgba(57, 75, 57, 1);
         }
 .comments-header {
     border-bottom: 1px solid black;
