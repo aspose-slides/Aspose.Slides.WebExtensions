@@ -101,6 +101,8 @@ namespace Aspose.Slides.WebExtensions
             document.Global.Put("scriptsPath", outputPath);
             document.Global.Put("notesPosition", notesCommentsLayoutingOptions.NotesPosition.ToString());
             document.Global.Put("commentsPosition", notesCommentsLayoutingOptions.CommentsPosition.ToString());
+            document.Global.Put("commentsAreaWidth", notesCommentsLayoutingOptions.CommentsAreaWidth);
+            document.Global.Put("commentsAreaColor", notesCommentsLayoutingOptions.CommentsAreaColor);
 
             document.AddCommonInputOutput(options, templatesPath, outputPath, pres);
 
