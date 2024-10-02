@@ -49,6 +49,13 @@
                 slideIndicies[i++] = slide.SlideNumber-1;
             }
         }
+        else
+        {
+            for(int i = 0; i < slideIndicies.Length; i++)
+            {
+                slideIndicies[i]--;
+            }
+        }
         @foreach (int sId in slideIndicies)
         {
             Slide slide = (Slide)contextObject.Slides[sId];
