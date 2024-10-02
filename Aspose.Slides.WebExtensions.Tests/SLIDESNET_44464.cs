@@ -37,7 +37,7 @@ namespace Aspose.Slides.WebExtensions.Tests
                     },
                     TemplatePath,
                     OutputPath, 
-                    new int[] { 0, 1, 2, 3, 5, 8, 13 });
+                    new int[] { 1, 1, 2, 3, 5, 8, 13 });
                 document.Save();
             }
 
