@@ -9,41 +9,12 @@ using System.Drawing;
 using Aspose.Slides.Charts;
 using Aspose.Slides.WebExtensions.Helpers;
 using Aspose.Slides.Export;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Aspose.Slides.WebExtensions
 {
     public static class PresentationExtensions
     {
-        public static WebDocument ToSinglePageWebDocument(
-            this Presentation pres,
-            string templatesPath,
-            string outputPath)
-        {
-            var options = new WebDocumentOptions
-            {
-                TemplateEngine = new RazorTemplateEngine(),
-                OutputSaver = new FileOutputSaver(),
-                EmbedImages = false
-            };
-
-            return ToSinglePageWebDocument(pres, options, templatesPath, outputPath);
-        }
-
-        public static WebDocument ToMultiPageWebDocument(
-            this Presentation pres,
-            string templatesPath,
-            string outputPath)
-        {
-            var options = new WebDocumentOptions
-            {
-                TemplateEngine = new RazorTemplateEngine(),
-                OutputSaver = new FileOutputSaver(),
-                EmbedImages = false
-            };
-
-            return ToMultiPageWebDocument(pres, options, templatesPath, outputPath);
-        }
-
         public static void SetGlobals(WebDocument document, WebDocumentOptions options, string outputPath)
         {
             string imagesPath = Path.Combine(outputPath, "images");
@@ -62,26 +33,26 @@ namespace Aspose.Slides.WebExtensions
 
         public static WebDocument ToSinglePageWebDocument(
             this Presentation pres,
+            string templatesPath,
+            string outputPath)
+        {
+            var options = new WebDocumentOptions
+            {
+                TemplateEngine = new RazorTemplateEngine(),
+                OutputSaver = new FileOutputSaver(),
+                EmbedImages = false
+            };
+
+            return ToSinglePageWebDocument(pres, options, templatesPath, outputPath);
+        }
+
+        public static WebDocument ToSinglePageWebDocument(
+            this Presentation pres,
             WebDocumentOptions options,
             string templatesPath,
             string outputPath)
         {
-            CheckArguments(options, templatesPath, outputPath);
-
-            WebDocument document = new WebDocument(options);
-
-            SetGlobals(document, options, outputPath);
-            document.Global.Put("slidesPath", outputPath);
-            document.Global.Put("stylesPath", outputPath);
-            document.Global.Put("scriptsPath", outputPath);
-
-            document.AddCommonInputOutput(options, templatesPath, outputPath, pres);
-            
-
-            if (!options.EmbedImages)
-                document.AddThumbnailsOutput(document.Global.Get<string>("imagesPath"), pres);
-
-            return document;
+            return ToSinglePageWebDocument(pres, options, templatesPath, outputPath, null, null);
         }
 
         public static WebDocument ToSinglePageWebDocument(
@@ -89,6 +60,27 @@ namespace Aspose.Slides.WebExtensions
             WebDocumentOptions options,
             string templatesPath,
             string outputPath,
+            int[] slideIndicies)
+        {
+            return ToSinglePageWebDocument(pres, options, templatesPath, outputPath, slideIndicies, null);
+        }
+
+        public static WebDocument ToSinglePageWebDocument(
+            this Presentation pres,
+            WebDocumentOptions options,
+            string templatesPath,
+            string outputPath,
+            INotesCommentsLayoutingOptions notesCommentsLayoutingOptions)
+        {
+            return ToSinglePageWebDocument(pres, options, templatesPath, outputPath, null, notesCommentsLayoutingOptions);
+        }
+
+        public static WebDocument ToSinglePageWebDocument(
+            this Presentation pres,
+            WebDocumentOptions options,
+            string templatesPath,
+            string outputPath,
+            int[] slideIndicies,
             INotesCommentsLayoutingOptions notesCommentsLayoutingOptions)
         {
             CheckArguments(options, templatesPath, outputPath);
@@ -99,8 +91,12 @@ namespace Aspose.Slides.WebExtensions
             document.Global.Put("slidesPath", outputPath);
             document.Global.Put("stylesPath", outputPath);
             document.Global.Put("scriptsPath", outputPath);
-            document.Global.Put("notesPosition", notesCommentsLayoutingOptions.NotesPosition.ToString());
-            document.Global.Put("commentsPosition", notesCommentsLayoutingOptions.CommentsPosition.ToString());
+            if (notesCommentsLayoutingOptions != null)
+            {
+                document.Global.Put("notesPosition", notesCommentsLayoutingOptions.NotesPosition.ToString());
+                document.Global.Put("commentsPosition", notesCommentsLayoutingOptions.CommentsPosition.ToString());
+            }
+            document.Global.Put("slideIndicies", slideIndicies);
             document.Global.Put("commentsAreaWidth", notesCommentsLayoutingOptions.CommentsAreaWidth);
             document.Global.Put("commentsAreaColor", notesCommentsLayoutingOptions.CommentsAreaColor);
 
@@ -110,6 +106,21 @@ namespace Aspose.Slides.WebExtensions
                 document.AddThumbnailsOutput(document.Global.Get<string>("imagesPath"), pres);
 
             return document;
+        }
+
+        public static WebDocument ToMultiPageWebDocument(
+            this Presentation pres,
+            string templatesPath,
+            string outputPath)
+        {
+            var options = new WebDocumentOptions
+            {
+                TemplateEngine = new RazorTemplateEngine(),
+                OutputSaver = new FileOutputSaver(),
+                EmbedImages = false
+            };
+
+            return ToMultiPageWebDocument(pres, options, templatesPath, outputPath);
         }
 
         public static WebDocument ToMultiPageWebDocument(

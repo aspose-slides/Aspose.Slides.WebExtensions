@@ -12,6 +12,7 @@
     var commentsType = Model.Global.ContainsKey("commentsPosition") ? Model.Global.Get<string>("commentsPosition") : null;
     var hasComments = (commentsType != null) && (commentsType != "None");
     var commentsAreaWidth = Model.Global.ContainsKey("commentsAreaWidth") ? Model.Global.Get<int>("commentsAreaWidth") : 170;
+    var slideIndicies = Model.Global.ContainsKey("slideIndicies") ? Model.Global.Get<int[]>("slideIndicies") : null;
 }
 
 <!DOCTYPE html>
@@ -39,8 +40,18 @@
         </div>
         <div id="blackboard" class="slide" style="background-color: #000000; outline: 0; display: none;">
         </div>
-        @foreach (Slide slide in contextObject.Slides)
+        @if (slideIndicies == null)
         {
+            int i = 0;
+            slideIndicies = new int[contextObject.Slides.Count];
+            foreach(Slide slide in contextObject.Slides)
+            {
+                slideIndicies[i++] = slide.SlideNumber-1;
+            }
+        }
+        @foreach (int sId in slideIndicies)
+        {
+            Slide slide = (Slide)contextObject.Slides[sId];
             if (slide.Hidden)
             {
                 continue;
