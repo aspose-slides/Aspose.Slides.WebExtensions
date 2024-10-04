@@ -37,8 +37,8 @@
             width: 251px;
             height: 541px;
             font-size: 0.7em;
-            background: rgba(143, 188, 143, 1);
-            border: 2px solid rgba(57, 75, 57, 1);
+            background: rgba(143, 188, 139, 1);
+            border: 2px solid rgba(47, 82, 143, 1);
         }
 .comments-header {
     border-bottom: 1px solid black;

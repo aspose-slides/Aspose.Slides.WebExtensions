@@ -40,7 +40,7 @@ namespace Aspose.Slides.WebExtensions.Tests
                     {
                         CommentsPosition = CommentsPositions.Right,
                         CommentsAreaWidth = 500,
-                        CommentsAreaColor = Color.Salmon
+                        CommentsAreaColor = Color.FromArgb(250, 128, 114)
 
                     });
                 document.Save();
@@ -79,7 +79,7 @@ namespace Aspose.Slides.WebExtensions.Tests
                     {
                         CommentsPosition = CommentsPositions.Right,
                         CommentsAreaWidth = 250,
-                        CommentsAreaColor = Color.FromArgb(143, 188, 143)
+                        CommentsAreaColor = Color.FromArgb(143, 188, 139)
 
                     });
                 document.Save();
@@ -118,7 +118,7 @@ namespace Aspose.Slides.WebExtensions.Tests
                     {
                         CommentsPosition = CommentsPositions.Right,
                         CommentsAreaWidth = 200,
-                        CommentsAreaColor = Color.PeachPuff
+                        CommentsAreaColor = Color.FromArgb(255, 218, 185)
 
                     });
                 document.Save();
