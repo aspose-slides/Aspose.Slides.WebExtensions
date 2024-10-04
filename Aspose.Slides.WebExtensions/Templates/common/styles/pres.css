@@ -20,7 +20,7 @@
       var hasComments = (commentsType != null) && (commentsType != "None");
       var commentsAreaWidth = Model.Global.ContainsKey("commentsAreaWidth") ? Model.Global.Get<int>("commentsAreaWidth") : 170;
       var commentsAreaColor = Model.Global.ContainsKey("commentsAreaColor") ? Model.Global.Get<Color>("commentsAreaColor") : Color.FromArgb(0x87, 0xcd, 0xeb);
-      var commentsBorderColor = ColorHelper.DensifyColor(commentsAreaColor);
+      var commentsBorderColor = Color.FromArgb(47, 82, 143);
 
       var areaColor = ColorHelper.GetRrbaColorString(commentsAreaColor);
       var borderColor = ColorHelper.GetRrbaColorString(commentsBorderColor);
