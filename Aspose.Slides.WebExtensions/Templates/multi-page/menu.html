@@ -2,6 +2,7 @@
 
 @{
     Presentation contextObject = Model.Object;
+    var slideIndicies = Model.Global.ContainsKey("slideIndicies") ? Model.Global.Get<int[]>("slideIndicies") : null;
 }
 
 <!DOCTYPE html>
@@ -14,15 +15,24 @@
     </head>
    <body>
        <br />
-       @for(int i = 0; i<contextObject.Slides.Count; i++)
+        @if (slideIndicies == null)
         {
-            var slide = contextObject.Slides[i];
+            int i = 0;
+            slideIndicies = new int[contextObject.Slides.Count];
+            foreach(Slide slide in contextObject.Slides)
+            {
+                slideIndicies[i++] = slide.SlideNumber;
+            }
+        }
+        @foreach (int sId in slideIndicies)
+        {
+            Slide slide = (Slide)contextObject.Slides[sId-1];
             if (slide.Hidden)
             {
                 continue;
             }
 
-            var slidePage =  Model.Global.Get<string>("slide" + slide.SlideNumber + "path");
+            var slidePage =  Model.Global.Get<string>("slide" + sId + "path");
             var thumbnailSource = "images\\thumbnail" + slide.SlideNumber + ".png";
 
             if (Model.Global.Get<bool>("embedImages"))
