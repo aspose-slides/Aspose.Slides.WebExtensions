@@ -11,34 +11,26 @@ namespace Aspose.Slides.WebExtensions.Helpers
 {
     public static class SlideHelper
     {
-        private static string GetNeighbourSlide(TemplateContext<Slide> Model, int currentIdxShift, int neighbourIdxShift)
-        {
-            string result = "";
-            Slide current = Model.Object as Slide;
-            if (current != null)
-            {
-                IPresentation presentation = current.Presentation;
-                if (presentation != null)
-                {
-                    for (int i = 0; i < presentation.Slides.Count - 1; i++)
-                    {
-                        if (presentation.Slides[i + currentIdxShift].SlideNumber == current.SlideNumber)
-                        {
-                            result = string.Format("location.href='slide{0}.html';", presentation.Slides[i + neighbourIdxShift].SlideNumber);
-                            break;
-                        }
-                    }
-                }
-            }
-            return result;
-        }
+        static int prevPage = 0;
+        static int nextPage = 2;
+
         public static string GetNextSlide(TemplateContext<Slide> Model)
         {
-            return GetNeighbourSlide(Model, 0, 1);
+            string result = "";
+            int slidesCount = Model.Global.ContainsKey("slideIndicies") 
+                ? Model.Global.Get<int[]>("slideIndicies").Length 
+                : Model.Object.Presentation.Slides.Count;
+
+            if (nextPage<=slidesCount) result = string.Format("location.href='slide{0}.html';", nextPage);
+            nextPage++;
+            return result;
         }
         public static string GetPrevSlide(TemplateContext<Slide> Model)
         {
-            return GetNeighbourSlide(Model, 1, 0);
+            string result = "";
+            if (prevPage > 0) result = string.Format("location.href='slide{0}.html';", prevPage);
+            prevPage++;
+            return result;
         }
         private static string GetNavigationButtonStyle(TemplateContext<Slide> Model, int leftShiftFromCenter, int paddingTop) 
         { 
