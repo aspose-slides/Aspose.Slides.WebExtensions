@@ -31,7 +31,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     using (MemoryStream ms = new MemoryStream())
                     {
                         Bitmap bitmap = MetafileToBitmap(image);
-                        bitmap.Save(ms, ImageFormat.Png);
+                        bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                         ms.Flush();
                         dataSource = ms.ToArray();
                     }
@@ -41,7 +41,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     using (MemoryStream ms = new MemoryStream())
                     {
                         Bitmap bitmap = new Bitmap(image.SystemImage);
-                        bitmap.Save(ms, ImageFormat.Png);
+                        bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                         ms.Flush();
                         dataSource = ms.ToArray();
                     }
@@ -83,7 +83,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     Directory.CreateDirectory(imagesPath);
                 }
 
-                resultBmp.Save(convertedFilePath, ImageFormat.Png);
+                resultBmp.Save(convertedFilePath, System.Drawing.Imaging.ImageFormat.Png);
                 return convertedFileName;
             }
             return GetImageURL<T>(image, model);
@@ -114,7 +114,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                         g.Flush();
                     }
                     MemoryStream resultStream = new MemoryStream();
-                    resultBmp.Save(resultStream, ImageFormat.Png);
+                    resultBmp.Save(resultStream, System.Drawing.Imaging.ImageFormat.Png);
                     return String.Format("{1}{0}", Convert.ToBase64String(resultStream.ToArray()), b64prefix);
                 }
                 throw new NotImplementedException();
@@ -137,7 +137,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 {
                     using (Image initialImage = System.Drawing.Bitmap.FromStream(tiffData))
                     {
-                        initialImage.Save(convertedFilePath, ImageFormat.Png);
+                        initialImage.Save(convertedFilePath, System.Drawing.Imaging.ImageFormat.Png);
                     }
                 }
             }

@@ -77,7 +77,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     bitmap.SetPixel(patternCoords[i], patternCoords[i + 1], foreColor);
 
                 
-                bitmap.Save(ms, ImageFormat.Png);
+                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                 ms.Position = 0;
                 result = "data:image/png;base64," + Convert.ToBase64String(ms.ToArray());
             }

@@ -23,7 +23,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 using (MemoryStream ms = new MemoryStream())
                 using (Bitmap image = GetShapeThumbnail(asShape))
                 {
-                    image.Save(ms, ImageFormat.Png);
+                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                     return "'data:image/png;base64, " + Convert.ToBase64String(ms.ToArray()) + "'";
                 }
             }
