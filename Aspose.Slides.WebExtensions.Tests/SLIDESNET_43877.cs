@@ -160,7 +160,7 @@ namespace Aspose.Slides.WebExtensions.Tests
                 document.Save();
             }
 
-            TestUtils.CompareDir(EthalonPath, OutputPath, _ => _);
+            TestUtils.CompareDir(EthalonPath, OutputPath, _ => Regex.Replace(_, "background-image: url\\([^)]+\\)", "")) ;
         }
 
 

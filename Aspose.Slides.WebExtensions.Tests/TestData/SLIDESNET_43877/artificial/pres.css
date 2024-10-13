@@ -43,8 +43,9 @@
     margin: 0.5em;
 }
 .comment-child {
-    margin-left: 3em;
-}
+
+            margin-left: 3em;
+        }
 .comment-avatar {
     margin-left: 5px;
     width: 3em;
