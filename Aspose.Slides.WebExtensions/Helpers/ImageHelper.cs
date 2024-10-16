@@ -75,7 +75,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 }
 
                 var slidesPath = model.Global.Get<string>("slidesPath");
-                string convertedFileName = GetImageURL<T>(image, model).Replace(".png", "cr.png");
+                string convertedFileName = GetImageURL<T>(image, model).Replace(".png", string.Format("cr{0}.png", (model.Object as PictureFrame).UniqueId));
                 string convertedFilePath = Path.Combine(slidesPath, convertedFileName);
                 string imagesPath = Path.GetDirectoryName(convertedFilePath);
                 if (!Directory.Exists(imagesPath))
