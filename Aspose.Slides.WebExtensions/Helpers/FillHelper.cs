@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Aspose.Slides.WebExtensions.Helpers
 {
@@ -58,10 +57,10 @@ namespace Aspose.Slides.WebExtensions.Helpers
                                         Slide clone = (Slide)pres.Slides[slide.SlideNumber-1];
                                         clone.Shapes.Clear();
                                         clone.LayoutSlide.MasterSlide.Shapes.Clear();
-                                        var bckg = clone.GetImage(1f, 1f);
+                                        var bckg = clone.GetThumbnail(1f, 1f);
                                         using (MemoryStream ms = new MemoryStream())
                                         {
-                                            bckg.Save(ms, ImageFormat.Png);
+                                            bckg.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                                             ms.Flush();
                                             result = string.Format("background-image: url(\'data:image/png;base64, {0}\');", Convert.ToBase64String(ms.ToArray()));
                                         }
