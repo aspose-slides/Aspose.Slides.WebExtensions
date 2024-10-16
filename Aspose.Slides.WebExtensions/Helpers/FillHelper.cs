@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Aspose.Slides.WebExtensions.Helpers
 {
@@ -46,26 +47,23 @@ namespace Aspose.Slides.WebExtensions.Helpers
                         IPPImage fillImage = picture.Image;
                         if (picture.ImageTransform.Count > 0 )
                         {
-                            Slide s = (model.Object as Slide);
-                            if (s != null)
+                            Slide slide = model.Object as Slide;
+                            if (slide != null)
                             {
-                                Presentation p = s.Presentation as Presentation;
-                                using (MemoryStream ms = new MemoryStream())
+                                using (MemoryStream temp = new MemoryStream()) 
                                 {
-                                    p.Save(ms, Export.SaveFormat.Pptx);
-                                    using (Presentation cl = new Presentation(ms))
+                                    slide.Presentation.Save(temp, Export.SaveFormat.Pptx);
+                                    using (Presentation pres = new Presentation(temp))
                                     {
-                                        Slide bckg = cl.Slides[s.SlideNumber-1] as Slide;
-
-                                        bckg.Shapes.Clear();
-                                        bckg.LayoutSlide.MasterSlide.Shapes.Clear();
-                                        Bitmap _bckg = bckg.GetThumbnail(1f, 1f);
-
-                                        using (MemoryStream svd = new MemoryStream())
+                                        Slide clone = (Slide)pres.Slides[slide.SlideNumber-1];
+                                        clone.Shapes.Clear();
+                                        clone.LayoutSlide.MasterSlide.Shapes.Clear();
+                                        var bckg = clone.GetImage(1f, 1f);
+                                        using (MemoryStream ms = new MemoryStream())
                                         {
-                                            _bckg.Save(svd, System.Drawing.Imaging.ImageFormat.Png);
-                                            svd.Flush();
-                                            result = string.Format("background-image: url(\'data:image/png;base64, {0}\');", Convert.ToBase64String(svd.ToArray()));
+                                            bckg.Save(ms, ImageFormat.Png);
+                                            ms.Flush();
+                                            result = string.Format("background-image: url(\'data:image/png;base64, {0}\');", Convert.ToBase64String(ms.ToArray()));
                                         }
                                     }
                                 }

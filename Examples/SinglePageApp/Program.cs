@@ -20,7 +20,7 @@ namespace SinglePageApp
 
         static void ExportDefault()
         {
-            using (Presentation pres = new Presentation("c:\\Users\\Alexander Mosyagin\\Downloads\\comments (6).pptx"))
+            using (Presentation pres = new Presentation("demo.pptx"))
             {
                 WebDocument document = pres.ToSinglePageWebDocument("templates\\single-page", @"single-page-output");
                 document.Save();
