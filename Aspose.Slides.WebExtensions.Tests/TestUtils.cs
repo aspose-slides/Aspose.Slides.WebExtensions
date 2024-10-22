@@ -58,7 +58,7 @@ namespace Aspose.Slides.WebExtensions.Tests
             using (MemoryStream ms = new MemoryStream())
             {
                 using (Bitmap bmp = new Bitmap(filename))
-                    bmp.Save(ms, ImageFormat.Bmp);
+                    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
                 return ms.ToArray();
             }
         }

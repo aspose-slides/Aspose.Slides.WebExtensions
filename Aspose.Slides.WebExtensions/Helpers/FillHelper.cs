@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2001-2020 Aspose Pty Ltd. All Rights Reserved.
 
 using Aspose.Slides.Export.Web;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -41,8 +42,40 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     }
                     else
                     {
-                        IPPImage fillImage = format.PictureFillFormat.Picture.Image;
-                        result = string.Format("background-image: url(\'{0}\');", ImageHelper.GetImageURL(fillImage, model));
+                        var picture = format.PictureFillFormat.Picture;
+                        IPPImage fillImage = picture.Image;
+                        if (picture.ImageTransform.Count > 0 )
+                        {
+                            Slide slide = model.Object as Slide;
+                            if (slide != null)
+                            {
+                                using (MemoryStream temp = new MemoryStream()) 
+                                {
+                                    slide.Presentation.Save(temp, Export.SaveFormat.Pptx);
+                                    using (Presentation pres = new Presentation(temp))
+                                    {
+                                        Slide clone = (Slide)pres.Slides[slide.SlideNumber-1];
+                                        clone.Shapes.Clear();
+                                        clone.LayoutSlide.MasterSlide.Shapes.Clear();
+                                        var bckg = clone.GetThumbnail(1f, 1f);
+                                        using (MemoryStream ms = new MemoryStream())
+                                        {
+                                            bckg.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                                            ms.Flush();
+                                            result = string.Format("background-image: url(\'data:image/png;base64, {0}\');", Convert.ToBase64String(ms.ToArray()));
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                result = string.Format("background-image: url(\'{0}\');", ImageHelper.GetImageURL(fillImage, model));
+                            }
+                        }
+                        else
+                        {
+                            result = string.Format("background-image: url(\'{0}\');", ImageHelper.GetImageURL(fillImage, model));
+                        }
                     }
                     break;
                 case FillType.Gradient:
