@@ -25,6 +25,7 @@ var clipContentCache = {};
 var timelineBarsCache = {};
 var timelinePolysCache = {};
 var exitTimelineIterationCounter = {};
+var transitionTargetSlideAnimationsState = 'next';
 
 $(document).ready(function(){
       
@@ -34,16 +35,17 @@ $(document).ready(function(){
 });
 
 function InitTransitions() {
-    PrepareAndPlayTransition('#slide-1', null);
+    PrepareAndPlayTransition('#slide-1', null, 'next');
     
     $('#PrevSlide').show();
     $('#NextSlide').show();
       
-    $("#PrevSlide").click(function(){ ShowPrev(); });
-    $("#NextSlide").click(function(){ ShowNext(); });
+    $("#PrevSlide").click(function(){ PlayPreviousAnimationsForTarget('slide'); });
+    $("#NextSlide").click(function(){ PlayNextAnimationsForTarget('slide'); });
 }
 
-function PrepareAndPlayTransition(slideId, prevSlideId) {
+function PrepareAndPlayTransition(slideId, prevSlideId, targetSlideAnimationsState) {
+    transitionTargetSlideAnimationsState = targetSlideAnimationsState || 'next';
     
     AnimateShapes(slideId);
     setTimeout(function() { PlayTransition(slideId, prevSlideId);}, 10); // fix for starting slide animation (browser needs some time to cacth up after js performance demanging generating operations)
@@ -155,20 +157,38 @@ function PlayTransitionBegin() {
 }
 
 function PlayTransitionEnd() {
-    if(currentVisiblePage != 1) {
-        $("#PrevSlide").prop('disabled',false);
-    }
-    
-    if(currentVisiblePage != maxVisiblePage) {
-        $("#NextSlide").prop('disabled',false);
-    }
-    
     if (@animateShapes) {
         RestoreAllEffects(prevAnimations);
-        PlayNextAnimationsForTarget('slide');
+        if (transitionTargetSlideAnimationsState == 'all') {
+            FinishAnimationsForTarget('slide');
+        }
+        else {
+            PlayNextAnimationsForTarget('slide', false);
+        }
+    }
+    else {
+        UpdateNavigationButtonsState();
     }
     
     SetThumbnailClickHandler();
+}
+
+function UpdateNavigationButtonsState() {
+    var canGoPrev = currentVisiblePage != 1;
+    var canGoNext = currentVisiblePage != maxVisiblePage;
+    var slideAnimationIndex = shapeAnimationsIndices['slide'];
+    var nextSlideAnimationIndex = GetNextPlayableAnimationIndex('slide', slideAnimationIndex == null ? 0 : slideAnimationIndex + 1);
+
+    if (slideAnimationIndex != null && slideAnimationIndex >= 0) {
+        canGoPrev = true;
+    }
+
+    if (nextSlideAnimationIndex >= 0 && animations['slide'] != null && nextSlideAnimationIndex < animations['slide'].length) {
+        canGoNext = true;
+    }
+
+    $("#PrevSlide").prop('disabled', !canGoPrev);
+    $("#NextSlide").prop('disabled', !canGoNext);
 }
 
 function ResetAnimationProperties() {
@@ -245,15 +265,31 @@ function PrepareAllEffects(animations) {
     }
 }
 
-function PlayNextAnimationsForTarget(target) {
+function PlayNextAnimationsForTarget(target, skipEmptySteps) {
     
     if (animations[target] != null) {
     
-        var index = shapeAnimationsIndices[target];
-        index++;
-        index = index % animations[target].length;
+        if (skipEmptySteps == null) {
+            skipEmptySteps = true;
+        }
+
+        var index = shapeAnimationsIndices[target] + 1;
+        if (skipEmptySteps) {
+            index = GetNextPlayableAnimationIndex(target, index);
+        }
         
-        
+        if (index >= animations[target].length) {
+            if (target == 'slide' && shapeAnimationsIndices[target] != -1) {
+                ShowNext();
+                return;
+            }
+
+            index = GetFirstPlayableAnimationIndex(target);
+            if (index == -1) {
+                return;
+            }
+        }
+
         if (target == 'slide' && index == 0 && shapeAnimationsIndices[target] != -1) {
             ShowNext();
             return;
@@ -275,6 +311,7 @@ function PlayNextAnimationsForTarget(target) {
         shapeAnimationsIndices[target] = index;
         
         PlayEffectsTimeline(animations[target][index]);
+        UpdateNavigationButtonsState();
     }
     else if (target == 'slide')
     {
@@ -282,6 +319,117 @@ function PlayNextAnimationsForTarget(target) {
             noAnimationSlideClick = true;
         else
             ShowNext();
+    }
+}
+
+function PlayPreviousAnimationsForTarget(target) {
+    if (animations[target] != null) {
+        var index = shapeAnimationsIndices[target];
+
+        if (index == -1) {
+            if (target == 'slide') {
+                ShowPrev();
+            }
+            return;
+        }
+
+        index = GetPreviousPlayableAnimationIndex(target, index - 1);
+        RestoreAnimationsForTarget(target, index);
+        shapeAnimationsIndices[target] = index;
+        UpdateNavigationButtonsState();
+    }
+    else if (target == 'slide')
+    {
+        ShowPrev();
+    }
+}
+
+function RestoreAnimationsForTarget(target, completedIndex) {
+    if (animations[target] == null) {
+        return;
+    }
+
+    for (var i = 0; i < animations[target].length; i++) {
+        RestoreEffectsTimeline(animations[target][i]);
+        PrepareEffectsTimeline(animations[target][i]);
+    }
+
+    for (var i = 0; i <= completedIndex; i++) {
+        RestartEffectsTimeline(animations[target][i]);
+        PauseEffectsTimeline(animations[target][i]);
+        FinishEffectsTimeline(animations[target][i]);
+    }
+}
+
+function FinishAnimationsForTarget(target) {
+    var lastIndex = GetLastPlayableAnimationIndex(target);
+    if (lastIndex == -1) {
+        UpdateNavigationButtonsState();
+        return;
+    }
+
+    RestoreAnimationsForTarget(target, lastIndex);
+    shapeAnimationsIndices[target] = lastIndex;
+    UpdateNavigationButtonsState();
+}
+
+function IsEmptyAnimationStep(target, index) {
+    return animations[target][index] == null || animations[target][index].length == 0;
+}
+
+function GetFirstPlayableAnimationIndex(target) {
+    return GetNextPlayableAnimationIndex(target, 0);
+}
+
+function GetLastPlayableAnimationIndex(target) {
+    if (animations[target] == null) {
+        return -1;
+    }
+
+    for (var i = animations[target].length - 1; i >= 0; i--) {
+        if (!IsEmptyAnimationStep(target, i)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+function GetNextPlayableAnimationIndex(target, index) {
+    if (animations[target] == null) {
+        return index;
+    }
+
+    while (index < animations[target].length && IsEmptyAnimationStep(target, index)) {
+        index++;
+    }
+
+    return index;
+}
+
+function GetPreviousPlayableAnimationIndex(target, index) {
+    if (animations[target] == null) {
+        return index;
+    }
+
+    while (index >= 0 && IsEmptyAnimationStep(target, index)) {
+        index--;
+    }
+
+    return index;
+}
+
+function ReverseEffectsTimeline(effectsCollection) {
+    if (effectsCollection != null) {
+        for (var i = effectsCollection.length - 1; i >= 0; i--) {
+            if (effectsCollection[i].Reverse != null) {
+                effectsCollection[i].Reverse();
+            }
+            else {
+                effectsCollection[i].Restore();
+                effectsCollection[i].Prepare();
+            }
+        }
     }
 }
 
@@ -2894,7 +3042,7 @@ function ShowNext() {
         var slideId = '#slide-' + currentVisiblePage;
         
         if ( @animateTransitions )
-            PrepareAndPlayTransition(slideId, prevSlideId);
+            PrepareAndPlayTransition(slideId, prevSlideId, 'next');
     }
 }
 
@@ -2905,6 +3053,6 @@ function ShowPrev() {
         var slideId = '#slide-' + currentVisiblePage;
         
         if ( @animateTransitions )
-            PrepareAndPlayTransition(slideId, prevSlideId);
+            PrepareAndPlayTransition(slideId, prevSlideId, 'all');
     }
 }
