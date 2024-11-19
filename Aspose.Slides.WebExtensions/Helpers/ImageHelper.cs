@@ -213,6 +213,27 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 transform);
             return positionStyle;
         }
+        public static string GetImageShadowStyle(PictureFrame pictureFrame)
+        {
+            var outerShadow = pictureFrame.EffectFormat.OuterShadowEffect;
+            if (outerShadow != null)
+            {
+                var outerShadowEffective = outerShadow.GetEffective();
+                var xOffset = Math.Cos(2 * Math.PI * outerShadowEffective.Direction / 360) * outerShadowEffective.Distance;
+                var yOffset = Math.Sin(2 * Math.PI * outerShadowEffective.Direction / 360) * outerShadowEffective.Distance;
+                var blur = outerShadowEffective.BlurRadius;
+                var spread = 0;
+                var color = ColorHelper.GetRrbaColorString( outerShadowEffective.ShadowColor);
+                return string.Format(
+                    "box-shadow: {0}px {1}px {2}px {3}px {4};", 
+                    NumberHelper.ToCssNumber(xOffset, 1, true), 
+                    NumberHelper.ToCssNumber(yOffset, 1, true),  
+                    NumberHelper.ToCssNumber(blur, 1, true),   
+                    spread, 
+                    color);
+            }
+            return "";
+        }
         public static string CreateSvgFilter(PictureFrame pictureFrame, string id)
         {
             string svgFilter = "";

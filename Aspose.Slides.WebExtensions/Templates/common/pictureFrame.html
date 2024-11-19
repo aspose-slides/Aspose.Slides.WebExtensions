@@ -40,6 +40,7 @@
     }
     string svgFilter = ImageHelper.CreateSvgFilter(contextObject, id + "-effect");
     string filterStyle = string.IsNullOrEmpty(svgFilter) ? "" : "filter: url(#" + id + "-effect)";
+    string shadowStyle = ImageHelper.GetImageShadowStyle(contextObject);
 }
 @functions
 {
@@ -49,4 +50,4 @@
     }
 }
 @Raw(svgFilter)
-<img src="@imgSrc" id="@id" class="pictureframe" style="@GetImagePositioningStyle(contextObject, origin) @Raw(filterStyle)" @Raw(animationAttributes)/>
+<img src="@imgSrc" id="@id" class="pictureframe" style="@GetImagePositioningStyle(contextObject, origin) @Raw(filterStyle) @Raw(shadowStyle)" @Raw(animationAttributes)/>
