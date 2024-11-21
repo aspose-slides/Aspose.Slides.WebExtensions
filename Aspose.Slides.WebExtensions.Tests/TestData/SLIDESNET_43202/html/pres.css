@@ -1,0 +1,143 @@
+
+
+    body, html {
+        height: 100%;
+    }
+
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: #e6e6e6;
+    }
+
+    .bg {
+            width: 980px;
+            height: 560px;
+            overflow: hidden;
+            position: fixed;
+    }
+    
+    .slide {
+        width: 965px;
+        height: 545px;
+        outline: 1px solid #c6c6c6;
+        overflow: hidden;
+        margin: 10px;
+        position: relative;
+        position: absolute;
+    }
+
+.comments {
+    /*padding: 2em;*/
+    font-family: sans-serif;
+}
+.comments-header {
+    border-bottom: 1px solid black;
+    margin: 1em;
+    font-size: 1.5em;
+    padding: 0.3em;
+}
+.comment {
+    display: flex;
+    flex-direction: row;
+    margin: 0.5em;
+}
+.comment-child {
+
+            margin-left: 3em;
+        }
+.comment-avatar {
+    margin-left: 5px;
+    width: 3em;
+    height: 3em;
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+.comment-content {
+    margin-left: 5px;
+}
+.comment-text {
+}
+.comment-origin {
+    color: gray;
+    font-size: 0.9em;
+}
+.comment-mark {
+    font-size: 1em;
+    position: absolute;
+    font-family: sans-serif;
+    border: 1px solid black;
+    display: inline;
+    background-color: aliceblue;
+    padding: 2px;
+}
+
+    
+    .navigationArea {
+        float: left; 
+        width: 240px; 
+        height: 100%; 
+        overflow-y: auto;
+    }
+    
+    .navigationAreaBorder {
+        border-right: solid #777777 1px;
+    }
+    
+    .navigationSelected {
+        background: #d24726;
+    }
+    
+    .slideThumb {
+        margin: 10px; 
+        margin-bottom: 5px;
+        padding: 5px;
+        padding-bottom: 1px;
+        cursor: pointer;
+    }
+
+    .slide-content {
+        
+    }
+
+    .shape {
+        position: absolute;
+    }
+
+    .table {
+        position: absolute;
+        border-collapse: collapse;
+    }
+
+    .paragraph {
+        position: absolute;
+    }
+
+    .pictureframe {
+        position: absolute;
+    }
+
+    .thumbnail {
+        margin: 10px;
+        margin-top: 10px;
+    }
+      
+    .navigationButton {
+        position: absolute;
+        width: 100px;
+        height: 50px;
+        border: solid black 1px;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 50px;
+        display: none;
+        cursor: pointer;
+    }
+    
+    #svgdiv, #svgdivpaths {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: -100;
+    }
