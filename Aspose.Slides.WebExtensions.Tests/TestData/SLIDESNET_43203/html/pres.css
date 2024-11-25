@@ -11,14 +11,14 @@
     }
 
     .bg {
-            width: 740px;
+            width: 980px;
             height: 560px;
             overflow: hidden;
             position: fixed;
     }
     
     .slide {
-        width: 725px;
+        width: 965px;
         height: 545px;
         outline: 1px solid #c6c6c6;
         overflow: hidden;
