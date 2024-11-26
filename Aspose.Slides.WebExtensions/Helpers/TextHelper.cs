@@ -4,6 +4,7 @@ using Aspose.Slides.Export.Web;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Reflection;
 
 namespace Aspose.Slides.WebExtensions.Helpers
 {
@@ -234,16 +235,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 textDecorationStyle = string.Format("text-decoration: underline {0} {1};", underlineStyle, ColorHelper.GetRrbaColorString(format.UnderlineFillFormat.SolidFillColor));
             }
 
-            var shadowFix = (textFrameFormat.TextVerticalType == TextVerticalType.Vertical || textFrameFormat.TextVerticalType == TextVerticalType.Vertical270 ? -1 : 1)
-                                    *(isTableContent ? 0.5f : 1);
-
-            string outerShadowStyle = "";
-            if (format.EffectFormat.OuterShadowEffect != null)
-                outerShadowStyle = string.Format("text-shadow: {0}px {1}px {2}px {3};",
-                                                    NumberHelper.ToCssNumber(shadowFix * format.EffectFormat.OuterShadowEffect.Distance * Math.Cos((Math.PI / 180) * format.EffectFormat.OuterShadowEffect.Direction)),
-                                                    NumberHelper.ToCssNumber(shadowFix * format.EffectFormat.OuterShadowEffect.Distance * Math.Sin((Math.PI / 180) * format.EffectFormat.OuterShadowEffect.Direction)),
-                                                    NumberHelper.ToCssNumber(format.EffectFormat.OuterShadowEffect.BlurRadius),
-                                                    ColorHelper.GetRrbaColorString(format.EffectFormat.OuterShadowEffect.ShadowColor));
+            string outerShadowStyle = GetShadowEffect(format, textFrameFormat, isTableContent, (model as TemplateContext<Portion>).Object, model.Local.Get<TextFrame>("parentTextFrame"));
 
             string strokeStyle = "";
             if (format.LineFormat.FillFormat.FillType == FillType.Solid)
@@ -295,6 +287,57 @@ namespace Aspose.Slides.WebExtensions.Helpers
                             highlight,
                             lineSpacingStyle });
 
+        }
+
+        private static string GetShadowEffect(IPortionFormatEffectiveData format, ITextFrameFormatEffectiveData textFrameFormat, bool isTableContent, Portion portion, TextFrame parentTextFrame)
+        {
+            var shadowFix = (textFrameFormat.TextVerticalType == TextVerticalType.Vertical || textFrameFormat.TextVerticalType == TextVerticalType.Vertical270 ? -1 : 1)
+                                    * (isTableContent ? 0.5f : 1);
+            var text_shadows = new List<string>();
+
+            if (format.EffectFormat.OuterShadowEffect != null)
+                text_shadows.Add(string.Format(" {0}px {1}px {2}px {3}",
+                                             NumberHelper.ToCssNumber(shadowFix * format.EffectFormat.OuterShadowEffect.Distance * Math.Cos((Math.PI / 180) * format.EffectFormat.OuterShadowEffect.Direction)),
+                                             NumberHelper.ToCssNumber(shadowFix * format.EffectFormat.OuterShadowEffect.Distance * Math.Sin((Math.PI / 180) * format.EffectFormat.OuterShadowEffect.Direction)),
+                                             NumberHelper.ToCssNumber(format.EffectFormat.OuterShadowEffect.BlurRadius),
+                                             ColorHelper.GetRrbaColorString(format.EffectFormat.OuterShadowEffect.ShadowColor)));
+            IShape shp = GetParentShape(parentTextFrame);
+            if (shp != null)
+            {
+                var outerShadow = shp.EffectFormat.OuterShadowEffect;
+                if (outerShadow != null)
+                {
+                    var xOffset = Math.Cos(2 * Math.PI * outerShadow.Direction / 360) * outerShadow.Distance;
+                    var yOffset = Math.Sin(2 * Math.PI * outerShadow.Direction / 360) * outerShadow.Distance;
+                    var blur = outerShadow.BlurRadius;
+                    var spread = 0;
+                    var color = ColorHelper.GetRrbaColorString(outerShadow.ShadowColor.Color);
+
+                    if (shp.FillFormat.FillType == FillType.NoFill)
+                    {
+                        text_shadows.Add(string.Format(
+                            "{0}px {1}px {2}px {4}",
+                            NumberHelper.ToCssNumber(xOffset, 1, true),
+                            NumberHelper.ToCssNumber(yOffset, 1, true),
+                            NumberHelper.ToCssNumber(blur, 1, true),
+                            spread,
+                            color));
+                    }
+                }
+            }
+            if (text_shadows.Count > 0) return string.Format("text-shadow: {0};", string.Join(", ", text_shadows.ToArray()));
+            else return "";
+        }
+
+        private static IShape GetParentShape(TextFrame parentTextFrame)
+        {
+            IBaseSlide slide = parentTextFrame.Slide;
+            foreach(IShape shp in slide.Shapes)
+            {
+                if (shp is AutoShape && parentTextFrame == (shp as AutoShape).TextFrame)
+                    return shp;
+            }
+            return null;
         }
 
         public static string GetTextStyle(IParagraphFormatEffectiveData format, TemplateContext<Paragraph> model)

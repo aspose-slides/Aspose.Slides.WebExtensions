@@ -1,0 +1,114 @@
+
+
+<!DOCTYPE html>
+
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="pres.css" />
+    <link rel="stylesheet" type="text/css" href="master.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js">
+    </script>
+    <script src="animation.js"></script>
+    <script src="effects.js"></script>
+    <script src="navigation.js"></script>
+</head>
+<body>
+    <div class="bg">
+        <div id="flash" class="slide" style="background-color: #FFFFFF; outline: 0; display: none;">
+        </div>
+        <div id="blackboard" class="slide" style="background-color: #000000; outline: 0; display: none;">
+        </div>
+
+
+
+
+
+
+<div id="slide-1" class="slide master-bg"
+     data-transition-type="None"
+     data-transition-speed="Fast"
+     data-transition-direction=""
+     data-transition-extra=""
+     style="display: none;background-color: rgba(255, 255, 255, 1);">
+
+
+
+
+
+
+    <div class="shape" id="slide-256-shape-0" style="left: 322px; top: 263px; width: 315px; height: 72px;  border: ; " >
+
+
+
+<div class="textframe" style="padding-top: 0px; padding-left: 0px;  ">
+
+
+
+<p style="margin-left: 7px; margin-top: -5px; margin-right: 7px; margin-bottom: -5px; text-align: center; ">
+
+
+
+<span class="portion" style="  font-family: 'Calibri'; font-size: 54px; color: rgba(255, 255, 204, 1);   text-shadow:  2.121px 2.121px 3px rgba(0, 0, 0, 1), -1px 2px 0px rgba(255, 255, 0, 1);    white-space: pre-wrap;  line-height: 61px;">Two</span>
+</p></div>    </div>
+
+
+
+    <div class="shape" id="slide-256-shape-1" style="left: 286px; top: 139px; width: 386px; height: 123px;  border: ; " >
+
+
+
+<div class="textframe" style="padding-top: 0px; padding-left: 0px;  ">
+
+
+
+<p style="margin-left: 7px; margin-top: -9px; margin-right: 7px; margin-bottom: -9px; text-align: center; ">
+
+
+
+<span class="portion" style="  font-family: 'Calibri'; font-size: 96px; color: rgba(0, 0, 0, 1);   text-shadow: 5px 4px 0px rgba(255, 255, 0, 1);    white-space: pre-wrap;  line-height: 109px;">One</span>
+</p></div>    </div>
+
+
+</div>
+
+
+        <div id="svgdiv">
+            <svg width="0" height="0" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: auto;">
+                <defs>
+                    <clipPath id="effectsclip"  viewbox="0 0 960 540"></clipPath>
+                    <clipPath id="effectsclip1" viewbox="0 0 960 540"></clipPath>
+                    <clipPath id="effectsclip2" viewbox="0 0 960 540"></clipPath>
+                    <clipPath id="effectsclip3" viewbox="0 0 960 540"></clipPath>
+                    <clipPath id="effectsclip4" viewbox="0 0 960 540"></clipPath>
+                    <clipPath id="effectsclip5" viewbox="0 0 960 540"></clipPath>
+                    <clipPath id="effectsclip6" viewbox="0 0 960 540"></clipPath>
+                    <clipPath id="effectsclip7" viewbox="0 0 960 540"></clipPath>
+                    <clipPath id="effectsclip8" viewbox="0 0 960 540"></clipPath>
+                </defs>
+            </svg>
+        </div>
+        <div id="svgdivpaths">
+            <svg id="patheffects" width="960" height="540" viewBox="0 0 960 540">
+                <path id="entranceBouncePath" d="M -310 -150 Q -200 -330 -110 -20 Q -80 -80 -60 -10 Q -40 -50 -20 0 Q -10 -30 0 0" fill="none"></path>
+                <path id="exitBouncePath" d="M 0 0 Q 110 -180 200 130 Q 230 70 250 140 Q 270 100 290 150 Q 300 120 310 150" fill="none"></path>
+                <path id="entranceSpiralPath" d="M -430 -210 C -310 -380 90 -380 200 -300 C 400 -200 350 60 110 130 C -130 150 -200 -70 20 -80 C 140 -70 70 50 0 0" fill="none"></path>
+                <path id="exitSpiralPath" d="M 0 0 C -50 -10 0 -90 70 -40 C 150 40 -20 150 -110 30 C -160 -50 -70 -200 160 -150 C 370 -100 430 380 -350 400" fill="none"></path>
+                <path id="entranceCenterRevolvePath" d="M 0 230 A 40 40 0 0 0 0 0" fill="none"></path>
+                <path id="exitCenterRevolvePath" d="M 0 0 A 40 40 0 1 1 0 230" fill="none"></path>
+                <path id="entranceCurveUpDownPath" d="M -70 240 C 40 260 140 180 140 70 C 140 -20 30 -70 0 0" fill="none"></path>
+                <path id="exitCurveUpDownPath" d="M 0 0 C 10 -40 120 -40 130 70 C 120 160 90 220 -70 240" fill="none"></path>
+            </svg>
+        </div>
+    </div>
+
+    <button class="navigationButton" id="PrevSlide" style="left: 375px; top: 580px; ">Prev Slide</button>
+    <button class="navigationButton" id="NextSlide" style="left: 485px; top: 580px; ">Next Slide</button>
+</body>
+</html>
