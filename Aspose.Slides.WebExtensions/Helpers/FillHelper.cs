@@ -10,6 +10,33 @@ namespace Aspose.Slides.WebExtensions.Helpers
 {
     public static class FillHelper
     {
+        static string watermark = null;
+        public static string GetLicStyle<T>(TemplateContext<T> model) 
+        {
+            if (new License().IsLicensed()) return "";
+
+            if (string.IsNullOrEmpty(watermark))
+            {
+                using (Presentation p = new Presentation())
+                {
+                    MasterSlide slide = model.Object as MasterSlide;
+                    p.SlideSize.SetSize(slide.Presentation.SlideSize.Size.Width, slide.Presentation.SlideSize.Size.Height, SlideSizeScaleType.DoNotScale);
+                    ISlide empty = p.Slides[0];
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        Bitmap bmp = empty.GetThumbnail(1, 1);
+                        bmp.MakeTransparent(Color.White);
+                        bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        ms.Position = 0;
+                        watermark = Convert.ToBase64String(ms.ToArray());
+                    }
+                }
+            }
+            return string.Format(
+                "background-image: url('data:image/png;base64, {0}');position:absolute;width:100%;height:100%;content:'';display:block;z-index:10;background-repeat:no-repeat;", 
+                watermark);
+        }
+
         public static string GetFillStyle<T>(IFillFormatEffectiveData format, TemplateContext<T> model)
         {
             string result = "";
