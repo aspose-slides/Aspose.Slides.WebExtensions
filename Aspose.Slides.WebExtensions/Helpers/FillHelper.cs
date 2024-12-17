@@ -71,26 +71,24 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     {
                         var picture = format.PictureFillFormat.Picture;
                         IPPImage fillImage = picture.Image;
-                        if (picture.ImageTransform.Count > 0 )
+                        if (picture.ImageTransform.Count > 0)
                         {
                             Slide slide = model.Object as Slide;
                             if (slide != null)
                             {
-                                using (MemoryStream temp = new MemoryStream()) 
+                                using (Presentation pres = new Presentation())
                                 {
-                                    slide.Presentation.Save(temp, Export.SaveFormat.Pptx);
-                                    using (Presentation pres = new Presentation(temp))
+                                    pres.SlideSize.SetSize(slide.Presentation.SlideSize.Type, SlideSizeScaleType.DoNotScale);
+                                    pres.Slides.RemoveAt(0);
+                                    Slide clone = (Slide)pres.Slides.AddClone(slide.Presentation.Slides[slide.SlideNumber - 1]);
+                                    clone.Shapes.Clear();
+                                    clone.LayoutSlide.MasterSlide.Shapes.Clear();
+                                    var bckg = clone.GetThumbnail(1f, 1f);
+                                    using (MemoryStream ms = new MemoryStream())
                                     {
-                                        Slide clone = (Slide)pres.Slides[slide.SlideNumber-1];
-                                        clone.Shapes.Clear();
-                                        clone.LayoutSlide.MasterSlide.Shapes.Clear();
-                                        var bckg = clone.GetThumbnail(1f, 1f);
-                                        using (MemoryStream ms = new MemoryStream())
-                                        {
-                                            bckg.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                                            ms.Flush();
-                                            result = string.Format("background-image: url(\'data:image/png;base64, {0}\');", Convert.ToBase64String(ms.ToArray()));
-                                        }
+                                        bckg.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                                        ms.Flush();
+                                        result = string.Format("background-image: url(\'data:image/png;base64, {0}\');", Convert.ToBase64String(ms.ToArray()));
                                     }
                                 }
                             }
