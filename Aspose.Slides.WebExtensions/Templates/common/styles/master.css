@@ -1,10 +1,14 @@
-﻿@inherits RazorEngineCore.RazorEngineTemplateBase<TemplateContext<MasterSlide>>
+﻿@inherits RazorEngineCore.RazorEngineTemplateBase<TemplateContext<MasterSlide>> 
 
 @{
     IBackgroundEffectiveData effectiveBg = Model.Object.Background.GetEffective();
     var backgroundStyle = FillHelper.GetFillStyle(effectiveBg.FillFormat, Model);
+    var afterBgStyle = FillHelper.GetLicStyle(Model);
 }
 
 .master-bg {
     @Raw(backgroundStyle)
+}
+.master-bg:before {
+    @Raw(afterBgStyle)
 }

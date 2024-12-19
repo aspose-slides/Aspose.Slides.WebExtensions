@@ -10,6 +10,33 @@ namespace Aspose.Slides.WebExtensions.Helpers
 {
     public static class FillHelper
     {
+        public static string GetLicStyle<T>(TemplateContext<T> model)
+        {
+            string watermark;
+
+            if (new License().IsLicensed()) return "";
+            MasterSlide slide = model.Object as MasterSlide;
+            if (slide == null) return "";
+
+            Presentation presentation = slide.Presentation as Presentation;
+            Slide emptySlide = presentation.Slides.AddEmptySlide(presentation.LayoutSlides[0]) as Slide;
+            emptySlide.ShowMasterShapes = false;
+            emptySlide.Background.Type = BackgroundType.OwnBackground;
+            emptySlide.Background.FillFormat.FillType = FillType.NoFill;
+
+            using (MemoryStream imageData = new MemoryStream())
+            {
+                Bitmap wmBmp = emptySlide.GetThumbnail(1, 1);
+                wmBmp.MakeTransparent(Color.White);
+                wmBmp.Save(imageData, System.Drawing.Imaging.ImageFormat.Png);
+                imageData.Position = 0;
+                watermark = Convert.ToBase64String(imageData.ToArray());
+            }
+            return string.Format(
+                "background-image: url('data:image/png;base64, {0}');position:absolute;width:100%;height:100%;content:'';display:block;z-index:10;background-repeat:no-repeat;",
+                watermark);
+        }
+
         public static string GetFillStyle<T>(IFillFormatEffectiveData format, TemplateContext<T> model)
         {
             string result = "";
@@ -44,26 +71,24 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     {
                         var picture = format.PictureFillFormat.Picture;
                         IPPImage fillImage = picture.Image;
-                        if (picture.ImageTransform.Count > 0 )
+                        if (picture.ImageTransform.Count > 0)
                         {
                             Slide slide = model.Object as Slide;
                             if (slide != null)
                             {
-                                using (MemoryStream temp = new MemoryStream()) 
+                                using (Presentation pres = new Presentation())
                                 {
-                                    slide.Presentation.Save(temp, Export.SaveFormat.Pptx);
-                                    using (Presentation pres = new Presentation(temp))
+                                    pres.SlideSize.SetSize(slide.Presentation.SlideSize.Type, SlideSizeScaleType.DoNotScale);
+                                    pres.Slides.RemoveAt(0);
+                                    Slide clone = (Slide)pres.Slides.AddClone(slide.Presentation.Slides[slide.SlideNumber - 1]);
+                                    clone.Shapes.Clear();
+                                    clone.LayoutSlide.MasterSlide.Shapes.Clear();
+                                    var bckg = clone.GetThumbnail(1f, 1f);
+                                    using (MemoryStream ms = new MemoryStream())
                                     {
-                                        Slide clone = (Slide)pres.Slides[slide.SlideNumber-1];
-                                        clone.Shapes.Clear();
-                                        clone.LayoutSlide.MasterSlide.Shapes.Clear();
-                                        var bckg = clone.GetThumbnail(1f, 1f);
-                                        using (MemoryStream ms = new MemoryStream())
-                                        {
-                                            bckg.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                                            ms.Flush();
-                                            result = string.Format("background-image: url(\'data:image/png;base64, {0}\');", Convert.ToBase64String(ms.ToArray()));
-                                        }
+                                        bckg.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                                        ms.Flush();
+                                        result = string.Format("background-image: url(\'data:image/png;base64, {0}\');", Convert.ToBase64String(ms.ToArray()));
                                     }
                                 }
                             }
