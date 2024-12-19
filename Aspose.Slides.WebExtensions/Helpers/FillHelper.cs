@@ -19,9 +19,17 @@ namespace Aspose.Slides.WebExtensions.Helpers
             {
                 using (Presentation p = new Presentation())
                 {
+                    
                     MasterSlide slide = model.Object as MasterSlide;
-                    p.SlideSize.SetSize(slide.Presentation.SlideSize.Size.Width, slide.Presentation.SlideSize.Size.Height, SlideSizeScaleType.DoNotScale);
-                    ISlide empty = p.Slides[0];
+                    Presentation pp  = slide.Presentation as Presentation;
+                    pp.Slides.AddEmptySlide(pp.LayoutSlides[0]);
+                    //p.SlideSize.SetSize(slide.Presentation.SlideSize.Size.Width, slide.Presentation.SlideSize.Size.Height, SlideSizeScaleType.DoNotScale);
+                    //ISlide empty =  p.Slides[0];
+                    Slide empty = pp.Slides.AddEmptySlide(pp.LayoutSlides[0]) as Slide;
+                    empty.ShowMasterShapes = false;
+                    empty.Background.Type = BackgroundType.OwnBackground;
+                    empty.Background.FillFormat.FillType = FillType.NoFill;
+                    
                     using (MemoryStream ms = new MemoryStream())
                     {
                         Bitmap bmp = empty.GetThumbnail(1, 1);
