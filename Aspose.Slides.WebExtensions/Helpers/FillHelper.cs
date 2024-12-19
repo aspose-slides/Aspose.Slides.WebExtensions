@@ -10,38 +10,30 @@ namespace Aspose.Slides.WebExtensions.Helpers
 {
     public static class FillHelper
     {
-        static string watermark = null;
-        public static string GetLicStyle<T>(TemplateContext<T> model) 
+        public static string GetLicStyle<T>(TemplateContext<T> model)
         {
-            if (new License().IsLicensed()) return "";
+            string watermark;
 
-            if (string.IsNullOrEmpty(watermark))
+            if (new License().IsLicensed()) return "";
+            MasterSlide slide = model.Object as MasterSlide;
+            if (slide == null) return "";
+
+            Presentation presentation = slide.Presentation as Presentation;
+            Slide emptySlide = presentation.Slides.AddEmptySlide(presentation.LayoutSlides[0]) as Slide;
+            emptySlide.ShowMasterShapes = false;
+            emptySlide.Background.Type = BackgroundType.OwnBackground;
+            emptySlide.Background.FillFormat.FillType = FillType.NoFill;
+
+            using (MemoryStream imageData = new MemoryStream())
             {
-                using (Presentation p = new Presentation())
-                {
-                    
-                    MasterSlide slide = model.Object as MasterSlide;
-                    Presentation pp  = slide.Presentation as Presentation;
-                    pp.Slides.AddEmptySlide(pp.LayoutSlides[0]);
-                    //p.SlideSize.SetSize(slide.Presentation.SlideSize.Size.Width, slide.Presentation.SlideSize.Size.Height, SlideSizeScaleType.DoNotScale);
-                    //ISlide empty =  p.Slides[0];
-                    Slide empty = pp.Slides.AddEmptySlide(pp.LayoutSlides[0]) as Slide;
-                    empty.ShowMasterShapes = false;
-                    empty.Background.Type = BackgroundType.OwnBackground;
-                    empty.Background.FillFormat.FillType = FillType.NoFill;
-                    
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        Bitmap bmp = empty.GetThumbnail(1, 1);
-                        bmp.MakeTransparent(Color.White);
-                        bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                        ms.Position = 0;
-                        watermark = Convert.ToBase64String(ms.ToArray());
-                    }
-                }
+                Bitmap wmBmp = emptySlide.GetThumbnail(1, 1);
+                wmBmp.MakeTransparent(Color.White);
+                wmBmp.Save(imageData, System.Drawing.Imaging.ImageFormat.Png);
+                imageData.Position = 0;
+                watermark = Convert.ToBase64String(imageData.ToArray());
             }
             return string.Format(
-                "background-image: url('data:image/png;base64, {0}');position:absolute;width:100%;height:100%;content:'';display:block;z-index:10;background-repeat:no-repeat;", 
+                "background-image: url('data:image/png;base64, {0}');position:absolute;width:100%;height:100%;content:'';display:block;z-index:10;background-repeat:no-repeat;",
                 watermark);
         }
 
