@@ -8,6 +8,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using Aspose.Slides.Util;
 using System.Collections.Generic;
+using Aspose.Slides.Export;
 
 namespace Aspose.Slides.WebExtensions.Helpers
 {
@@ -274,6 +275,78 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 }
             }
             return svgFilter;
+        }
+        public static string ApplyDPI(string imgSrc, TemplateContext<PictureFrame> model, PicturesCompression dpi)
+        {
+            const string b64prefix = "data:image/png;base64, ";
+            float resolution = 72f;
+            switch (dpi)
+            {
+                case PicturesCompression.Dpi330: resolution = 330f; break;
+                case PicturesCompression.Dpi220: resolution = 220f; break;
+                case PicturesCompression.Dpi150: resolution = 150f; break;
+                case PicturesCompression.Dpi96: resolution = 96f; break;
+                case PicturesCompression.Dpi72: resolution = 72f; break;
+                default: return imgSrc;
+            }
+            return imgSrc.StartsWith(b64prefix) 
+                ? ApplyDPIEmbed(imgSrc, model, resolution)
+                : ApplyDPIFile(imgSrc, model, resolution);
+        }
+
+        private static string ApplyDPIFile(string imgSrc, TemplateContext<PictureFrame> model, float resolution)
+        {
+            using (Bitmap bmpCompressed = GetImageCompressed(imgSrc, model, resolution))
+            {
+                var slidesPath = model.Global.Get<string>("slidesPath");
+                string convertedFileName = GetImageURL(model.Object.PictureFormat.Picture.Image, model).Replace(".png", string.Format("red{0}.png", model.Object.UniqueId));
+                string convertedFilePath = Path.Combine(slidesPath, convertedFileName);
+                string imagesPath = Path.GetDirectoryName(convertedFilePath);
+                if (!Directory.Exists(imagesPath)) Directory.CreateDirectory(imagesPath);
+
+                bmpCompressed.Save(convertedFilePath, System.Drawing.Imaging.ImageFormat.Png);
+                return convertedFileName;
+            }
+        }
+
+        private static string ApplyDPIEmbed(string imgSrc, TemplateContext<PictureFrame> model, float resolution)
+        {
+            using (Bitmap bmpCompressed = GetImageCompressed(imgSrc, model, resolution))
+            {
+                using (MemoryStream buffer = new MemoryStream()) 
+                {
+                    bmpCompressed.Save(buffer, System.Drawing.Imaging.ImageFormat.Png);
+                    buffer.Position = 0;
+                    return "data:image/png;base64, " + Convert.ToBase64String(buffer.ToArray());
+                }
+            }
+        }
+
+        private static Bitmap GetImageCompressed(string imgSrc, TemplateContext<PictureFrame> model, float resolution)
+        {
+            PictureFrame pictureFrame = model.Object;
+            RectangleF boundRect = pictureFrame.Frame.Rectangle;
+            float factor = resolution / 72f;
+            int newWidth = (int)(boundRect.Width * factor);
+            int newHeight = (int)(boundRect.Height * factor);
+            PixelFormat pixFmt;
+            Image originImage = Image.FromStream(new MemoryStream(model.Object.PictureFormat.Picture.Image.BinaryData));
+            using (Bitmap originalBmp = new Bitmap(originImage)) pixFmt = originalBmp.PixelFormat;
+            Bitmap newBmp = new Bitmap(newWidth, newHeight, pixFmt);
+            using (Bitmap originalBmp = new Bitmap(originImage))
+            {
+                newBmp.SetResolution(resolution, resolution);
+                using (Graphics g = Graphics.FromImage(newBmp))
+                {
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.InterpolationMode = InterpolationMode.NearestNeighbor;
+
+                    g.DrawImage(originalBmp, 0, 0, newWidth, newHeight);
+                    g.Flush();
+                }
+            }
+            return newBmp;
         }
     }
 }
