@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Aspose.Slides.Export;
+using System.Drawing;
 
 namespace Aspose.Slides.WebExtensions.Tests
 {
@@ -29,17 +30,101 @@ namespace Aspose.Slides.WebExtensions.Tests
             foreach (string dirPath in Directory.GetDirectories(sourcePath2, "*", SearchOption.AllDirectories)) Directory.CreateDirectory(dirPath.Replace(sourcePath2, TemplatePath));
             foreach (string newPath in Directory.GetFiles(sourcePath2, "*.*", SearchOption.AllDirectories)) File.Copy(newPath, newPath.Replace(sourcePath2, TemplatePath), true);
 
+            string testImagePath = Path.Combine(OutputPath, "images/image0red1.png");
+
             using (Presentation pres = new Presentation(PresentationFilePath))
             {
                 WebDocument document = pres.ToSinglePageWebDocument(
-                    new WebDocumentOptions { EmbedImages = true },
+                    new WebDocumentOptions { EmbedImages = false },
                     TemplatePath,
                     OutputPath);
                 document.Global.Put("picturesCompression", PicturesCompression.Dpi72);
                 document.Save();
-            }
 
-            TestUtils.CompareDir(EthalonPath, OutputPath, _ => _ /*Regex.Replace(_, "<div class=\"shape\" id=\"slide-2147483725-shape-0\" [^>]+>", "")*/, true);
+                using (Bitmap testImage = new Bitmap(testImagePath))
+                {
+                    Assert.AreEqual(608, testImage.Width);
+                    Assert.AreEqual(342, testImage.Height);
+                }
+
+                document = pres.ToSinglePageWebDocument(
+                    new WebDocumentOptions { EmbedImages = false },
+                    TemplatePath,
+                    OutputPath);
+                document.Global.Put("picturesCompression", PicturesCompression.Dpi96);
+                document.Save();
+
+                using (Bitmap testImage = new Bitmap(testImagePath))
+                {
+                    Assert.AreEqual(811, testImage.Width);
+                    Assert.AreEqual(456, testImage.Height);
+                }
+
+                document = pres.ToSinglePageWebDocument(
+                    new WebDocumentOptions { EmbedImages = false },
+                    TemplatePath,
+                    OutputPath);
+                document.Global.Put("picturesCompression", PicturesCompression.Dpi96);
+                document.Save();
+
+                using (Bitmap testImage = new Bitmap(testImagePath))
+                {
+                    Assert.AreEqual(811, testImage.Width);
+                    Assert.AreEqual(456, testImage.Height);
+                }
+
+                document = pres.ToSinglePageWebDocument(
+                    new WebDocumentOptions { EmbedImages = false },
+                    TemplatePath,
+                    OutputPath);
+                document.Global.Put("picturesCompression", PicturesCompression.Dpi150);
+                document.Save();
+
+                using (Bitmap testImage = new Bitmap(testImagePath))
+                {
+                    Assert.AreEqual(1268, testImage.Width);
+                    Assert.AreEqual(713, testImage.Height);
+                }
+
+                document = pres.ToSinglePageWebDocument(
+                    new WebDocumentOptions { EmbedImages = false },
+                    TemplatePath,
+                    OutputPath);
+                document.Global.Put("picturesCompression", PicturesCompression.Dpi220);
+                document.Save();
+
+                using (Bitmap testImage = new Bitmap(testImagePath))
+                {
+                    Assert.AreEqual(1400, testImage.Width);
+                    Assert.AreEqual(788, testImage.Height);
+                }
+
+                document = pres.ToSinglePageWebDocument(
+                    new WebDocumentOptions { EmbedImages = false },
+                    TemplatePath,
+                    OutputPath);
+                document.Global.Put("picturesCompression", PicturesCompression.Dpi330);
+                document.Save();
+
+                using (Bitmap testImage = new Bitmap(testImagePath))
+                {
+                    Assert.AreEqual(1400, testImage.Width);
+                    Assert.AreEqual(788, testImage.Height);
+                }
+
+                document = pres.ToSinglePageWebDocument(
+                    new WebDocumentOptions { EmbedImages = false },
+                    TemplatePath,
+                    OutputPath);
+                document.Global.Put("picturesCompression", PicturesCompression.DocumentResolution);
+                document.Save();
+
+                using (Bitmap testImage = new Bitmap(testImagePath))
+                {
+                    Assert.AreEqual(1400, testImage.Width);
+                    Assert.AreEqual(788, testImage.Height);
+                }
+            }
         }
     }
 }

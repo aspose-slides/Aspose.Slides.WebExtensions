@@ -296,7 +296,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
         private static string ApplyDPIFile(string imgSrc, TemplateContext<PictureFrame> model, float resolution)
         {
-            using (Bitmap bmpCompressed = GetImageCompressed(imgSrc, model, resolution))
+            using (Bitmap bmpCompressed = GetImageCompressed(model, resolution))
             {
                 var slidesPath = model.Global.Get<string>("slidesPath");
                 string convertedFileName = GetImageURL(model.Object.PictureFormat.Picture.Image, model).Replace(".png", string.Format("red{0}.png", model.Object.UniqueId));
@@ -311,7 +311,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
         private static string ApplyDPIEmbed(string imgSrc, TemplateContext<PictureFrame> model, float resolution)
         {
-            using (Bitmap bmpCompressed = GetImageCompressed(imgSrc, model, resolution))
+            using (Bitmap bmpCompressed = GetImageCompressed(model, resolution))
             {
                 using (MemoryStream buffer = new MemoryStream()) 
                 {
@@ -322,7 +322,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
             }
         }
 
-        private static Bitmap GetImageCompressed(string imgSrc, TemplateContext<PictureFrame> model, float resolution)
+        private static Bitmap GetImageCompressed(TemplateContext<PictureFrame> model, float resolution)
         {
             PictureFrame pictureFrame = model.Object;
             RectangleF boundRect = pictureFrame.Frame.Rectangle;
@@ -331,7 +331,10 @@ namespace Aspose.Slides.WebExtensions.Helpers
             int newHeight = (int)(boundRect.Height * factor);
             PixelFormat pixFmt;
             Image originImage = Image.FromStream(new MemoryStream(model.Object.PictureFormat.Picture.Image.BinaryData));
-            using (Bitmap originalBmp = new Bitmap(originImage)) pixFmt = originalBmp.PixelFormat;
+            if (originImage.Width < newWidth || originImage.Height < newHeight) 
+                return new Bitmap(originImage);
+            using (Bitmap originalBmp = new Bitmap(originImage)) 
+                pixFmt = originalBmp.PixelFormat;
             Bitmap newBmp = new Bitmap(newWidth, newHeight, pixFmt);
             using (Bitmap originalBmp = new Bitmap(originImage))
             {
