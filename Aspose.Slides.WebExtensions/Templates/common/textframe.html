@@ -2,7 +2,7 @@
 
 @{
     TextFrame contextObject = Model.Object;
-    var textFrameFormatEffective = contextObject.TextFrameFormat.GetEffective();
+    var textFrameFormatEffective = (contextObject != null) ? contextObject.TextFrameFormat.GetEffective() : null;
 
     var origin = Model.Local.Get<Point>("origin");
     var parentAutoShape = Model.Local.Get<AutoShape>("parent");
@@ -18,7 +18,8 @@
         return string.Join(" ", new string[] {positioningStyle, columnsParameters});
     }
 }
-
+@if (contextObject != null)
+{
 <div class="textframe" style="@GetTextFrameStyle(contextObject)">
     @for(int i = 0; i < contextObject.Paragraphs.Count; i++)
     {
@@ -34,3 +35,4 @@
         @Raw(TextHelper.CleanSpanSpace(@Include("paragraph", subModel).ToString()));
     }
 </div>
+}
