@@ -71,7 +71,7 @@ namespace Aspose.Slides.WebExtensions
             WebDocumentOptions options,
             string templatesPath,
             string outputPath,
-            INotesCommentsLayoutingOptions notesCommentsLayoutingOptions)
+            ISlidesLayoutOptions notesCommentsLayoutingOptions)
         {
             return ToSinglePageWebDocument(pres, options, templatesPath, outputPath, null, notesCommentsLayoutingOptions);
         }
@@ -82,7 +82,7 @@ namespace Aspose.Slides.WebExtensions
             string templatesPath,
             string outputPath,
             int[] slideIndicies,
-            INotesCommentsLayoutingOptions notesCommentsLayoutingOptions)
+            ISlidesLayoutOptions notesCommentsLayoutingOptions)
         {
             CheckArguments(options, templatesPath, outputPath);
 
@@ -94,10 +94,22 @@ namespace Aspose.Slides.WebExtensions
             document.Global.Put("scriptsPath", outputPath);
             if (notesCommentsLayoutingOptions != null)
             {
-                document.Global.Put("notesPosition", notesCommentsLayoutingOptions.NotesPosition.ToString());
-                document.Global.Put("commentsPosition", notesCommentsLayoutingOptions.CommentsPosition.ToString());
-                document.Global.Put("commentsAreaWidth", notesCommentsLayoutingOptions.CommentsAreaWidth);
-                document.Global.Put("commentsAreaColor", notesCommentsLayoutingOptions.CommentsAreaColor);
+                if (notesCommentsLayoutingOptions is NotesCommentsLayoutingOptions)
+                {
+                    NotesCommentsLayoutingOptions notesComments = notesCommentsLayoutingOptions as NotesCommentsLayoutingOptions;
+                    document.Global.Put("notesPosition", notesComments.NotesPosition.ToString());
+                    document.Global.Put("commentsPosition", notesComments.CommentsPosition.ToString());
+                    document.Global.Put("commentsAreaWidth", notesComments.CommentsAreaWidth);
+                    document.Global.Put("commentsAreaColor", notesComments.CommentsAreaColor);
+                }
+                else if (notesCommentsLayoutingOptions is HandoutLayoutingOptions)
+                {
+                    HandoutLayoutingOptions notesComments = notesCommentsLayoutingOptions as HandoutLayoutingOptions;
+                    document.Global.Put("handout", notesComments.Handout);
+                    document.Global.Put("printComments", notesComments.PrintComments);
+                    document.Global.Put("printSlideNumbers", notesComments.PrintSlideNumbers);
+                    document.Global.Put("printFrameSlide", notesComments.PrintFrameSlide);
+                }
             }
             document.Global.Put("slideIndicies", slideIndicies);
 
@@ -148,7 +160,7 @@ namespace Aspose.Slides.WebExtensions
             WebDocumentOptions options,
             string templatesPath,
             string outputPath,
-            INotesCommentsLayoutingOptions notesCommentsLayoutingOptions)
+            ISlidesLayoutOptions notesCommentsLayoutingOptions)
         {
             return ToMultiPageWebDocument(pres, options, templatesPath, outputPath, null, notesCommentsLayoutingOptions);
         }
@@ -159,7 +171,7 @@ namespace Aspose.Slides.WebExtensions
             string templatesPath,
             string outputPath,
             int[] slideIndicies,
-            INotesCommentsLayoutingOptions notesCommentsLayoutingOptions)
+            ISlidesLayoutOptions notesCommentsLayoutingOptions)
         {
             CheckArguments(options, templatesPath, outputPath);
 
@@ -178,8 +190,20 @@ namespace Aspose.Slides.WebExtensions
             document.Global.Put("scriptsPath", scriptsPath);
             if (notesCommentsLayoutingOptions != null)
             {
-                document.Global.Put("notesPosition", notesCommentsLayoutingOptions.NotesPosition.ToString());
-                document.Global.Put("commentsPosition", notesCommentsLayoutingOptions.CommentsPosition.ToString());
+                if (notesCommentsLayoutingOptions is NotesCommentsLayoutingOptions)
+                {
+                    NotesCommentsLayoutingOptions notesComments = notesCommentsLayoutingOptions as NotesCommentsLayoutingOptions;
+                    document.Global.Put("notesPosition", notesComments.NotesPosition.ToString());
+                    document.Global.Put("commentsPosition", notesComments.CommentsPosition.ToString());
+                }
+                else if (notesCommentsLayoutingOptions is HandoutLayoutingOptions)
+                {
+                    HandoutLayoutingOptions notesComments = notesCommentsLayoutingOptions as HandoutLayoutingOptions;
+                    document.Global.Put("handout", notesComments.Handout);
+                    document.Global.Put("printComments", notesComments.PrintComments);
+                    document.Global.Put("printSlideNumbers", notesComments.PrintSlideNumbers);
+                    document.Global.Put("printFrameSlide", notesComments.PrintFrameSlide);
+                }
             }
             document.Global.Put("slideIndicies", slideIndicies);
 

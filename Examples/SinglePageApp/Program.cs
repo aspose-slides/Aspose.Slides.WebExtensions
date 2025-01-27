@@ -13,7 +13,8 @@ namespace SinglePageApp
     {
         static void Main(string[] args)
         {
-            ExportDefault();
+            //ExportDefault();
+            ExportHandouts();
 
             Console.WriteLine("HTML export is complete...");
         }
@@ -38,10 +39,34 @@ namespace SinglePageApp
                     AnimateTransitions = false
                 };
                 WebDocument document = pres.ToSinglePageWebDocument(
-                    options, 
-                    "templates\\single-page", 
-                    @"single-page-output",  
+                    options,
+                    "templates\\single-page",
+                    @"single-page-output",
                     new NotesCommentsLayoutingOptions() { CommentsPosition = CommentsPositions.Bottom });
+                document.Save();
+            }
+        }
+
+        static void ExportHandouts()
+        {
+            new License().SetLicense("c:\\ASPOSE\\SLIDESNET\\TestData\\Lic\\Aspose.Total.Product.Family.lic");
+            using (Presentation pres = new Presentation("c:\\ASPOSE\\SLIDESNET\\TestData\\Out\\43811.pptx"))
+            {
+                WebDocumentOptions options = new WebDocumentOptions
+                {
+                    TemplateEngine = new RazorTemplateEngine(),
+                    OutputSaver = new FileOutputSaver(),
+                    AnimateTransitions = false,
+                    EmbedImages = true
+                };
+                WebDocument document = pres.ToSinglePageWebDocument(
+                    options,
+                    "templates\\single-page",
+                    @"single-page-output",
+                    new HandoutLayoutingOptions() 
+                    { 
+                         Handout = HandoutType.Handouts1, 
+                    });
                 document.Save();
             }
         }
