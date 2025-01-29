@@ -14,6 +14,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
 {
     public static class ImageHelper
     {
+        public const int DefaultDpi = 72;
+
         public static string GetImageURL<T>(IPPImage image, TemplateContext<T> model)
         {
             string result = "";
@@ -279,14 +281,14 @@ namespace Aspose.Slides.WebExtensions.Helpers
         public static string ApplyDPI(string imgSrc, TemplateContext<PictureFrame> model, PicturesCompression dpi)
         {
             const string b64prefix = "data:image/png;base64, ";
-            float resolution = 72f;
+            int resolution = 72;
             switch (dpi)
             {
-                case PicturesCompression.Dpi330: resolution = 330f; break;
-                case PicturesCompression.Dpi220: resolution = 220f; break;
-                case PicturesCompression.Dpi150: resolution = 150f; break;
-                case PicturesCompression.Dpi96: resolution = 96f; break;
-                case PicturesCompression.Dpi72: resolution = 72f; break;
+                case PicturesCompression.Dpi330: resolution = 330; break;
+                case PicturesCompression.Dpi220: resolution = 220; break;
+                case PicturesCompression.Dpi150: resolution = 150; break;
+                case PicturesCompression.Dpi96: resolution = 96; break;
+                case PicturesCompression.Dpi72: resolution = 72; break;
                 default: return imgSrc;
             }
             return imgSrc.StartsWith(b64prefix) 
@@ -294,9 +296,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 : ApplyDPIFile(imgSrc, model, resolution);
         }
 
-        private static string ApplyDPIFile(string imgSrc, TemplateContext<PictureFrame> model, float resolution)
+        private static string ApplyDPIFile(string imgSrc, TemplateContext<PictureFrame> model, int resolution)
         {
-            using (Bitmap bmpCompressed = GetImageCompressed(model, resolution))
+            using (Image bmpCompressed = GetImageCompressed(model, resolution))
             {
                 var slidesPath = model.Global.Get<string>("slidesPath");
                 string convertedFileName = GetImageURL(model.Object.PictureFormat.Picture.Image, model).Replace(".png", string.Format("red{0}.png", model.Object.UniqueId));
@@ -309,9 +311,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
             }
         }
 
-        private static string ApplyDPIEmbed(string imgSrc, TemplateContext<PictureFrame> model, float resolution)
+        private static string ApplyDPIEmbed(string imgSrc, TemplateContext<PictureFrame> model, int resolution)
         {
-            using (Bitmap bmpCompressed = GetImageCompressed(model, resolution))
+            using (Image bmpCompressed = GetImageCompressed(model, resolution))
             {
                 using (MemoryStream buffer = new MemoryStream()) 
                 {
@@ -322,34 +324,68 @@ namespace Aspose.Slides.WebExtensions.Helpers
             }
         }
 
-        private static Bitmap GetImageCompressed(TemplateContext<PictureFrame> model, float resolution)
+        private static Image GetImageCompressed(TemplateContext<PictureFrame> model, int resolution)
         {
             PictureFrame pictureFrame = model.Object;
             RectangleF boundRect = pictureFrame.Frame.Rectangle;
-            float factor = resolution / 72f;
-            int newWidth = (int)(boundRect.Width * factor);
-            int newHeight = (int)(boundRect.Height * factor);
-            PixelFormat pixFmt;
             Image originImage = Image.FromStream(new MemoryStream(model.Object.PictureFormat.Picture.Image.BinaryData));
-            if (originImage.Width < newWidth || originImage.Height < newHeight) 
-                return new Bitmap(originImage);
-            using (Bitmap originalBmp = new Bitmap(originImage)) 
-                pixFmt = originalBmp.PixelFormat;
-            Bitmap newBmp = new Bitmap(newWidth, newHeight, pixFmt);
-            using (Bitmap originalBmp = new Bitmap(originImage))
-            {
-                newBmp.SetResolution(resolution, resolution);
-                using (Graphics g = Graphics.FromImage(newBmp))
-                {
-                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    g.SmoothingMode = SmoothingMode.AntiAlias;
-                    g.InterpolationMode = InterpolationMode.NearestNeighbor;
+            var newSize = GetCompressedSize(originImage, resolution, boundRect.Size, boundRect);
+            return ImageCompress(originImage, newSize, originImage.PixelFormat, new RectangleF(0, 0, originImage.Width, originImage.Height));
+        }
 
-                    g.DrawImage(originalBmp, 0, 0, newWidth, newHeight);
-                    g.Flush();
-                }
+
+        public static SizeF GetCompressedSize(Image sourceImage, int dpi, SizeF bounds, RectangleF rect)
+        {
+            SizeF compressedSize;
+
+
+            if (dpi == DefaultDpi)
+            {
+                compressedSize = new SizeF(rect.Width, rect.Height);
             }
-            return newBmp;
+            else if (dpi == 0)
+            {
+                compressedSize = sourceImage.Size;
+            }
+            else
+            {
+                compressedSize = ImageUtil_Convert(dpi, bounds);
+            }
+
+            if (sourceImage.Width <= compressedSize.Width && sourceImage.Height <= compressedSize.Height)
+            {
+                compressedSize = sourceImage.Size; // there're no sense to increase image according to DPI if source image DPI less than a target.
+            }
+
+            return compressedSize;
+        }
+
+        private static SizeF ImageUtil_Convert(int dpi, SizeF size)
+        {
+            if (dpi < 0)
+            {
+                throw new ArgumentException("dpi");
+            }
+
+            if (dpi == 0 || dpi == DefaultDpi)
+            {
+                return size;
+            }
+
+            float coeff = (float)dpi / 72f;
+
+            return new SizeF(size.Width * coeff, size.Height * coeff);
+        }
+        public static Image ImageCompress(Image sourceImage, SizeF compressedSize, PixelFormat pixelFormat, RectangleF originalSourceRect)
+        {
+            Image tempImage = new Bitmap((int)compressedSize.Width, (int)compressedSize.Height, pixelFormat);
+            using (Graphics g = Graphics.FromImage(tempImage))
+            {
+                RectangleF destRect = new RectangleF(0, 0, (int)compressedSize.Width, (int)compressedSize.Height);
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.DrawImage(sourceImage, destRect, originalSourceRect, GraphicsUnit.Pixel);
+            }
+            return tempImage;
         }
     }
 }
