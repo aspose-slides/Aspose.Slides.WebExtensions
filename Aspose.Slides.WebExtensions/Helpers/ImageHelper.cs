@@ -329,15 +329,14 @@ namespace Aspose.Slides.WebExtensions.Helpers
             PictureFrame pictureFrame = model.Object;
             RectangleF boundRect = pictureFrame.Frame.Rectangle;
             Image originImage = Image.FromStream(new MemoryStream(model.Object.PictureFormat.Picture.Image.BinaryData));
-            var newSize = GetCompressedSize(originImage, resolution, boundRect.Size, boundRect);
-            return ImageCompress(originImage, newSize, originImage.PixelFormat, new RectangleF(0, 0, originImage.Width, originImage.Height));
+            var newSize = GetCompressedSize(originImage.Size, resolution, boundRect.Size, boundRect);
+            return CompressImage(originImage, newSize, originImage.PixelFormat, new RectangleF(0, 0, originImage.Width, originImage.Height));
         }
 
 
-        public static SizeF GetCompressedSize(Image sourceImage, int dpi, SizeF bounds, RectangleF rect)
+        public static SizeF GetCompressedSize(SizeF sourceImageSize, int dpi, SizeF bounds, RectangleF rect)
         {
             SizeF compressedSize;
-
 
             if (dpi == DefaultDpi)
             {
@@ -345,22 +344,22 @@ namespace Aspose.Slides.WebExtensions.Helpers
             }
             else if (dpi == 0)
             {
-                compressedSize = sourceImage.Size;
+                compressedSize = sourceImageSize;
             }
             else
             {
-                compressedSize = ImageUtil_Convert(dpi, bounds);
+                compressedSize = CompressSize(dpi, bounds);
             }
 
-            if (sourceImage.Width <= compressedSize.Width && sourceImage.Height <= compressedSize.Height)
+            if (sourceImageSize.Width <= compressedSize.Width && sourceImageSize.Height <= compressedSize.Height)
             {
-                compressedSize = sourceImage.Size; // there're no sense to increase image according to DPI if source image DPI less than a target.
+                compressedSize = sourceImageSize; // there're no sense to increase image according to DPI if source image DPI less than a target.
             }
 
             return compressedSize;
         }
 
-        private static SizeF ImageUtil_Convert(int dpi, SizeF size)
+        private static SizeF CompressSize(int dpi, SizeF size)
         {
             if (dpi < 0)
             {
@@ -376,7 +375,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
             return new SizeF(size.Width * coeff, size.Height * coeff);
         }
-        public static Image ImageCompress(Image sourceImage, SizeF compressedSize, PixelFormat pixelFormat, RectangleF originalSourceRect)
+
+        public static Image CompressImage(Image sourceImage, SizeF compressedSize, PixelFormat pixelFormat, RectangleF originalSourceRect)
         {
             Image tempImage = new Bitmap((int)compressedSize.Width, (int)compressedSize.Height, pixelFormat);
             using (Graphics g = Graphics.FromImage(tempImage))
