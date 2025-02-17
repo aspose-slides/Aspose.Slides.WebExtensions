@@ -147,10 +147,12 @@ namespace Aspose.Slides.WebExtensions.Helpers
             return result;
         }
 
-        public static string GetTextStyle<T>(IPortionFormatEffectiveData format, ITextFrameFormatEffectiveData textFrameFormat, bool isTableContent, TemplateContext<T> model)
+        public static string GetTextStyle<T>(IPortionFormatEffectiveData format, ITextFrameFormatEffectiveData textFrameFormat, bool isTableContent, TemplateContext<T> model, bool disableFontLigatures)
         {
             bool isHyperLink = false;
             float fontHeight = format.FontHeight;
+
+            string fontLigatures = disableFontLigatures ? "font-variant-ligatures : none" : "";
 
             string fontFillStyle = FillHelper.GetFillStyle(format.FillFormat, model);
             TemplateContext<Portion> portion = model as TemplateContext<Portion>;
@@ -285,7 +287,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
                             fontCapStyle,
                             whiteSpacePreStyle,
                             highlight,
-                            lineSpacingStyle });
+                            lineSpacingStyle,
+                            fontLigatures});
 
         }
 

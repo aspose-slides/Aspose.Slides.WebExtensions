@@ -8,13 +8,14 @@
     var isFirst = Model.Local.ContainsKey("isFirst") && Model.Local.Get<bool>("isFirst");
     var clickHyperlink = contextObject.PortionFormat.GetEffective().HyperlinkClick;
     string hyperlink = clickHyperlink != null ? clickHyperlink.ExternalUrl : "";
+    var disableFontLigatures = Model.Global.ContainsKey("disableFontLigatures") && Model.Global.Get<bool>("disableFontLigatures");
 }
 
 @functions
 {
-    string GetTextStyle(Portion portion, TextFrame textFrame, bool isTableContent)
+    string GetTextStyle(Portion portion, TextFrame textFrame, bool isTableContent, bool disableFontLigatures)
     {
-        return TextHelper.GetTextStyle(portion.PortionFormat.GetEffective(), textFrame.TextFrameFormat.GetEffective(), isTableContent, Model);
+        return TextHelper.GetTextStyle(portion.PortionFormat.GetEffective(), textFrame.TextFrameFormat.GetEffective(), isTableContent, Model, disableFontLigatures);
     }
     string FixVerticalTabulation(string text, bool isLast, bool isFirst)
     {
@@ -28,7 +29,7 @@
 {
     @Raw("<a href=\"" + hyperlink + "\" style=\"text-decoration: none;\">");
 }
-<span class="portion" style="@Raw(GetTextStyle(contextObject, parentTextFrame, tableContentFlag))">@Raw(FixVerticalTabulation(contextObject.Text, isLast, isFirst))</span>
+<span class="portion" style="@Raw(GetTextStyle(contextObject, parentTextFrame, tableContentFlag, disableFontLigatures))">@Raw(FixVerticalTabulation(contextObject.Text, isLast, isFirst))</span>
 @if (!string.IsNullOrEmpty(hyperlink))
 {
     @Raw("</a>");
