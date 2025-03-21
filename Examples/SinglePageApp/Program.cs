@@ -57,7 +57,7 @@ namespace SinglePageApp
                     TemplateEngine = new RazorTemplateEngine(),
                     OutputSaver = new FileOutputSaver(),
                     AnimateTransitions = false,
-                    EmbedImages = true
+                    EmbedImages = false
                 };
                 WebDocument document = pres.ToSinglePageWebDocument(
                     options,

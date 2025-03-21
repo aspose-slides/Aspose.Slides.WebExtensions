@@ -1,5 +1,6 @@
 ﻿@inherits RazorEngineCore.RazorEngineTemplateBase<TemplateContext<Presentation>>
 
+
 @{
     IFontData[] fonts = Model.Object.FontsManager.GetEmbeddedFonts();
     foreach (var font in fonts) 
@@ -27,6 +28,11 @@
 
       float slideWidth = Model.Object.SlideSize.Size.Width + margin / 2;
       float slideHeight = Model.Object.SlideSize.Size.Height + margin / 2;
+      var handoutIsSet = Model.Global.ContainsKey("handout");
+      var handout = handoutIsSet ? Model.Global.Get<HandoutType>("handout") : HandoutType.Handouts1;
+
+
+
       if (commentsType == "Right")
       {
           slideWidth += commentsAreaWidth;
@@ -48,8 +54,27 @@
             @(fixSlides ? "height: " + NumberHelper.ToCssNumber(Model.Object.SlideSize.Size.Height + margin * 2) + "px;" : "")
             @(fixSlides ? "overflow: hidden;" : "")
             @(fixSlides ? "position: fixed;" : "")
+
+                display: flex;
+    flex-direction: column;
+    transform: scale(0.68);
+    transform-origin: top left;
     }
-    
+@("@media") print {
+    .bg {
+        transform: none !important; /* Убираем масштабирование */
+        width: 210mm !important;
+        height: auto !important; /* Позволяем страницам печататься без разрывов */
+        overflow: visible !important;
+    }
+
+    .page {
+        page-break-before: always; /* Гарантирует, что каждая страница начинается с нового листа */
+        width: 210mm !important;
+        height: 297mm !important;
+        margin:0;
+    }
+}
     .slide {
         width: @(NumberHelper.ToCssNumber(slideWidth) + "px");
         height: @(NumberHelper.ToCssNumber(slideHeight) + "px");
@@ -59,6 +84,19 @@
         position: relative;
         @(fixSlides ? "position: absolute;" : "")
     }
+
+.page {
+    width: 1159px;
+    height: 1635px;
+    position: relative;
+    display: grid;
+    border: 1px solid gray;
+    background: white;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr;
+    margin: 10px;
+    align-content: center;
+}
 
 .comments {
     /*padding: 2em;*/

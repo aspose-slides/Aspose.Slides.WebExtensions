@@ -13,6 +13,8 @@
     var hasComments = (commentsType != null) && (commentsType != "None");
     var commentsAreaWidth = Model.Global.ContainsKey("commentsAreaWidth") ? Model.Global.Get<int>("commentsAreaWidth") : 170;
     var slideIndicies = Model.Global.ContainsKey("slideIndicies") ? Model.Global.Get<int[]>("slideIndicies") : null;
+    var handoutIsSet = Model.Global.ContainsKey("handout");
+    var handout = handoutIsSet ? Model.Global.Get<HandoutType>("handout") : HandoutType.Handouts1;
 }
 
 <!DOCTYPE html>
@@ -56,19 +58,60 @@
                 slideIndicies[i]--;
             }
         }
-        @foreach (int sId in slideIndicies)
-        {
-            Slide slide = (Slide)contextObject.Slides[sId];
-            if (slide.Hidden)
-            {
-                continue;
-            }
 
-            @Include("slide", Model.SubModel(slide))
-            
-            if (slide.GetSlideComments(null) != null && slide.GetSlideComments(null).Length > 0 && commentsType != "Right")
+        @if (handoutIsSet)
+        {
+            var sldCount = slideIndicies.Length;
+            var slidesPerPage = 0;
+            switch(handout)
             {
-                @Include("comments", Model.SubModel(slide))
+                case HandoutType.Handouts1: slidesPerPage = 1; break;
+                case HandoutType.Handouts2: slidesPerPage = 2; break;
+                case HandoutType.Handouts3: slidesPerPage = 3; break;
+                case HandoutType.Handouts4Horizontal: slidesPerPage = 4; break;
+                case HandoutType.Handouts4Vertical: slidesPerPage = 4; break;
+                case HandoutType.Handouts6Horizontal: slidesPerPage = 6; break;
+                case HandoutType.Handouts6Vertical: slidesPerPage = 6; break;
+                case HandoutType.Handouts9Horizontal: slidesPerPage = 9; break;
+                case HandoutType.Handouts9Vertical: slidesPerPage = 9; break;
+            }
+            var pagesCount = sldCount/slidesPerPage;
+            if (pagesCount * slidesPerPage < sldCount) pagesCount++;
+            var slId = 0;
+
+            for (int pageid = 0; pageid < pagesCount; pageid++)
+            {
+                <div class="page" id="page@((pageid+1).ToString())">
+                @for (int slideOnPage = 0; slideOnPage < slidesPerPage; slideOnPage++)
+                {
+                    if (slId >= sldCount) break;
+                    int sId = slideIndicies[slId];
+
+                    Slide slide = (Slide)contextObject.Slides[sId];
+                    if (slide.Hidden) continue;
+                    else slId++;
+
+                    @Include("slide", Model.SubModel(slide));
+                }
+                </div>
+            }
+        }
+        else
+        {
+            foreach (int sId in slideIndicies)
+            {
+                Slide slide = (Slide)contextObject.Slides[sId];
+                if (slide.Hidden)
+                {
+                    continue;
+                }
+
+                @Include("slide", Model.SubModel(slide));
+
+                if (slide.GetSlideComments(null) != null && slide.GetSlideComments(null).Length > 0 && commentsType != "Right")
+                {
+                    @Include("comments", Model.SubModel(slide));
+                }
             }
         }
 
