@@ -54,27 +54,8 @@
             @(fixSlides ? "height: " + NumberHelper.ToCssNumber(Model.Object.SlideSize.Size.Height + margin * 2) + "px;" : "")
             @(fixSlides ? "overflow: hidden;" : "")
             @(fixSlides ? "position: fixed;" : "")
-
-                display: flex;
-    flex-direction: column;
-    transform: scale(0.68);
-    transform-origin: top left;
-    }
-@("@media") print {
-    .bg {
-        transform: none !important; /* Убираем масштабирование */
-        width: 210mm !important;
-        height: auto !important; /* Позволяем страницам печататься без разрывов */
-        overflow: visible !important;
     }
 
-    .page {
-        page-break-before: always; /* Гарантирует, что каждая страница начинается с нового листа */
-        width: 210mm !important;
-        height: 297mm !important;
-        margin:0;
-    }
-}
     .slide {
         width: @(NumberHelper.ToCssNumber(slideWidth) + "px");
         height: @(NumberHelper.ToCssNumber(slideHeight) + "px");
@@ -83,19 +64,171 @@
         margin: @(margin + "px");
         position: relative;
         @(fixSlides ? "position: absolute;" : "")
+        @if(handoutIsSet && handout == HandoutType.Handouts1)
+        {
+            <text>
+                transform: scale(0.67);
+                margin: -87px;
+            </text>
+        }
+        else if(handoutIsSet && handout == HandoutType.Handouts2)
+        {
+            <text>
+                transform: scale(0.67);
+                margin: -87px;
+            </text>
+        }
+        else if(handoutIsSet && handout == HandoutType.Handouts3)
+        {
+            <text>
+                transform: scale(0.47);
+                margin: -87px;
+                margin-left: -296px;
+            </text>
+        }
+        else if(handoutIsSet && handout == HandoutType.Handouts4Horizontal)
+        {
+            <text>
+                transform: scale(0.3);
+                margin: -85px -296px;
+            </text>
+        }
+        else if(handoutIsSet && handout == HandoutType.Handouts4Vertical)
+        {
+            <text>
+                transform: scale(0.3);
+                margin: -85px -296px;
+            </text>
+        }
+        else if(handoutIsSet && handout == HandoutType.Handouts6Horizontal)
+        {
+            <text>
+                transform: scale(0.3);
+                margin: -85px -296px;
+            </text>
+        }
+        else if(handoutIsSet && handout == HandoutType.Handouts6Vertical)
+        {
+            <text>
+                transform: scale(0.3);
+                margin: -85px -296px;
+            </text>
+        }
+        else if(handoutIsSet && handout == HandoutType.Handouts9Horizontal)
+        {
+            <text>
+                transform: scale(0.2);
+                margin: -177px -375px;
+            </text>
+        }
+        else if(handoutIsSet && handout == HandoutType.Handouts9Vertical)
+        {
+            <text>
+                transform: scale(0.3);
+                margin: -85px -296px;
+            </text>
+        }
     }
 
 .page {
-    width: 1159px;
-    height: 1635px;
+    width: 210mm;
+    height: 297mm;
     position: relative;
-    display: grid;
+    display: flex;
     border: 1px solid gray;
     background: white;
-    grid-template-rows: 1fr 1fr 1fr;
-    grid-template-columns: 1fr;
     margin: 10px;
-    align-content: center;
+
+    @if(handoutIsSet && handout == HandoutType.Handouts1) 
+    {
+        <text>
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-content: center;
+            justify-content: center;
+            align-items: center;
+        </text>
+    }
+    else if(handoutIsSet && handout == HandoutType.Handouts2) 
+    {
+        <text>
+            flex-direction: column;
+            flex-wrap: nowrap;
+            align-content: center;
+            justify-content: space-evenly;
+            align-items: center;
+        </text>
+    }
+    else if(handoutIsSet && handout == HandoutType.Handouts3) 
+    {
+        <text>
+            flex-direction: column;
+            flex-wrap: nowrap;
+            align-content: center;
+            justify-content: space-evenly;
+            align-items: center;
+        </text>
+    }
+    else if(handoutIsSet && handout == HandoutType.Handouts4Horizontal) 
+    {
+        <text>
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-content: center;
+            justify-content: space-evenly;
+            align-items: center;
+        </text>
+    }
+    else if(handoutIsSet && handout == HandoutType.Handouts4Vertical) 
+    {
+        <text>
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-content: center;
+            justify-content: space-evenly;
+            align-items: center;
+        </text>
+    }
+    else if(handoutIsSet && handout == HandoutType.Handouts6Horizontal) 
+    {
+        <text>
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-content: center;
+            justify-content: space-evenly;
+            align-items: center;
+        </text>
+    }
+    else if(handoutIsSet && handout == HandoutType.Handouts6Vertical) 
+    {
+        <text>
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-content: center;
+            justify-content: space-evenly;
+            align-items: center;
+        </text>
+    }
+    else if(handoutIsSet && handout == HandoutType.Handouts9Horizontal) 
+    {
+        <text>
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-content: stretch;
+            justify-content: space-evenly;
+            align-items: center;
+        </text>
+    }
+    else if(handoutIsSet && handout == HandoutType.Handouts9Vertical) 
+    {
+        <text>
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-content: center;
+            justify-content: space-evenly;
+            align-items: center;
+        </text>
+    }
 }
 
 .comments {

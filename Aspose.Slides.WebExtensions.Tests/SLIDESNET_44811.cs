@@ -39,7 +39,7 @@ namespace Aspose.Slides.WebExtensions.Tests
                     },
                     TemplatePath,
                     OutputPath,
-                    new HandoutLayoutingOptions() { Handout = HandoutType.Handouts3 });
+                    new HandoutLayoutingOptions() { Handout = HandoutType.Handouts9Horizontal });
                 document.Save();
             }
 
