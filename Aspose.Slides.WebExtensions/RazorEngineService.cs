@@ -35,6 +35,7 @@ namespace Aspose.Slides.WebExtensions
                 builder.AddUsing("System.Collections");
                 builder.AddUsing("System.Collections.Generic");
                 builder.AddUsing("Aspose.Slides");
+                builder.AddUsing("Aspose.Slides.Export");
                 builder.AddUsing("Aspose.Slides.Export.Web");
                 builder.AddUsing("Aspose.Slides.WebExtensions.Helpers");
 
