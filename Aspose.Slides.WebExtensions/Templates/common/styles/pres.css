@@ -67,72 +67,73 @@
         @if(handoutIsSet && handout == HandoutType.Handouts1)
         {
             <text>
-                transform: scale(0.67);
-                margin: -87px;
+                transform: scale(0.56);
+                margin: -121px;
             </text>
         }
         else if(handoutIsSet && handout == HandoutType.Handouts2)
         {
             <text>
-                transform: scale(0.67);
+                transform: scale(0.56);
                 margin: -87px;
             </text>
         }
         else if(handoutIsSet && handout == HandoutType.Handouts3)
         {
             <text>
-                transform: scale(0.47);
+                transform: scale(0.25);
                 margin: -87px;
-                margin-left: -296px;
+                margin-left: -366px;
+                margin-bottom: -132px;
             </text>
         }
         else if(handoutIsSet && handout == HandoutType.Handouts4Horizontal)
         {
             <text>
-                transform: scale(0.3);
-                margin: -85px -296px;
+                transform: scale(0.25);
+                margin: -85px -362px;
             </text>
         }
         else if(handoutIsSet && handout == HandoutType.Handouts4Vertical)
         {
             <text>
-                transform: scale(0.3);
-                margin: -85px -296px;
+                transform: scale(0.25);
+                margin: -85px -331px;
             </text>
         }
         else if(handoutIsSet && handout == HandoutType.Handouts6Horizontal)
         {
             <text>
-                transform: scale(0.3);
-                margin: -85px -296px;
+                transform: scale(0.25);
+                margin: -126px -360px;
             </text>
         }
         else if(handoutIsSet && handout == HandoutType.Handouts6Vertical)
         {
             <text>
-                transform: scale(0.3);
-                margin: -85px -296px;
+                transform: scale(0.25);
+                margin: -149px -334px;
             </text>
         }
         else if(handoutIsSet && handout == HandoutType.Handouts9Horizontal)
         {
             <text>
-                transform: scale(0.2);
-                margin: -177px -375px;
+                transform: scale(0.15);
+                margin: -121px -391px;
             </text>
         }
         else if(handoutIsSet && handout == HandoutType.Handouts9Vertical)
         {
             <text>
-                transform: scale(0.3);
-                margin: -85px -296px;
+                transform: scale(0.15);
+                margin: -152px -375px;
             </text>
         }
     }
 
 .page {
-    width: 210mm;
-    height: 297mm;
+    width: 7.5in;
+    height: 10in;
     position: relative;
     display: flex;
     border: 1px solid gray;
