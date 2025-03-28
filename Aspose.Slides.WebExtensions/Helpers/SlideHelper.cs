@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Aspose.Slides.Animation;
+using Aspose.Slides.Export;
 using Aspose.Slides.Export.Web;
 using Aspose.Slides.SlideShow;
 
@@ -291,6 +292,84 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
 
             return orderedComments;
+        }
+
+        private static float calculateSlideScale(HandoutType handout)
+        {
+            switch (handout)
+            {
+                case HandoutType.Handouts1: return 0.55f;
+                case HandoutType.Handouts2: return 0.55f;
+                case HandoutType.Handouts3: return 0.25f;
+                case HandoutType.Handouts4Horizontal: return 0.25f;
+                case HandoutType.Handouts4Vertical: return 0.25f;
+                case HandoutType.Handouts6Horizontal: return 0.25f;
+                case HandoutType.Handouts6Vertical: return 0.25f;
+                case HandoutType.Handouts9Horizontal: return 0.15f;
+                case HandoutType.Handouts9Vertical: return 0.15f;
+            }
+            return 1f;
+        }
+        private static void calculateFrameSize(TemplateContext<Presentation> Model, float slideScale, ref int frameWidth, ref int frameHeight)
+        { 
+            var size = Model.Object.SlideSize.Size;
+            size = new SizeF(size.Width * slideScale+2, size.Height * slideScale+2);
+            frameWidth = (int)size.Width;
+            frameHeight = (int)size.Height;
+        }
+        private static void calculateFrameMargin(TemplateContext<Presentation> Model, float slideScale, int dpi, SizeF divider, ref int frameMarginHor, ref int frameMarginVert)
+        {
+            var size = Model.Object.SlideSize.Size;
+            size = new SizeF(size.Width * slideScale+2, size.Height * slideScale+2);
+            var pageSize = new SizeF(dpi * 7.5f, dpi * 10.0f);
+            var margin = new SizeF(
+                (float)Math.Ceiling((pageSize.Width - size.Width * divider.Width) / (2 * divider.Width)),
+                (float)Math.Ceiling((pageSize.Height - size.Height * divider.Height) / (2 * divider.Height)));
+            frameMarginVert = (int)margin.Width - 4;
+            frameMarginHor = (int)margin.Height - 4;
+            if (divider.Width == 1 && divider.Height == 3)
+                frameMarginVert = frameMarginHor;
+        }
+        private static SizeF calculateDivider(HandoutType handout)
+        {
+            switch (handout)
+            {
+                case HandoutType.Handouts1: return new SizeF(1, 1);
+                case HandoutType.Handouts2: return new SizeF(1, 2);
+                case HandoutType.Handouts3: return new SizeF(1, 3);
+                case HandoutType.Handouts4Horizontal: return new SizeF(2, 2);
+                case HandoutType.Handouts4Vertical: return new SizeF(2, 2);
+                case HandoutType.Handouts6Horizontal: return new SizeF(2, 3);
+                case HandoutType.Handouts6Vertical: return new SizeF(2, 3);
+                case HandoutType.Handouts9Horizontal: return new SizeF(3, 3);
+                case HandoutType.Handouts9Vertical: return new SizeF(3, 3);
+            }
+            return new SizeF(1, 1);
+        }
+
+        public static void CalculateHandoutSizes(TemplateContext<Presentation> Model, ref string slideFrameStyles, ref string slideHandoutStyles, ref string slideHeght)
+        {
+            const int dpi = 96;
+
+            var handoutIsSet = Model.Global.ContainsKey("handout");
+            var handout = handoutIsSet ? Model.Global.Get<HandoutType>("handout") : HandoutType.Handouts1;
+            var printComments = handoutIsSet ? Model.Global.Get<bool>("printComments") : false;
+            var printSlideNumbers = handoutIsSet ? Model.Global.Get<bool>("printSlideNumbers") : true;
+            var printFrameSlide = handoutIsSet ? Model.Global.Get<bool>("printFrameSlide") : true;
+            float slideScale = calculateSlideScale(handout);
+            SizeF divider =  calculateDivider(handout);
+
+            int frameMarginHor = 0;
+            int frameMarginVert = 0;
+            int frameWidth = 0;
+            int frameHeight = 0;
+
+            calculateFrameMargin(Model, slideScale, dpi, divider, ref frameMarginHor, ref frameMarginVert);
+            calculateFrameSize(Model, slideScale, ref frameWidth, ref frameHeight);
+
+            slideFrameStyles = string.Format("margin: {0}px {1}px; width: {2}px; height: {3}px;", frameMarginHor, frameMarginVert, frameWidth, frameHeight);
+            slideHandoutStyles = string.Format("transform: scale({0}); transform-origin: top left; margin: 0;", slideScale.ToString().Replace(',','.'));
+            slideHeght = frameHeight.ToString();
         }
     }
 }

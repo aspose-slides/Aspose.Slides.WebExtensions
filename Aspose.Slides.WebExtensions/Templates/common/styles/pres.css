@@ -1,6 +1,5 @@
 ﻿@inherits RazorEngineCore.RazorEngineTemplateBase<TemplateContext<Presentation>>
 
-
 @{
     IFontData[] fonts = Model.Object.FontsManager.GetEmbeddedFonts();
     foreach (var font in fonts) 
@@ -30,8 +29,14 @@
       float slideHeight = Model.Object.SlideSize.Size.Height + margin / 2;
       var handoutIsSet = Model.Global.ContainsKey("handout");
       var handout = handoutIsSet ? Model.Global.Get<HandoutType>("handout") : HandoutType.Handouts1;
+      var printComments = handoutIsSet ? Model.Global.Get<bool>("printComments") : false;
+      var printSlideNumbers = handoutIsSet ? Model.Global.Get<bool>("printSlideNumbers") : true;
+      var printFrameSlide = handoutIsSet ? Model.Global.Get<bool>("printFrameSlide") : true;
+      var slideFrameStyles = "";
+      var slideHandoutStyles = "";
+      var frameHeght = "";
 
-
+      SlideHelper.CalculateHandoutSizes(Model, ref slideFrameStyles, ref slideHandoutStyles, ref frameHeght);
 
       if (commentsType == "Right")
       {
@@ -39,97 +44,57 @@
       }
 }
 
-    body, html {
-        height: 100%;
-    }
+body, html {
+    height: 100%;
+}
 
-    body {
-        margin: 0 !important;
-        padding: 0 !important;
-        background-color: #e6e6e6;
-    }
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: #e6e6e6;
+}
 
-    .bg {
-            @(fixSlides ? "width: " + NumberHelper.ToCssNumber(Model.Object.SlideSize.Size.Width + margin * 2) + "px;" : "")
-            @(fixSlides ? "height: " + NumberHelper.ToCssNumber(Model.Object.SlideSize.Size.Height + margin * 2) + "px;" : "")
-            @(fixSlides ? "overflow: hidden;" : "")
-            @(fixSlides ? "position: fixed;" : "")
+.bg {
+        @(fixSlides ? "width: " + NumberHelper.ToCssNumber(Model.Object.SlideSize.Size.Width + margin * 2) + "px;" : "")
+        @(fixSlides ? "height: " + NumberHelper.ToCssNumber(Model.Object.SlideSize.Size.Height + margin * 2) + "px;" : "")
+        @(fixSlides ? "overflow: hidden;" : "")
+        @(fixSlides ? "position: fixed;" : "")
+}
+.date{
+    position: absolute;
+    left: 7.5in;
+    margin: 0.3em -5.5em;
+    font-family: sans-serif;
+    z-index: 1;
+}
+.slidenumber {
+    position: absolute;
+    font-family: sans-serif;
+    top: @(frameHeght)px;
+    margin-top: 0.3em;
+}
+.slideframe 
+{
+    position: relative;
+    box-shadow: black 0px 0px 1px 1px;
+    @if(printFrameSlide)
+    {
+        <text>
+            border: 2px solid black;
+        </text>
     }
-
-    .slide {
-        width: @(NumberHelper.ToCssNumber(slideWidth) + "px");
-        height: @(NumberHelper.ToCssNumber(slideHeight) + "px");
-        outline: 1px solid #c6c6c6;
-        overflow: hidden;
-        margin: @(margin + "px");
-        position: relative;
-        @(fixSlides ? "position: absolute;" : "")
-        @if(handoutIsSet && handout == HandoutType.Handouts1)
-        {
-            <text>
-                transform: scale(0.56);
-                margin: -121px;
-            </text>
-        }
-        else if(handoutIsSet && handout == HandoutType.Handouts2)
-        {
-            <text>
-                transform: scale(0.56);
-                margin: -87px;
-            </text>
-        }
-        else if(handoutIsSet && handout == HandoutType.Handouts3)
-        {
-            <text>
-                transform: scale(0.25);
-                margin: -87px;
-                margin-left: -366px;
-                margin-bottom: -132px;
-            </text>
-        }
-        else if(handoutIsSet && handout == HandoutType.Handouts4Horizontal)
-        {
-            <text>
-                transform: scale(0.25);
-                margin: -85px -362px;
-            </text>
-        }
-        else if(handoutIsSet && handout == HandoutType.Handouts4Vertical)
-        {
-            <text>
-                transform: scale(0.25);
-                margin: -85px -331px;
-            </text>
-        }
-        else if(handoutIsSet && handout == HandoutType.Handouts6Horizontal)
-        {
-            <text>
-                transform: scale(0.25);
-                margin: -126px -360px;
-            </text>
-        }
-        else if(handoutIsSet && handout == HandoutType.Handouts6Vertical)
-        {
-            <text>
-                transform: scale(0.25);
-                margin: -149px -334px;
-            </text>
-        }
-        else if(handoutIsSet && handout == HandoutType.Handouts9Horizontal)
-        {
-            <text>
-                transform: scale(0.15);
-                margin: -121px -391px;
-            </text>
-        }
-        else if(handoutIsSet && handout == HandoutType.Handouts9Vertical)
-        {
-            <text>
-                transform: scale(0.15);
-                margin: -152px -375px;
-            </text>
-        }
-    }
+    @(slideFrameStyles)
+}
+.slide {
+    width: @(NumberHelper.ToCssNumber(slideWidth) + "px");
+    height: @(NumberHelper.ToCssNumber(slideHeight) + "px");
+    outline: 1px solid #c6c6c6;
+    overflow: hidden;
+    margin: @(margin + "px");
+    position: relative;
+    @(fixSlides ? "position: absolute;" : "")
+    @(slideHandoutStyles)
+}
 
 .page {
     width: 7.5in;
@@ -139,95 +104,20 @@
     border: 1px solid gray;
     background: white;
     margin: 10px;
-
-    @if(handoutIsSet && handout == HandoutType.Handouts1) 
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: flex-start;
+    align-items: center;
+    @if(handoutIsSet && (handout == HandoutType.Handouts4Horizontal || handout == HandoutType.Handouts6Horizontal || handout == HandoutType.Handouts9Horizontal))
     {
         <text>
             flex-direction: row;
-            flex-wrap: nowrap;
-            align-content: center;
-            justify-content: center;
-            align-items: center;
         </text>
     }
-    else if(handoutIsSet && handout == HandoutType.Handouts2) 
+    else
     {
         <text>
             flex-direction: column;
-            flex-wrap: nowrap;
-            align-content: center;
-            justify-content: space-evenly;
-            align-items: center;
-        </text>
-    }
-    else if(handoutIsSet && handout == HandoutType.Handouts3) 
-    {
-        <text>
-            flex-direction: column;
-            flex-wrap: nowrap;
-            align-content: center;
-            justify-content: space-evenly;
-            align-items: center;
-        </text>
-    }
-    else if(handoutIsSet && handout == HandoutType.Handouts4Horizontal) 
-    {
-        <text>
-            flex-direction: row;
-            flex-wrap: wrap;
-            align-content: center;
-            justify-content: space-evenly;
-            align-items: center;
-        </text>
-    }
-    else if(handoutIsSet && handout == HandoutType.Handouts4Vertical) 
-    {
-        <text>
-            flex-direction: column;
-            flex-wrap: wrap;
-            align-content: center;
-            justify-content: space-evenly;
-            align-items: center;
-        </text>
-    }
-    else if(handoutIsSet && handout == HandoutType.Handouts6Horizontal) 
-    {
-        <text>
-            flex-direction: row;
-            flex-wrap: wrap;
-            align-content: center;
-            justify-content: space-evenly;
-            align-items: center;
-        </text>
-    }
-    else if(handoutIsSet && handout == HandoutType.Handouts6Vertical) 
-    {
-        <text>
-            flex-direction: column;
-            flex-wrap: wrap;
-            align-content: center;
-            justify-content: space-evenly;
-            align-items: center;
-        </text>
-    }
-    else if(handoutIsSet && handout == HandoutType.Handouts9Horizontal) 
-    {
-        <text>
-            flex-direction: row;
-            flex-wrap: wrap;
-            align-content: stretch;
-            justify-content: space-evenly;
-            align-items: center;
-        </text>
-    }
-    else if(handoutIsSet && handout == HandoutType.Handouts9Vertical) 
-    {
-        <text>
-            flex-direction: column;
-            flex-wrap: wrap;
-            align-content: center;
-            justify-content: space-evenly;
-            align-items: center;
         </text>
     }
 }
@@ -301,84 +191,84 @@
     padding: 2px;
 }
 
-    @if(hasNotes)
-    {
-        <text>
-        .notes {
-            width: @((Model.Object.NotesSize.Size.Width + margin / 2) + "px");
-            height: @((Model.Object.NotesSize.Size.Height + margin / 2) + "px");
-            outline: 1px solid #c6c6c6;
-            overflow: hidden;
-            margin: @(margin + "px");
-            @(fixSlides ? "position: absolute;" : "")
-        }
-        </text>
+@if(hasNotes)
+{
+    <text>
+    .notes {
+        width: @((Model.Object.NotesSize.Size.Width + margin / 2) + "px");
+        height: @((Model.Object.NotesSize.Size.Height + margin / 2) + "px");
+        outline: 1px solid #c6c6c6;
+        overflow: hidden;
+        margin: @(margin + "px");
+        @(fixSlides ? "position: absolute;" : "")
     }
+    </text>
+}
+
+.navigationArea {
+    float: left; 
+    width: 240px; 
+    height: 100%; 
+    overflow-y: auto;
+}
+
+.navigationAreaBorder {
+    border-right: solid #777777 1px;
+}
+
+.navigationSelected {
+    background: #d24726;
+}
+
+.slideThumb {
+    margin: 10px; 
+    margin-bottom: 5px;
+    padding: 5px;
+    padding-bottom: 1px;
+    cursor: pointer;
+}
+
+.slide-content {
     
-    .navigationArea {
-        float: left; 
-        width: 240px; 
-        height: 100%; 
-        overflow-y: auto;
-    }
-    
-    .navigationAreaBorder {
-        border-right: solid #777777 1px;
-    }
-    
-    .navigationSelected {
-        background: #d24726;
-    }
-    
-    .slideThumb {
-        margin: 10px; 
-        margin-bottom: 5px;
-        padding: 5px;
-        padding-bottom: 1px;
-        cursor: pointer;
-    }
+}
 
-    .slide-content {
-        
-    }
+.shape {
+    position: absolute;
+}
 
-    .shape {
-        position: absolute;
-    }
+.table {
+    position: absolute;
+    border-collapse: collapse;
+}
 
-    .table {
-        position: absolute;
-        border-collapse: collapse;
-    }
+.paragraph {
+    position: absolute;
+}
 
-    .paragraph {
-        position: absolute;
-    }
+.pictureframe {
+    position: absolute;
+}
 
-    .pictureframe {
-        position: absolute;
-    }
+.thumbnail {
+    margin: @(Model.Global.Get<int>("slideMargin") + "px");
+    margin-top: @(Model.Global.Get<int>("slideMargin") + "px");
+}
+  
+.navigationButton {
+    position: absolute;
+    width: 100px;
+    height: 50px;
+    border: solid black 1px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 50px;
+    display: none;
+    cursor: pointer;
+}
 
-    .thumbnail {
-        margin: @(Model.Global.Get<int>("slideMargin") + "px");
-        margin-top: @(Model.Global.Get<int>("slideMargin") + "px");
-    }
-      
-    .navigationButton {
-        position: absolute;
-        width: 100px;
-        height: 50px;
-        border: solid black 1px;
-        text-align: center;
-        vertical-align: middle;
-        line-height: 50px;
-        display: none;
-        cursor: pointer;
-    }
-    
-    #svgdiv, #svgdivpaths {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: -100;
-    }
+#svgdiv, #svgdivpaths {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: -100;
+}

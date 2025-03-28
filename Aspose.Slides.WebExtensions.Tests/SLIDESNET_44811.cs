@@ -13,7 +13,8 @@ namespace Aspose.Slides.WebExtensions.Tests
         public void Test_44811()
         {
             var RootDirectory = Path.GetFullPath("../../../");
-            var PresentationFilePath = Path.Combine(RootDirectory, "TestData", "SLIDESNET_44811", "SLIDESNET-44811.pptx");
+            var PresentationFilePath = Path.Combine(RootDirectory, "TestData", "SLIDESNET_44811", "SLIDESNET-44811-16x9.pptx");
+            //var PresentationFilePath = Path.Combine(RootDirectory, "TestData", "SLIDESNET_44811", "SLIDESNET-44811-4x3.pptx");
             var EthalonPath = Path.Combine(RootDirectory, "TestData", "SLIDESNET_44811", "html");
             var TemplatePath = Path.Combine(RootDirectory, "TestData", "Out", "templates");
             var OutputPath = Path.Combine(RootDirectory, "TestData", "Out", "SLIDESNET_44811");
@@ -39,7 +40,14 @@ namespace Aspose.Slides.WebExtensions.Tests
                     },
                     TemplatePath,
                     OutputPath,
-                    new HandoutLayoutingOptions() { Handout = HandoutType.Handouts9Horizontal });
+                    new HandoutLayoutingOptions()
+                    {
+                        Handout = HandoutType.Handouts1,
+                        //Handout = HandoutType.Handouts6Vertical,
+                        PrintComments = true,
+                        //PrintFrameSlide = true,
+                        //PrintSlideNumbers = true,
+                    });
                 document.Save();
             }
 
