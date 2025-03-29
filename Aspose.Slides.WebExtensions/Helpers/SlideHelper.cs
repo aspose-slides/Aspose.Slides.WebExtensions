@@ -370,6 +370,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
             slideFrameStyles = string.Format("margin: {0}px {1}px; width: {2}px; height: {3}px;", frameMarginHor, frameMarginVert, frameWidth, frameHeight);
             slideHandoutStyles = string.Format("transform: scale({0}); transform-origin: top left; margin: 0;", slideScale.ToString().Replace(',','.'));
             slideHeght = frameHeight.ToString();
+            if (!handoutIsSet) slideHandoutStyles = "";
         }
     }
 }
