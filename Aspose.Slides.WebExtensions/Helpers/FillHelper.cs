@@ -16,7 +16,10 @@ namespace Aspose.Slides.WebExtensions.Helpers
             switch (format.FillType)
             {
                 case FillType.Solid:
-                    result = string.Format("background-color: {0};", ColorHelper.GetRrbaColorString(format.SolidFillColor));
+                    if (model.Object is AutoShape && (model.Object as AutoShape).UseBackgroundFill)
+                        result = SlideHelper.GetBackgroundStyle(model.SubModel<Slide>((model.Object as AutoShape).Slide as Slide));
+                    else
+                        result = string.Format("background-color: {0};", ColorHelper.GetRrbaColorString(format.SolidFillColor));
                     break;
                 case FillType.Picture:
                     IPictureFillFormatEffectiveData picFillFormat = format.PictureFillFormat;
