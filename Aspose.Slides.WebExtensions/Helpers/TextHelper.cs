@@ -304,7 +304,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                                              NumberHelper.ToCssNumber(shadowFix * format.EffectFormat.OuterShadowEffect.Distance * Math.Sin((Math.PI / 180) * format.EffectFormat.OuterShadowEffect.Direction)),
                                              NumberHelper.ToCssNumber(format.EffectFormat.OuterShadowEffect.BlurRadius),
                                              ColorHelper.GetRrbaColorString(format.EffectFormat.OuterShadowEffect.ShadowColor)));
-            IShape shp = GetParentShape(parentTextFrame);
+            IShape shp = parentTextFrame.ParentShape;
             if (shp != null)
             {
                 var outerShadow = shp.EffectFormat.OuterShadowEffect;
@@ -330,17 +330,6 @@ namespace Aspose.Slides.WebExtensions.Helpers
             }
             if (text_shadows.Count > 0) return string.Format("text-shadow: {0};", string.Join(", ", text_shadows.ToArray()));
             else return "";
-        }
-
-        private static IShape GetParentShape(TextFrame parentTextFrame)
-        {
-            IBaseSlide slide = parentTextFrame.Slide;
-            foreach(IShape shp in slide.Shapes)
-            {
-                if (shp is AutoShape && parentTextFrame == (shp as AutoShape).TextFrame)
-                    return shp;
-            }
-            return null;
         }
 
         public static string GetTextStyle(IParagraphFormatEffectiveData format, TemplateContext<Paragraph> model)
