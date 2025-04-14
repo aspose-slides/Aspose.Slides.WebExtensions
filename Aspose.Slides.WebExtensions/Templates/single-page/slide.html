@@ -13,6 +13,11 @@
     var hasNotes = (notesType != null) && (notesType != "None");
     var hasComments = (commentsType != null) && (commentsType != "None");
     var commentsAreaWidth = Model.Global.ContainsKey("commentsAreaWidth") ? Model.Global.Get<int>("commentsAreaWidth") : 170;
+    var handoutIsSet = Model.Global.ContainsKey("handout");
+    var handout = handoutIsSet ? Model.Global.Get<HandoutType>("handout") : HandoutType.Handouts1;
+    var printComments = handoutIsSet ? Model.Global.Get<bool>("printComments") : false;
+    var printSlideNumbers = handoutIsSet ? Model.Global.Get<bool>("printSlideNumbers") : true;
+    var printFrameSlide = handoutIsSet ? Model.Global.Get<bool>("printFrameSlide") : true;
 }
 
 @{
@@ -174,7 +179,7 @@
             }
         }
 
-@if(hasComments)
+@if(hasComments || printComments)
 {
     int cnt = 0;
     foreach (var comment in SlideHelper.GetCommentsOrdered(contextObject))
@@ -186,6 +191,9 @@
         }
         <div class="comment-mark" style="@position">@Raw(comment.Author.Initials + (++cnt).ToString())</div>
     }
+}
+@if(hasComments)
+{
     if (commentsType == "Right")
     {
         @Include("comments", Model.SubModel(contextObject))
