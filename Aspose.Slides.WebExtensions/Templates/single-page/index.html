@@ -61,6 +61,14 @@
                 slideIndicies[i]--;
             }
         }
+        @{
+            List<int> filterHiddenSlides = new List<int>();
+            foreach(int idx in slideIndicies)
+            {
+                if (!contextObject.Slides[idx].Hidden) filterHiddenSlides.Add(idx);
+            }
+            slideIndicies = filterHiddenSlides.ToArray();
+        }
 
         @if (handoutIsSet)
         {
