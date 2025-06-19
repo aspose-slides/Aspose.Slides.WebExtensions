@@ -17,7 +17,7 @@
         animationAttributes = Model.Local.Get<string>("animationAttributes");
     }
 
-    var shapeStyle = positionStyle + " background-image: url(" + imgSrc + "); background-size: 100% 100%;";
+    var shapeStyle = positionStyle + " background-image: " + imgSrc + "; background-size: 100% 100%;";
     shapeStyle += String.Format(" transform: rotate({0}deg);", (int)contextObject.Rotation);
 }
 
