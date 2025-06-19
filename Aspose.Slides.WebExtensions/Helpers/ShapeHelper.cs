@@ -142,7 +142,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
             if (shape is Connector && height == 0)
             {
                 Connector cShape = (Connector)shape;
-                if (double.IsNaN(cShape.LineFormat.Width))
+                if (!double.IsNaN(cShape.LineFormat.Width))
                 {
                     height = (int)(shape as Connector).LineFormat.Width;
                 }
