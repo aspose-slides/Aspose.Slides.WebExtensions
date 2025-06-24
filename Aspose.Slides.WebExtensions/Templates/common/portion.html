@@ -7,7 +7,7 @@
     var isLast = Model.Local.ContainsKey("isLast") && Model.Local.Get<bool>("isLast");
     var isFirst = Model.Local.ContainsKey("isFirst") && Model.Local.Get<bool>("isFirst");
     var clickHyperlink = contextObject.PortionFormat.GetEffective().HyperlinkClick;
-    var skipLinkOption = Model.Global.Get<bool>("skipJavaScriptLinks");
+    var skipLinkOption = Model.Global.ContainsKey("skipJavaScriptLinks") && Model.Global.Get<bool>("skipJavaScriptLinks");
     string hyperlink = clickHyperlink != null ? clickHyperlink.ExternalUrl : "";
     var disableFontLigatures = Model.Global.ContainsKey("disableFontLigatures") && Model.Global.Get<bool>("disableFontLigatures");
 }

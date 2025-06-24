@@ -1,16 +1,17 @@
 ﻿// Copyright (c) 2001-2020 Aspose Pty Ltd. All Rights Reserved.
 
+using Aspose.Slides.Charts;
+using Aspose.Slides.Export;
+using Aspose.Slides.Export.Web;
+using Aspose.Slides.WebExtensions.Helpers;
+using HeyRed.Mime;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using Aspose.Slides.Export.Web;
-using HeyRed.Mime;
 using System.Drawing;
-using Aspose.Slides.Charts;
-using Aspose.Slides.WebExtensions.Helpers;
-using Aspose.Slides.Export;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Aspose.Slides.WebExtensions
 {
@@ -442,6 +443,20 @@ namespace Aspose.Slides.WebExtensions
             }
 
             document.Output.Add(Path.Combine(outputPath, scriptName), scriptContent);
+        }
+
+        public static bool CheckLinkHasJavaScript(this Hyperlink link, bool original)
+        {
+            string externalUrl = original ? link.ExternalUrlOriginal : link.ExternalUrl;
+
+            if (string.IsNullOrEmpty(externalUrl))
+                return false;
+
+
+            if (Regex.IsMatch(externalUrl, @"javascript:([a-zA-Z0-9_]+)(\(.*\))", RegexOptions.IgnoreCase))
+                return true;
+
+            return false;
         }
     }
 }
