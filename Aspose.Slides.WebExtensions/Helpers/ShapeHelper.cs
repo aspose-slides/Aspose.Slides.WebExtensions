@@ -23,8 +23,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 using (MemoryStream ms = new MemoryStream())
                 using (Bitmap image = GetShapeThumbnail(asShape))
                 {
+                    if (image == null) return "none";
                     image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                    return "'data:image/png;base64, " + Convert.ToBase64String(ms.ToArray()) + "'";
+                    return "url('data:image/png;base64, " + Convert.ToBase64String(ms.ToArray()) + "')";
                 }
             }
             else
@@ -49,7 +50,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 }
 
                 string result = ShapeHelper.ConvertPathToRelative(imgSrcPath, slidesPath);
-                return result;
+                return "url(" + result + ");";
             }
         }
         public static string ConvertPathToRelative(string toPath, string fromPath)
@@ -140,7 +141,11 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
             if (shape is Connector && height == 0)
             {
-                height = (int)(shape as Connector).LineFormat.Width;
+                Connector cShape = (Connector)shape;
+                if (!double.IsNaN(cShape.LineFormat.Width))
+                {
+                    height = (int)(shape as Connector).LineFormat.Width;
+                }
             }
             return string.Format("left: {0}px; top: {1}px; width: {2}px; height: {3}px;", left, top, width, height);
         }
