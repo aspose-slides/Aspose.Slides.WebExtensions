@@ -4,6 +4,9 @@
     PictureFrame contextObject = Model.Object;
 
     var origin = Model.Local.Get<Point>("origin");
+    var picturesCompression = Model.Global.ContainsKey("picturesCompression") 
+        ? Model.Global.Get<PicturesCompression>("picturesCompression") 
+        : PicturesCompression.DocumentResolution;
 
     string imgSrc = ImageHelper.GetImageURL(contextObject.PictureFormat.Picture.Image, Model);
 
@@ -41,6 +44,7 @@
     string svgFilter = ImageHelper.CreateSvgFilter(contextObject, id + "-effect");
     string filterStyle = string.IsNullOrEmpty(svgFilter) ? "" : "filter: url(#" + id + "-effect)";
     string shadowStyle = ImageHelper.GetImageShadowStyle(contextObject);
+    imgSrc = ImageHelper.ApplyDPI(imgSrc, Model as TemplateContext<PictureFrame>, picturesCompression);
 }
 @functions
 {
