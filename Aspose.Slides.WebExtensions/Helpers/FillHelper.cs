@@ -26,7 +26,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     Shape asShape = model.Object as Shape;
                     if (asShape != null && picFillFormat.PictureFillMode == PictureFillMode.Tile)
                     {
-                        Bitmap fillImage = ImageHelper.GetShapeFillImage(asShape, format);
+                        var fillImage = ImageHelper.GetShapeFillImage(asShape, format);
 
                         var imagesPath = model.Global.Get<string>("imagesPath");
                         string path = Path.Combine(imagesPath, string.Format("tileimage{0}.png", asShape.UniqueId));
@@ -45,7 +45,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     }
                     else
                     {
-                        var picture = format.PictureFillFormat.Picture;
+                        IPictureEffectiveData picture = format.PictureFillFormat.Picture;
                         IPPImage fillImage = picture.Image;
                         if (picture.ImageTransform.Count > 0)
                         {
@@ -59,10 +59,10 @@ namespace Aspose.Slides.WebExtensions.Helpers
                                     Slide clone = (Slide)pres.Slides.AddClone(slide.Presentation.Slides[slide.SlideNumber - 1]);
                                     clone.Shapes.Clear();
                                     clone.LayoutSlide.MasterSlide.Shapes.Clear();
-                                    var bckg = clone.GetThumbnail(1f, 1f);
+                                    IImage bckg = clone.GetImage(1f, 1f);
                                     using (MemoryStream ms = new MemoryStream())
                                     {
-                                        bckg.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                                        bckg.Save(ms, ImageFormat.Png);
                                         ms.Flush();
                                         result = string.Format("background-image: url(\'data:image/png;base64, {0}\');", Convert.ToBase64String(ms.ToArray()));
                                     }

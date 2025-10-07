@@ -46,7 +46,7 @@ namespace Aspose.Slides.WebExtensions.Tests
                     document.Save();
                 }
             }
-            catch(NullReferenceException ex)
+            catch(NullReferenceException)
             {
                 Assert.Fail();
             }

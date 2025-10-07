@@ -345,7 +345,7 @@ namespace Aspose.Slides.WebExtensions
             for (int index = 1; index <= pres.Slides.Count; index++)
             {
                 Slide slide = pres.Slides[index - 1] as Slide;
-                Bitmap thumbnail = slide.GetThumbnail();
+                IImage thumbnail = slide.GetImage();
 
                 string path = Path.Combine(outputPath, string.Format("thumbnail{0}.png", index));
 
@@ -361,7 +361,7 @@ namespace Aspose.Slides.WebExtensions
 
             uint counter = 0;
 
-            Bitmap thumbnail;
+            IImage thumbnail;
 
             foreach (var shape in shapes)
             {
@@ -381,7 +381,7 @@ namespace Aspose.Slides.WebExtensions
                     try
                     {
                         (clone as AutoShape).TextFrame.Paragraphs.Clear();
-                        thumbnail = clone.GetThumbnail();
+                        thumbnail = clone.GetImage();
                     }
                     finally
                     {
@@ -390,7 +390,7 @@ namespace Aspose.Slides.WebExtensions
                 }
                 else
                 {
-                    thumbnail = (shape as Shape).GetThumbnail();
+                    thumbnail = (shape as Shape).GetImage();
                 }
 
                 string path = Path.Combine(outputPath, string.Format("{0}{1}.png", typeof(T).Name.ToLower(), counter++));
@@ -408,7 +408,7 @@ namespace Aspose.Slides.WebExtensions
             for (int i = 0; i < embeddedFonts.Length; i++)
             {
                 string fontFileName = Path.Combine(outFontsFolder, string.Format("{0}.ttf", embeddedFonts[i].FontName));
-                document.Output.Add(fontFileName, embeddedFonts[i], FontStyle.Regular);
+                document.Output.Add(fontFileName, embeddedFonts[i], FontStyleType.Regular);
 
                 //fontFileName = Path.Combine(outFontsFolder, string.Format("{0} {1}.ttf", embeddedFonts[i].FontName, FontStyle.Italic.ToString()));
                 //document.Output.Add(fontFileName, embeddedFonts[i], FontStyle.Italic);
