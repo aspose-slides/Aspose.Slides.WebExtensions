@@ -30,8 +30,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 {
                     using (MemoryStream ms = new MemoryStream())
                     {
-                        Bitmap bitmap = MetafileToBitmap(image);
-                        bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        image.Image.Save(ms, ImageFormat.Png);
                         ms.Flush();
                         dataSource = ms.ToArray();
                     }
@@ -40,8 +39,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 {
                     using (MemoryStream ms = new MemoryStream())
                     {
-                        Bitmap bitmap = new Bitmap(image.SystemImage);
-                        bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        image.Image.Save(ms, ImageFormat.Png);
                         ms.Flush();
                         dataSource = ms.ToArray();
                     }
@@ -135,14 +133,14 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 }
                 using (MemoryStream tiffData = new MemoryStream(image.BinaryData))
                 {
-                    using (Image initialImage = System.Drawing.Bitmap.FromStream(tiffData))
+                    using (Image initialImage = Image.FromStream(tiffData))
                     {
                         initialImage.Save(convertedFilePath, System.Drawing.Imaging.ImageFormat.Png);
                     }
                 }
             }
         }
-        public static Bitmap GetShapeFillImage(Shape shape, IFillFormatEffectiveData format)
+        public static IImage GetShapeFillImage(Shape shape, IFillFormatEffectiveData format)
         {
             AutoShape aShape = shape as AutoShape;
             if (aShape != null)
@@ -158,7 +156,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     }
                 }
 
-                Bitmap r = aShape.GetThumbnail();
+                IImage r = aShape.GetImage();
 
                 for (int i = 0; i < store.Count; i++)
                 {
@@ -172,22 +170,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
             }
             return null;
         }
-        public static Bitmap MetafileToBitmap(IPPImage image)
-        {
-            Metafile metafile = (Metafile)image.SystemImage;
-            int h = metafile.Height;
-            int w = metafile.Width;
-            Bitmap bitmap = new Bitmap(w, h);
-
-            using (Graphics g = Graphics.FromImage(bitmap))
-            {
-                g.Clear(Color.Transparent);
-                g.SmoothingMode = SmoothingMode.None;
-                g.DrawImage(metafile, 0, 0, w, h);
-            }
-
-            return bitmap;
-        }
+        
         public static string GetImagePositioningStyle(PictureFrame pictureFrame, Point origin)
         {
             var transform = "";
