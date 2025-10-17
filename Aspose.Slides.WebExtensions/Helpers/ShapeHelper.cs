@@ -99,7 +99,6 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
             IImage thumbnail;
             if (autoShape != null && !string.IsNullOrEmpty(autoShape.TextFrame.Text))
-
             {
                 // Copy shape paragraphs -> remove text -> get shape image -> restore paragraphs. Export text as HTML markup in the template.
                 List<Paragraph> paraColl = new List<Paragraph>();
@@ -152,3 +151,4 @@ namespace Aspose.Slides.WebExtensions.Helpers
         }
     }
 }
+
