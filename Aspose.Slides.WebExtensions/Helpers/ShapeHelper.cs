@@ -151,4 +151,3 @@ namespace Aspose.Slides.WebExtensions.Helpers
         }
     }
 }
-
