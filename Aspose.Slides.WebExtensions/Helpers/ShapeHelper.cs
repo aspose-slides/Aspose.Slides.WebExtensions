@@ -21,10 +21,10 @@ namespace Aspose.Slides.WebExtensions.Helpers
             {
                 Shape asShape = shape as Shape;
                 using (MemoryStream ms = new MemoryStream())
-                using (Bitmap image = GetShapeThumbnail(asShape))
+                using (IImage image = GetShapeThumbnail(asShape))
                 {
                     if (image == null) return "none";
-                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    image.Save(ms, ImageFormat.Png);
                     return "url('data:image/png;base64, " + Convert.ToBase64String(ms.ToArray()) + "')";
                 }
             }
@@ -93,11 +93,11 @@ namespace Aspose.Slides.WebExtensions.Helpers
             return result;
         }
 
-        private static Bitmap GetShapeThumbnail(IShape shape)
+        private static IImage GetShapeThumbnail(IShape shape)
         {
             AutoShape autoShape = shape as AutoShape;
 
-            Bitmap thumbnail;
+            IImage thumbnail;
             if (autoShape != null && !string.IsNullOrEmpty(autoShape.TextFrame.Text))
             {
                 // Copy shape paragraphs -> remove text -> get shape image -> restore paragraphs. Export text as HTML markup in the template.
@@ -108,7 +108,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 try
                 {
                     autoShape.TextFrame.Paragraphs.Clear();
-                    thumbnail = autoShape.GetThumbnail();
+                    thumbnail = autoShape.GetImage();
                 }
                 finally
                 {
@@ -118,11 +118,11 @@ namespace Aspose.Slides.WebExtensions.Helpers
             }
             else if (shape is IConnector)
             {
-                thumbnail = shape.GetThumbnail(ShapeThumbnailBounds.Appearance, 1, 1);
+                thumbnail = shape.GetImage(ShapeThumbnailBounds.Appearance, 1, 1);
             }
             else
             {
-                thumbnail = shape.GetThumbnail();
+                thumbnail = shape.GetImage();
             }
 
             return thumbnail;
