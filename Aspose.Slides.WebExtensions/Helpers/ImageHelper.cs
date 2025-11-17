@@ -8,11 +8,14 @@ using System.Drawing.Imaging;
 using System.IO;
 using Aspose.Slides.Util;
 using System.Collections.Generic;
+using Aspose.Slides.Export;
 
 namespace Aspose.Slides.WebExtensions.Helpers
 {
     public static class ImageHelper
     {
+        public const int DefaultDpi = 72;
+
         public static string GetImageURL<T>(IPPImage image, TemplateContext<T> model)
         {
             string result = "";
@@ -257,6 +260,115 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 }
             }
             return svgFilter;
+        }
+        public static string ApplyDPI(string imgSrc, TemplateContext<PictureFrame> model, PicturesCompression dpi)
+        {
+            const string b64prefix = "data:image/png;base64, ";
+            int resolution = 72;
+            switch (dpi)
+            {
+                case PicturesCompression.Dpi330: resolution = 330; break;
+                case PicturesCompression.Dpi220: resolution = 220; break;
+                case PicturesCompression.Dpi150: resolution = 150; break;
+                case PicturesCompression.Dpi96: resolution = 96; break;
+                case PicturesCompression.Dpi72: resolution = 72; break;
+                default: return imgSrc;
+            }
+            return imgSrc.StartsWith(b64prefix) 
+                ? ApplyDPIEmbed(imgSrc, model, resolution)
+                : ApplyDPIFile(imgSrc, model, resolution);
+        }
+
+        private static string ApplyDPIFile(string imgSrc, TemplateContext<PictureFrame> model, int resolution)
+        {
+            using (Image bmpCompressed = GetImageCompressed(model, resolution))
+            {
+                var slidesPath = model.Global.Get<string>("slidesPath");
+                string convertedFileName = GetImageURL(model.Object.PictureFormat.Picture.Image, model).Replace(".png", string.Format("red{0}.png", model.Object.UniqueId));
+                string convertedFilePath = Path.Combine(slidesPath, convertedFileName);
+                string imagesPath = Path.GetDirectoryName(convertedFilePath);
+                if (!Directory.Exists(imagesPath)) Directory.CreateDirectory(imagesPath);
+
+                bmpCompressed.Save(convertedFilePath, System.Drawing.Imaging.ImageFormat.Png);
+                return convertedFileName;
+            }
+        }
+
+        private static string ApplyDPIEmbed(string imgSrc, TemplateContext<PictureFrame> model, int resolution)
+        {
+            using (Image bmpCompressed = GetImageCompressed(model, resolution))
+            {
+                using (MemoryStream buffer = new MemoryStream()) 
+                {
+                    bmpCompressed.Save(buffer, System.Drawing.Imaging.ImageFormat.Png);
+                    buffer.Position = 0;
+                    return "data:image/png;base64, " + Convert.ToBase64String(buffer.ToArray());
+                }
+            }
+        }
+
+        private static Image GetImageCompressed(TemplateContext<PictureFrame> model, int resolution)
+        {
+            PictureFrame pictureFrame = model.Object;
+            RectangleF boundRect = pictureFrame.Frame.Rectangle;
+            Image originImage = Image.FromStream(new MemoryStream(model.Object.PictureFormat.Picture.Image.BinaryData));
+            var newSize = GetCompressedSize(originImage.Size, resolution, boundRect.Size, boundRect);
+            return CompressImage(originImage, newSize, originImage.PixelFormat, new RectangleF(0, 0, originImage.Width, originImage.Height));
+        }
+
+
+        public static SizeF GetCompressedSize(SizeF sourceImageSize, int dpi, SizeF bounds, RectangleF rect)
+        {
+            SizeF compressedSize;
+
+            if (dpi == DefaultDpi)
+            {
+                compressedSize = new SizeF(rect.Width, rect.Height);
+            }
+            else if (dpi == 0)
+            {
+                compressedSize = sourceImageSize;
+            }
+            else
+            {
+                compressedSize = CompressSize(dpi, bounds);
+            }
+
+            if (sourceImageSize.Width <= compressedSize.Width && sourceImageSize.Height <= compressedSize.Height)
+            {
+                compressedSize = sourceImageSize; // there're no sense to increase image according to DPI if source image DPI less than a target.
+            }
+
+            return compressedSize;
+        }
+
+        private static SizeF CompressSize(int dpi, SizeF size)
+        {
+            if (dpi < 0)
+            {
+                throw new ArgumentException("dpi");
+            }
+
+            if (dpi == 0 || dpi == DefaultDpi)
+            {
+                return size;
+            }
+
+            float coeff = (float)dpi / 72f;
+
+            return new SizeF(size.Width * coeff, size.Height * coeff);
+        }
+
+        public static Image CompressImage(Image sourceImage, SizeF compressedSize, PixelFormat pixelFormat, RectangleF originalSourceRect)
+        {
+            Image tempImage = new Bitmap((int)compressedSize.Width, (int)compressedSize.Height, pixelFormat);
+            using (Graphics g = Graphics.FromImage(tempImage))
+            {
+                RectangleF destRect = new RectangleF(0, 0, (int)compressedSize.Width, (int)compressedSize.Height);
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.DrawImage(sourceImage, destRect, originalSourceRect, GraphicsUnit.Pixel);
+            }
+            return tempImage;
         }
     }
 }
