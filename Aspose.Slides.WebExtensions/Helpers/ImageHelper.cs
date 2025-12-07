@@ -31,9 +31,12 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 byte[] dataSource = image.BinaryData;
                 if (image.ContentType == "image/x-emf" || image.ContentType == "image/x-wmf")
                 {
+                    float dpiScale = 96f / 72f;
                     using (MemoryStream ms = new MemoryStream())
                     {
-                        image.Image.Save(ms, ImageFormat.Png);
+                        using (Bitmap bitmap = MetafileToBitmap(image))
+                            bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+
                         ms.Flush();
                         dataSource = ms.ToArray();
                     }
@@ -173,7 +176,22 @@ namespace Aspose.Slides.WebExtensions.Helpers
             }
             return null;
         }
+        public static Bitmap MetafileToBitmap(IPPImage image)
+        {
+            Metafile metafile = (Metafile)Image.FromStream(new MemoryStream(image.BinaryData));
+            int h = metafile.Height;
+            int w = metafile.Width;
+            Bitmap bitmap = new Bitmap(w, h);
         
+            using (Graphics g = Graphics.FromImage(bitmap))
+            {
+                g.Clear(Color.Transparent);
+                g.SmoothingMode = SmoothingMode.None;
+                g.DrawImage(metafile, 0, 0, w, h);
+            }
+
+            return bitmap;
+        }
         public static string GetImagePositioningStyle(PictureFrame pictureFrame, Point origin)
         {
             var transform = "";

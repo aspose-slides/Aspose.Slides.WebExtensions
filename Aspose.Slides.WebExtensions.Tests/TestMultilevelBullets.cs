@@ -77,7 +77,7 @@ namespace Aspose.Slides.WebExtensions.Tests
             Assert.IsTrue(bgClassStyle.Contains("width: 979.75px;"), ".bg in pres.css should have property width equals to 813.75px");
             Assert.IsTrue(bgClassStyle.Contains("height: 560px;"), ".bg in pres.css should have property height equals to 615.25px");
 
-            Match slideMatch = System.Text.RegularExpressions.Regex.Match(presCssContent, "\\.slide[^{]*\\{[^}]+\\}");
+            Match slideMatch = System.Text.RegularExpressions.Regex.Match(presCssContent, "\\.slide\\b[^{]*\\{[^}]+\\}");
             Assert.IsTrue(slideMatch.Success, ".slide not found in pres.css");
             string slideClassStyle = slideMatch.Value;
             Assert.IsTrue(slideClassStyle.Contains("width: 964.75px;"), ".slide in pres.css should have property width equals to 798.75px");

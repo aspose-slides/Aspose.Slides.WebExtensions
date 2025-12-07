@@ -76,6 +76,7 @@ namespace Aspose.Slides.WebExtensions.Tests
             content = content.Replace(" <", "<");
             content = content.Replace("> ", ">");
             content = content.Replace("><", ">\n<");
+            content = content.Replace("; \">", ";\">");
 
             content = replacements(content);
 

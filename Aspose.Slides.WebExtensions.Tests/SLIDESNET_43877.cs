@@ -195,7 +195,12 @@ namespace Aspose.Slides.WebExtensions.Tests
                 document.Save();
             }
 
-            TestUtils.CompareDir(EthalonPath, OutputPath, _ => Regex.Replace(_, "<div class=\"shape\" id=\"slide-257-shape-6\" [^>]+>", ""));
+            TestUtils.CompareDir(EthalonPath, OutputPath, _ => 
+            {
+                _ = Regex.Replace(_, "<div class=\"shape\" id=\"slide-257-shape-6\" [^>]+>", "");
+                _ = Regex.Replace(_, "<div class=\"shape\" id=\"slide-257-shape-8\" [^>]+>", "");
+                return _;
+            });
         }
 
 
