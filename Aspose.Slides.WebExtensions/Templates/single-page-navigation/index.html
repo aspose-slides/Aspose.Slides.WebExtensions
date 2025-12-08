@@ -47,8 +47,8 @@
             {
                 using (var ms = new System.IO.MemoryStream())
                 {
-                    var slideThumbnail = slide.GetThumbnail();
-                    slideThumbnail.Save(ms, ImageFormat.Png);
+                    using (var slideThumbnail = slide.GetImage())
+                        slideThumbnail.Save(ms, ImageFormat.Png);
                     thumbnailSource = "data:image/png;base64, " + Convert.ToBase64String(ms.ToArray());
                 }
             }

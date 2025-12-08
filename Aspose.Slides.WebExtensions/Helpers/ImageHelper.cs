@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2001-2020 Aspose Pty Ltd. All Rights Reserved.
+﻿// Copyright (c) 2001-2025 Aspose Pty Ltd. All Rights Reserved.
 
 using Aspose.Slides.Export.Web;
 using System;
@@ -45,7 +45,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 {
                     using (MemoryStream ms = new MemoryStream())
                     {
-                        image.Image.Save(ms, ImageFormat.Png);
+                        using (IImage bitmap = image.Image)
+                            bitmap.Save(ms, ImageFormat.Png);
                         ms.Flush();
                         dataSource = ms.ToArray();
                     }

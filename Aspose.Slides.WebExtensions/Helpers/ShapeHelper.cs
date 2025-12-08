@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2001-2020 Aspose Pty Ltd. All Rights Reserved.
+﻿// Copyright (c) 2001-2025 Aspose Pty Ltd. All Rights Reserved.
 using System;
 using System.Collections.Generic;
 using System.Drawing;
