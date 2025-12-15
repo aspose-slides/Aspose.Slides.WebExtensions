@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2001-2020 Aspose Pty Ltd. All Rights Reserved.
+﻿// Copyright (c) 2001-2025 Aspose Pty Ltd. All Rights Reserved.
 
 using Aspose.Slides.Export.Web;
 using System;
@@ -26,11 +26,10 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     Shape asShape = model.Object as Shape;
                     if (asShape != null && picFillFormat.PictureFillMode == PictureFillMode.Tile)
                     {
-                        var fillImage = ImageHelper.GetShapeFillImage(asShape, format);
-
                         var imagesPath = model.Global.Get<string>("imagesPath");
                         string path = Path.Combine(imagesPath, string.Format("tileimage{0}.png", asShape.UniqueId));
-                        fillImage.Save(path);
+                        using (IImage fillImage = ImageHelper.GetShapeFillImage(asShape, format))
+                            fillImage.Save(path);
                         //IOutputFile outputFile;
                         //if (!model.Output.Files.ContainsKey(path))
                         //    outputFile = model.Output.Add(path, fillImage);
@@ -59,10 +58,10 @@ namespace Aspose.Slides.WebExtensions.Helpers
                                     Slide clone = (Slide)pres.Slides.AddClone(slide.Presentation.Slides[slide.SlideNumber - 1]);
                                     clone.Shapes.Clear();
                                     clone.LayoutSlide.MasterSlide.Shapes.Clear();
-                                    IImage bckg = clone.GetImage(1f, 1f);
                                     using (MemoryStream ms = new MemoryStream())
                                     {
-                                        bckg.Save(ms, ImageFormat.Png);
+                                        using (IImage bckg = clone.GetImage(1f, 1f))
+                                            bckg.Save(ms, ImageFormat.Png);
                                         ms.Flush();
                                         result = string.Format("background-image: url(\'data:image/png;base64, {0}\');", Convert.ToBase64String(ms.ToArray()));
                                     }

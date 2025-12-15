@@ -2,7 +2,7 @@
 
 
 var currentVisiblePage = 1;
-var maxVisiblePage = 9;
+var maxVisiblePage = 7;
 var frameWidth = 960;
 var frameHeight = 540;
 var polygonsCache = {};

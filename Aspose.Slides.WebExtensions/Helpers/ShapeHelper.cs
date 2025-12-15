@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2001-2020 Aspose Pty Ltd. All Rights Reserved.
+﻿// Copyright (c) 2001-2025 Aspose Pty Ltd. All Rights Reserved.
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -98,7 +98,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
             AutoShape autoShape = shape as AutoShape;
 
             IImage thumbnail;
-            if (autoShape != null && !string.IsNullOrEmpty(autoShape.TextFrame.Text))
+            if (autoShape != null && autoShape.TextFrame != null && !string.IsNullOrEmpty(autoShape.TextFrame.Text))
             {
                 // Copy shape paragraphs -> remove text -> get shape image -> restore paragraphs. Export text as HTML markup in the template.
                 List<Paragraph> paraColl = new List<Paragraph>();

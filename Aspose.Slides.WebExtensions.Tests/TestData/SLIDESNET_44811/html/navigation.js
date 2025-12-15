@@ -1,7 +1,7 @@
 
 
 var currentVisiblePage = 0;
-var maxVisiblePage = 9;
+var maxVisiblePage = 7;
 
 $(document).ready(function(){
       
