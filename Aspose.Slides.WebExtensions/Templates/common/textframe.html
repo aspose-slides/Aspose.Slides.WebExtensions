@@ -1,4 +1,4 @@
-﻿@inherits RazorEngineCore.RazorEngineTemplateBase<TemplateContext<TextFrame>>
+@inherits RazorEngineCore.RazorEngineTemplateBase<TemplateContext<TextFrame>>
 
 @{
     TextFrame contextObject = Model.Object;
@@ -6,6 +6,10 @@
 
     var origin = Model.Local.Get<Point>("origin");
     var parentAutoShape = Model.Local.Get<AutoShape>("parent");
+    var slide = parentAutoShape.Slide as ISlide;
+    var paragraphAnimationData = (contextObject != null && slide != null)
+        ? SlideHelper.GetSlidesParagraphAnimationCollection(slide)
+        : new Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int>>();
 }
 
 @functions
@@ -31,6 +35,24 @@
         subModel.Local.Put("tableContent", false);
         subModel.Local.Put("isFirst", i == 0);
         subModel.Local.Put("isLast", i == (contextObject.Paragraphs.Count - 1));
+
+        if (paragraphAnimationData.ContainsKey(para))
+        {
+            var paragraphAnimation = paragraphAnimationData[para];
+            string animationAttributes = "";
+
+            animationAttributes += "data-animation-type=\"" + paragraphAnimation.Item1 + "\" ";
+            animationAttributes += "data-animation-subtype=\"" + paragraphAnimation.Item2 + "\" ";
+            animationAttributes += "data-animation-duration=\"" + NumberHelper.ToCssNumber(paragraphAnimation.Item3) + "\" ";
+            animationAttributes += "data-animation-delay=\"" + NumberHelper.ToCssNumber(paragraphAnimation.Item4) + "\" ";
+            animationAttributes += "data-animation-clickTarget=\"" + paragraphAnimation.Item5 + "\" ";
+            animationAttributes += "data-animation-extra=\"" + paragraphAnimation.Item6 + "\" ";
+            animationAttributes += "data-animation-index=\"" + paragraphAnimation.Item7 + "\" ";
+
+            string animationId = "slide-" + slide.SlideId + "-shape-" + parentAutoShape.UniqueId + "-paragraph-" + i;
+            subModel.Local.Put("animationAttributes", animationAttributes);
+            subModel.Local.Put("animationId", animationId);
+        }
 
         @Raw(TextHelper.CleanSpanSpace(@Include("paragraph", subModel).ToString()));
     }

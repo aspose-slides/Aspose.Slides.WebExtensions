@@ -202,7 +202,7 @@ function FillSlideShapeAnimations(slideId) {
     
     var slide = $(slideId);
     
-    slide.children('[data-animation-type!=""]').each(function(){ 
+    slide.find('[data-animation-type!=""]').each(function(){ 
         var clickTarget = $(this).attr("data-animation-clickTarget");
         if (clickTarget != null) {
             if (animations[clickTarget] == null) {
@@ -213,7 +213,7 @@ function FillSlideShapeAnimations(slideId) {
             while (animations[clickTarget].length <= parseInt($(this).attr("data-animation-index")))
                 animations[clickTarget].push([]);
             
-            animations[clickTarget][$(this).attr("data-animation-index")].push(GetAnimationEffect($(this).attr("data-animation-type"), $(this).attr("data-animation-subtype"), slideId + ' > #' + this.id, $(this).attr("data-animation-duration"), $(this).attr("data-animation-delay"), $(this).attr("data-animation-extra")));
+            animations[clickTarget][$(this).attr("data-animation-index")].push(GetAnimationEffect($(this).attr("data-animation-type"), $(this).attr("data-animation-subtype"), '#' + this.id, $(this).attr("data-animation-duration"), $(this).attr("data-animation-delay"), $(this).attr("data-animation-extra")));
         }
     });
 }
@@ -222,7 +222,7 @@ function GetSlideAnimatedShapesId(slideId) {
     var slide = $(slideId);
     
     var animatedShapesId = [];
-    slide.children('[data-animation-type!=""]').each(function(){ animatedShapesId.push('#' + this.id); });
+    slide.find('[data-animation-type!=""]').each(function(){ animatedShapesId.push('#' + this.id); });
     return animatedShapesId;
 }
 
@@ -3056,3 +3056,4 @@ function ShowPrev() {
             PrepareAndPlayTransition(slideId, prevSlideId, 'all');
     }
 }
+

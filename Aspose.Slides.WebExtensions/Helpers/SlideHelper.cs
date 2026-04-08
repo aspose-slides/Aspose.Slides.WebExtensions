@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2001-2021 Aspose Pty Ltd. All Rights Reserved.
+// Copyright (c) 2001-2021 Aspose Pty Ltd. All Rights Reserved.
 
 using System;
 using System.Collections.Generic;
@@ -132,22 +132,45 @@ namespace Aspose.Slides.WebExtensions.Helpers
         {
             var result = new Dictionary<IShape, Tuple<string, string, float, float, string, string, int>>();
 
-            int onclickIndex;
-            onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.MasterSlide.Timeline.MainSequence, result, 0);
-            onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.Timeline.MainSequence, result, onclickIndex);
-            onclickIndex = FillSequenceEffectCollection(slide.Timeline.MainSequence, result, onclickIndex);
+            int onclickIndex = 0;
+            onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.MasterSlide.Timeline.MainSequence, result, null, onclickIndex);
+            onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.Timeline.MainSequence, result, null, onclickIndex);
+            onclickIndex = FillSequenceEffectCollection(slide.Timeline.MainSequence, result, null, onclickIndex);
             
             foreach (var sequence in slide.LayoutSlide.MasterSlide.Timeline.InteractiveSequences)
-                FillSequenceEffectCollection(sequence, result, -1);
+                FillSequenceEffectCollection(sequence, result, null, -1);
             foreach (var sequence in slide.LayoutSlide.Timeline.InteractiveSequences)
-                FillSequenceEffectCollection(sequence, result, -1);
+                FillSequenceEffectCollection(sequence, result, null, -1);
             foreach (var sequence in slide.Timeline.InteractiveSequences)
-                FillSequenceEffectCollection(sequence, result, -1);
+                FillSequenceEffectCollection(sequence, result, null, -1);
 
             return result;
         }
 
-        private static int FillSequenceEffectCollection(ISequence sequence, Dictionary<IShape, Tuple<string, string, float, float, string, string, int>> shapeEffectsCollection, int onclickIndex)
+        public static Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int>> GetSlidesParagraphAnimationCollection(ISlide slide)
+        {
+            var result = new Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int>>();
+
+            int onclickIndex = 0;
+            onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.MasterSlide.Timeline.MainSequence, null, result, onclickIndex);
+            onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.Timeline.MainSequence, null, result, onclickIndex);
+            onclickIndex = FillSequenceEffectCollection(slide.Timeline.MainSequence, null, result, onclickIndex);
+            
+            foreach (var sequence in slide.LayoutSlide.MasterSlide.Timeline.InteractiveSequences)
+                FillSequenceEffectCollection(sequence, null, result, -1);
+            foreach (var sequence in slide.LayoutSlide.Timeline.InteractiveSequences)
+                FillSequenceEffectCollection(sequence, null, result, -1);
+            foreach (var sequence in slide.Timeline.InteractiveSequences)
+                FillSequenceEffectCollection(sequence, null, result, -1);
+
+            return result;
+        }
+
+        private static int FillSequenceEffectCollection(
+            ISequence sequence,
+            Dictionary<IShape, Tuple<string, string, float, float, string, string, int>> shapeEffectsCollection,
+            Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int>> paragraphEffectsCollection,
+            int onclickIndex)
         {
             float prevDelay = 0;
             float maxPrevDuration = 0;
@@ -197,7 +220,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                         || behavior.GetType() == typeof(ScaleEffect)
                         || behavior.GetType() == typeof(ColorEffect))
                     {
-                        if (type == EffectType.CenterRevolve || type == EffectType.Bounce || type == EffectType.Teeter || type == EffectType.Flicker || type == EffectType.Wave) // a crutch...
+                        if (type == EffectType.CenterRevolve || type == EffectType.Bounce || type == EffectType.Teeter || type == EffectType.Flicker || type == EffectType.Wave)
                         {
                             duration += behavior.Timing.Duration;
                         }
@@ -212,7 +235,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 if (float.IsInfinity(duration))
                     duration = 0.5f;
 
-                if (type == EffectType.CenterRevolve || type == EffectType.Bounce) // a crutch...
+                if (type == EffectType.CenterRevolve || type == EffectType.Bounce)
                     duration /= 2;
 
                 if (triggerType == EffectTriggerType.AfterPrevious)
@@ -224,7 +247,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 {
                     maxPrevDuration = Math.Max(maxPrevDuration, delay + duration);
                 }
-                else // OnClick
+                else
                 {
                     onclickIndex++;
                     prevDelay = 0;
@@ -241,11 +264,50 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 if (toColor != null && toColor.ColorType != ColorType.NotDefined)
                     extra = GetDestinationColor(shape, toColor);
 
-                if (!shapeEffectsCollection.ContainsKey(shape))
-                    shapeEffectsCollection.Add(shape, new Tuple<string, string, float, float, string, string, int>(classType.ToString() + type.ToString(), subType.ToString(), duration, totalDelay, targetShapeId, extra, onclickIndex));
+                IParagraph paragraph = GetEffectParagraph(sequence, effect);
+                var effectData = new Tuple<string, string, float, float, string, string, int>(
+                    classType.ToString() + type.ToString(),
+                    subType.ToString(),
+                    duration,
+                    totalDelay,
+                    targetShapeId,
+                    extra,
+                    onclickIndex);
+
+                if (paragraph != null)
+                {
+                    if (paragraphEffectsCollection != null && !paragraphEffectsCollection.ContainsKey(paragraph))
+                        paragraphEffectsCollection.Add(paragraph, effectData);
+                }
+                else if (shapeEffectsCollection != null && !shapeEffectsCollection.ContainsKey(shape))
+                {
+                    shapeEffectsCollection.Add(shape, effectData);
+                }
             }
 
             return onclickIndex;
+        }
+
+        private static IParagraph GetEffectParagraph(ISequence sequence, IEffect effect)
+        {
+            AutoShape autoShape = effect.TargetShape as AutoShape;
+            if (sequence == null || autoShape == null || autoShape.TextFrame == null)
+                return null;
+
+            foreach (IParagraph paragraph in autoShape.TextFrame.Paragraphs)
+            {
+                IEffect[] paragraphEffects = sequence.GetEffectsByParagraph(paragraph);
+                if (paragraphEffects == null)
+                    continue;
+
+                foreach (IEffect paragraphEffect in paragraphEffects)
+                {
+                    if (ReferenceEquals(paragraphEffect, effect))
+                        return paragraph;
+                }
+            }
+
+            return null;
         }
 
         private static string GetDestinationColor(IShape shape, IColorFormat colorFormat)

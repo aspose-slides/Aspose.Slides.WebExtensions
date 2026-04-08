@@ -214,16 +214,32 @@ class Effect {
         this.subtype = subtype;
         this.extra = extra;
         
-        this.shapeParams = { left: parseInt($(this.shapeId).css('left').replace('px', '')), 
-                             top: parseInt($(this.shapeId).css('top').replace('px', '')),
-                             width: parseInt($(this.shapeId).css('width').replace('px', '')),
-                             height: parseInt($(this.shapeId).css('height').replace('px', '')),
-                             opacity: parseInt($(this.shapeId).css('opacity')),
+        var element = $(this.shapeId)[0];
+        var bounds = element ? element.getBoundingClientRect() : null;
+        this.shapeStyle = { left: element ? element.style.left : '',
+                            top: element ? element.style.top : '',
+                            width: element ? element.style.width : '',
+                            height: element ? element.style.height : '',
+                            opacity: element ? element.style.opacity : '',
+                            background: element ? element.style.backgroundColor : '',
+                            border: element ? element.style.border : ''
+                          };
+        var cssLeft = parseInt($(this.shapeId).css('left').replace('px', ''));
+        var cssTop = parseInt($(this.shapeId).css('top').replace('px', ''));
+        var cssWidth = parseInt($(this.shapeId).css('width').replace('px', ''));
+        var cssHeight = parseInt($(this.shapeId).css('height').replace('px', ''));
+        var dataWidth = parseFloat($(this.shapeId).attr('data-animation-width'));
+        var dataHeight = parseFloat($(this.shapeId).attr('data-animation-height'));
+        
+        this.shapeParams = { left: isNaN(cssLeft) ? 0 : cssLeft, 
+                             top: isNaN(cssTop) ? 0 : cssTop,
+                             width: !isNaN(dataWidth) ? dataWidth : (isNaN(cssWidth) ? (bounds ? Math.ceil(bounds.width) : 0) : cssWidth),
+                             height: !isNaN(dataHeight) ? dataHeight : (isNaN(cssHeight) ? (bounds ? Math.ceil(bounds.height) : 0) : cssHeight),
+                             opacity: parseFloat($(this.shapeId).css('opacity')),
                              background: $(this.shapeId).css('background-color'),
                              border: $(this.shapeId).css('border')
                            };
     }
-    
     Prepare() { }
     Play() { this.effectTimeline.play(); }
     Pause() { this.effectTimeline.pause(); }
@@ -234,13 +250,13 @@ class Effect {
     }
     Restore() {
         
-        $(this.shapeId).css('left', this.shapeParams.left + 'px');
-        $(this.shapeId).css('top', this.shapeParams.top + 'px');
-        $(this.shapeId).css('width', this.shapeParams.width + 'px');
-        $(this.shapeId).css('height', this.shapeParams.height + 'px');
-        $(this.shapeId).css('opacity', this.shapeParams.opacity);
-        $(this.shapeId).css('background-color', this.shapeParams.background);
-        $(this.shapeId).css('border', this.shapeParams.border);
+        $(this.shapeId).css('left', this.shapeStyle.left);
+        $(this.shapeId).css('top', this.shapeStyle.top);
+        $(this.shapeId).css('width', this.shapeStyle.width);
+        $(this.shapeId).css('height', this.shapeStyle.height);
+        $(this.shapeId).css('opacity', this.shapeStyle.opacity);
+        $(this.shapeId).css('background-color', this.shapeStyle.background);
+        $(this.shapeId).css('border', this.shapeStyle.border);
         
         $(this.shapeId).css({'transform': ''});
         $(this.shapeId).css('clip-path', '');
@@ -2814,3 +2830,4 @@ function hslToRgb(h, s, l){
 
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
+
