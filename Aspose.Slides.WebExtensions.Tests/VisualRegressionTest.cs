@@ -30,6 +30,8 @@ namespace Aspose.Slides.WebExtensions.Tests
 
         public int ViewportHeight { get; private set; } = 720;
 
+        public int PixelTolerance { get; private set; }
+
         public string EntryPoint { get; private set; }
 
         private VisualRegressionTest()
@@ -72,6 +74,12 @@ namespace Aspose.Slides.WebExtensions.Tests
         {
             ViewportWidth = width;
             ViewportHeight = height;
+            return this;
+        }
+
+        public VisualRegressionTest WithPixelTolerance(int pixelTolerance)
+        {
+            PixelTolerance = pixelTolerance;
             return this;
         }
 
@@ -195,6 +203,14 @@ namespace Aspose.Slides.WebExtensions.Tests
 
                             if (!VisualImageComparer.ComparePng(baselineScreenshotPath, actualScreenshotPath, diffScreenshotPath, out var differenceCount))
                             {
+                                if (differenceCount <= PixelTolerance)
+                                {
+                                    if (File.Exists(diffScreenshotPath))
+                                        File.Delete(diffScreenshotPath);
+
+                                    continue;
+                                }
+
                                 failures.Add(
                                     $"Screenshot '{step.Value}' differs from baseline. " +
                                     $"Different pixels: {differenceCount}. " +
