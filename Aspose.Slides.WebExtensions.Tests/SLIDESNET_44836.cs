@@ -7,7 +7,7 @@ namespace Aspose.Slides.WebExtensions.Tests
     public class SLIDESNET_44836
     {
         [TestMethod]
-        public void Test_Try1_RandomBarsTextAnimation_Visual()
+        public void Test_44836_Visual()
         {
             string env_suff =
 #if NET472
@@ -16,13 +16,13 @@ namespace Aspose.Slides.WebExtensions.Tests
             "";
 #endif
             var rootDirectory = Path.GetFullPath("../../../");
-            var presentationFilePath = Path.Combine(rootDirectory, "TestData", "SLIDESNET_44836", "try1.pptx");
+            var presentationFilePath = Path.Combine(rootDirectory, "TestData", "SLIDESNET_44836", "SLIDESNET_44836.pptx");
 
             VisualRegressionTest
                 .ForIssue("SLIDESNET_44836")
                 .UsingPresentation(presentationFilePath)
                 .UsingTemplateSet("single-page")
-                .WithOutputName("try1-randombars-text-animation")
+                .WithOutputName("SLIDESNET_44836")
                 .WithWebDocumentOptions(options =>
                 {
                     options.AnimateShapes = true;

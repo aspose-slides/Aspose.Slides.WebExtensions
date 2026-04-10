@@ -7,7 +7,7 @@ namespace Aspose.Slides.WebExtensions.Tests
     public class SLIDESNET_44630
     {
         [TestMethod]
-        public void Test_SamplePPT1_AnimationAwareSlideNavigation_Visual()
+        public void Test_44630_Visual()
         {
             string env_suff =
 #if NET472
@@ -22,7 +22,7 @@ namespace Aspose.Slides.WebExtensions.Tests
                 .ForIssue("SLIDESNET_44630")
                 .UsingPresentation(presentationFilePath)
                 .UsingTemplateSet("single-page")
-                .WithOutputName("SamplePPT1-animation-aware-slide-navigation")
+                .WithOutputName("SLIDESNET_44630")
                 .WithWebDocumentOptions(options =>
                 {
                     options.AnimateShapes = true;
