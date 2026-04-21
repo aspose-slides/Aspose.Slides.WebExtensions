@@ -7,7 +7,7 @@ namespace Aspose.Slides.WebExtensions.Tests
     public class SLIDESNET_44630
     {
         [TestMethod]
-        public void Test_SamplePPT1_AnimationAwareSlideNavigation_Visual()
+        public void Test_44630_Visual()
         {
             string env_suff =
 #if NET472
@@ -22,7 +22,7 @@ namespace Aspose.Slides.WebExtensions.Tests
                 .ForIssue("SLIDESNET_44630")
                 .UsingPresentation(presentationFilePath)
                 .UsingTemplateSet("single-page")
-                .WithOutputName("SamplePPT1-animation-aware-slide-navigation")
+                .WithOutputName("SLIDESNET_44630")
                 .WithWebDocumentOptions(options =>
                 {
                     options.AnimateShapes = true;
@@ -33,20 +33,22 @@ namespace Aspose.Slides.WebExtensions.Tests
                 //forward
                 .Open("index.html").Wait(1200).Capture("01-slide-1-empty-n")
                 .Click("#NextSlide").Wait(1200).Capture("02-slide-1-title-n")
-                .Click("#NextSlide").Wait(1200).Capture("03-slide-1-title-content-n")
-                .Click("#NextSlide").Wait(1200).Capture("04-slide-2-empty-n")
-                .Click("#NextSlide").Wait(1200).Capture("05-slide-2-title-n")
-                .Click("#NextSlide").Wait(1200).Capture("06-slide-2-title-chart-n" + env_suff)
-                .Click("#NextSlide").Wait(1200).Capture("07-slide-3-empty-n")
-                .Click("#NextSlide").Wait(1200).Capture("08-slide-3-title-n")
-                .Click("#NextSlide").Wait(1200).Capture("09-slide-3-title-table-n")
+                .Click("#NextSlide").Wait(1200).Capture("03-slide-1-title-content-1-n")
+                .Click("#NextSlide").Wait(1200).Capture("04-slide-1-title-content-2-n")
+                .Click("#NextSlide").Wait(1200).Capture("05-slide-2-empty-n")
+                .Click("#NextSlide").Wait(1200).Capture("06-slide-2-title-n")
+                .Click("#NextSlide").Wait(1200).Capture("07-slide-2-title-chart-n" + env_suff)
+                .Click("#NextSlide").Wait(1200).Capture("08-slide-3-empty-n")
+                .Click("#NextSlide").Wait(1200).Capture("09-slide-3-title-n")
+                .Click("#NextSlide").Wait(1200).Capture("10-slide-3-title-table-n")
                 //backward
-                .Click("#PrevSlide").Wait(1200).Capture("08-slide-3-title-p")
-                .Click("#PrevSlide").Wait(1200).Capture("07-slide-3-empty-p")
-                .Click("#PrevSlide").Wait(1200).Capture("06-slide-2-title-chart-p" + env_suff)
-                .Click("#PrevSlide").Wait(1200).Capture("05-slide-2-title-p")
-                .Click("#PrevSlide").Wait(1200).Capture("04-slide-2-empty-p")
-                .Click("#PrevSlide").Wait(1200).Capture("03-slide-1-title-content-p")
+                .Click("#PrevSlide").Wait(1200).Capture("09-slide-3-title-p")
+                .Click("#PrevSlide").Wait(1200).Capture("08-slide-3-empty-p")
+                .Click("#PrevSlide").Wait(1200).Capture("07-slide-2-title-chart-p" + env_suff)
+                .Click("#PrevSlide").Wait(1200).Capture("06-slide-2-title-p")
+                .Click("#PrevSlide").Wait(1200).Capture("05-slide-2-empty-p")
+                .Click("#PrevSlide").Wait(1200).Capture("04-slide-1-title-content-2-p")
+                .Click("#PrevSlide").Wait(1200).Capture("03-slide-1-title-content-1-p")
                 .Click("#PrevSlide").Wait(1200).Capture("02-slide-1-title-p")
                 .Click("#PrevSlide").Wait(1200).Capture("01-slide-1-empty-p")
                 //check
