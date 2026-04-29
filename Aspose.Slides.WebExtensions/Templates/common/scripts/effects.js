@@ -338,10 +338,17 @@ class EntranceFadeEffect extends Effect {
 class ExitFadeEffect extends Effect {
     
     Prepare() {
+        var shapeId = this.shapeId;
+        var initialOpacity = isNaN(this.shapeParams.opacity) ? 1 : this.shapeParams.opacity;
+
         this.effectTimeline = anime.timeline({
-            targets: this.shapeId,
+            targets: shapeId,
             autoplay: false,
-            easing: 'linear'
+            easing: 'linear',
+            begin: function(anim) {
+                $(shapeId).show();
+                $(shapeId).css('opacity', initialOpacity);
+            }
         });
     
         this.effectTimeline.add({

@@ -128,9 +128,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
             return result;
         }
 
-        public static Dictionary<IShape, Tuple<string, string, float, float, string, string, int>> GetSlidesAnimationCollection(ISlide slide)
+        public static Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int>>> GetSlidesAnimationCollection(ISlide slide)
         {
-            var result = new Dictionary<IShape, Tuple<string, string, float, float, string, string, int>>();
+            var result = new Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int>>>();
 
             int onclickIndex = 0;
             onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.MasterSlide.Timeline.MainSequence, result, null, onclickIndex);
@@ -168,7 +168,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
         private static int FillSequenceEffectCollection(
             ISequence sequence,
-            Dictionary<IShape, Tuple<string, string, float, float, string, string, int>> shapeEffectsCollection,
+            Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int>>> shapeEffectsCollection,
             Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int>> paragraphEffectsCollection,
             int onclickIndex)
         {
@@ -279,9 +279,12 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     if (paragraphEffectsCollection != null && !paragraphEffectsCollection.ContainsKey(paragraph))
                         paragraphEffectsCollection.Add(paragraph, effectData);
                 }
-                else if (shapeEffectsCollection != null && !shapeEffectsCollection.ContainsKey(shape))
+                else if (shapeEffectsCollection != null)
                 {
-                    shapeEffectsCollection.Add(shape, effectData);
+                    if (!shapeEffectsCollection.ContainsKey(shape))
+                        shapeEffectsCollection.Add(shape, new List<Tuple<string, string, float, float, string, string, int>>());
+
+                    shapeEffectsCollection[shape].Add(effectData);
                 }
             }
 

@@ -202,18 +202,37 @@ function FillSlideShapeAnimations(slideId) {
     
     var slide = $(slideId);
     
-    slide.find('[data-animation-type!=""]').each(function(){ 
-        var clickTarget = $(this).attr("data-animation-clickTarget");
-        if (clickTarget != null) {
-            if (animations[clickTarget] == null) {
-                animations[clickTarget] = [];
-                shapeAnimationsIndices[clickTarget] = -1;
+    slide.find('[data-animation-type!=""], [data-animation-count]').each(function(){ 
+        var animationCount = parseInt($(this).attr("data-animation-count"));
+        if (isNaN(animationCount) || animationCount <= 0) {
+            animationCount = 1;
+        }
+
+        for (var i = 0; i < animationCount; i++) {
+            var attrSuffix = animationCount > 1 ? '-' + i : '';
+            var clickTarget = $(this).attr("data-animation-clickTarget" + attrSuffix);
+            if (clickTarget == null && animationCount == 1) {
+                clickTarget = $(this).attr("data-animation-clickTarget");
             }
-            
-            while (animations[clickTarget].length <= parseInt($(this).attr("data-animation-index")))
-                animations[clickTarget].push([]);
-            
-            animations[clickTarget][$(this).attr("data-animation-index")].push(GetAnimationEffect($(this).attr("data-animation-type"), $(this).attr("data-animation-subtype"), '#' + this.id, $(this).attr("data-animation-duration"), $(this).attr("data-animation-delay"), $(this).attr("data-animation-extra")));
+
+            if (clickTarget != null) {
+                if (animations[clickTarget] == null) {
+                    animations[clickTarget] = [];
+                    shapeAnimationsIndices[clickTarget] = -1;
+                }
+
+                var animationIndex = parseInt($(this).attr("data-animation-index" + attrSuffix));
+                while (animations[clickTarget].length <= animationIndex)
+                    animations[clickTarget].push([]);
+
+                animations[clickTarget][animationIndex].push(GetAnimationEffect(
+                    $(this).attr("data-animation-type" + attrSuffix),
+                    $(this).attr("data-animation-subtype" + attrSuffix),
+                    '#' + this.id,
+                    $(this).attr("data-animation-duration" + attrSuffix),
+                    $(this).attr("data-animation-delay" + attrSuffix),
+                    $(this).attr("data-animation-extra" + attrSuffix)));
+            }
         }
     });
 }
@@ -222,7 +241,7 @@ function GetSlideAnimatedShapesId(slideId) {
     var slide = $(slideId);
     
     var animatedShapesId = [];
-    slide.find('[data-animation-type!=""]').each(function(){ animatedShapesId.push('#' + this.id); });
+    slide.find('[data-animation-type!=""], [data-animation-count]').each(function(){ animatedShapesId.push('#' + this.id); });
     return animatedShapesId;
 }
 
@@ -297,18 +316,17 @@ function PlayNextAnimationsForTarget(target, skipEmptySteps) {
             
         if (shapeAnimationsIndices[target] != -1) {
             if (index > 0) {
-                RestartEffectsTimeline(animations[target][index - 1]);
-                PauseEffectsTimeline(animations[target][index - 1]);
                 FinishEffectsTimeline(animations[target][index - 1]);
             }
             else {
-                RestartEffectsTimeline(animations[target][animations[target].length - 1]);
-                PauseEffectsTimeline(animations[target][animations[target].length - 1]);
                 FinishEffectsTimeline(animations[target][animations[target].length - 1]);
             }
         }
         
         shapeAnimationsIndices[target] = index;
+
+        RestoreEffectsTimeline(animations[target][index]);
+        PrepareEffectsTimeline(animations[target][index]);
         
         PlayEffectsTimeline(animations[target][index]);
         UpdateNavigationButtonsState();
@@ -351,6 +369,9 @@ function RestoreAnimationsForTarget(target, completedIndex) {
 
     for (var i = 0; i < animations[target].length; i++) {
         RestoreEffectsTimeline(animations[target][i]);
+    }
+
+    for (var i = 0; i < animations[target].length; i++) {
         PrepareEffectsTimeline(animations[target][i]);
     }
 
