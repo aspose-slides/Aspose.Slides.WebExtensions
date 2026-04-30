@@ -8,7 +8,7 @@
 }
 
 @{
-    void EmitShape(IShape shape, Slide contextObject, Dictionary<IShape, Tuple<string, string, float, float, string, string, int>> slideAnimationData)
+    void EmitShape(IShape shape, Slide contextObject, Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int>>> slideAnimationData)
 {
     var margin = Model.Global.Get<int>("slideMargin");
     var origin = new Point(0, 0);
@@ -16,15 +16,34 @@
     string animationAttributes = "";
     if (slideAnimationData.ContainsKey(shape))
     {
-        var shapeAnimationData = slideAnimationData[shape];
+        var shapeAnimationEffects = slideAnimationData[shape];
+        if (shapeAnimationEffects.Count == 1)
+        {
+            var shapeAnimationData = shapeAnimationEffects[0];
 
-        animationAttributes += "data-animation-type=\"" + shapeAnimationData.Item1 + "\" ";
-        animationAttributes += "data-animation-subtype=\"" + shapeAnimationData.Item2 + "\" ";
-        animationAttributes += "data-animation-duration=\"" + NumberHelper.ToCssNumber(shapeAnimationData.Item3) + "\" ";
-        animationAttributes += "data-animation-delay=\"" + NumberHelper.ToCssNumber(shapeAnimationData.Item4) + "\" ";
-        animationAttributes += "data-animation-clickTarget=\"" + shapeAnimationData.Item5 + "\" ";
-        animationAttributes += "data-animation-extra=\"" + shapeAnimationData.Item6 + "\" ";
-        animationAttributes += "data-animation-index=\"" + shapeAnimationData.Item7 + "\" ";
+            animationAttributes += "data-animation-type=\"" + shapeAnimationData.Item1 + "\" ";
+            animationAttributes += "data-animation-subtype=\"" + shapeAnimationData.Item2 + "\" ";
+            animationAttributes += "data-animation-duration=\"" + NumberHelper.ToCssNumber(shapeAnimationData.Item3) + "\" ";
+            animationAttributes += "data-animation-delay=\"" + NumberHelper.ToCssNumber(shapeAnimationData.Item4) + "\" ";
+            animationAttributes += "data-animation-clickTarget=\"" + shapeAnimationData.Item5 + "\" ";
+            animationAttributes += "data-animation-extra=\"" + shapeAnimationData.Item6 + "\" ";
+            animationAttributes += "data-animation-index=\"" + shapeAnimationData.Item7 + "\" ";
+        }
+        else
+        {
+            animationAttributes += "data-animation-count=\"" + shapeAnimationEffects.Count + "\" ";
+            for (int i = 0; i < shapeAnimationEffects.Count; i++)
+            {
+                var shapeAnimationData = shapeAnimationEffects[i];
+                animationAttributes += "data-animation-type-" + i + "=\"" + shapeAnimationData.Item1 + "\" ";
+                animationAttributes += "data-animation-subtype-" + i + "=\"" + shapeAnimationData.Item2 + "\" ";
+                animationAttributes += "data-animation-duration-" + i + "=\"" + NumberHelper.ToCssNumber(shapeAnimationData.Item3) + "\" ";
+                animationAttributes += "data-animation-delay-" + i + "=\"" + NumberHelper.ToCssNumber(shapeAnimationData.Item4) + "\" ";
+                animationAttributes += "data-animation-clickTarget-" + i + "=\"" + shapeAnimationData.Item5 + "\" ";
+                animationAttributes += "data-animation-extra-" + i + "=\"" + shapeAnimationData.Item6 + "\" ";
+                animationAttributes += "data-animation-index-" + i + "=\"" + shapeAnimationData.Item7 + "\" ";
+            }
+        }
     }
 
     if (shape is AutoShape && (((AutoShape)shape).ShapeType == Aspose.Slides.ShapeType.Rectangle || ((AutoShape)shape).ShapeType == Aspose.Slides.ShapeType.NotDefined))
