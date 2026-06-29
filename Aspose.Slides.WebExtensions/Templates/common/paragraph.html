@@ -8,8 +8,10 @@
     var parentContainerSize = Model.Local.Get<SizeF>("parentContainerSize");
     bool isFirst = Model.Local.ContainsKey("isFirst") && Model.Local.Get<bool>("isFirst");
     bool isLast = Model.Local.ContainsKey("isLast") && Model.Local.Get<bool>("isLast");
+    bool wideTextBoxLayout = Model.Local.ContainsKey("wideTextBoxLayout") && Model.Local.Get<bool>("wideTextBoxLayout");
 
     var paragraphFormatEffective = contextObject.ParagraphFormat.GetEffective();
+    bool singleVisiblePortion = paragraphFormatEffective.Bullet.Type == BulletType.None && CountVisiblePortions(contextObject) == 1;
     var animationAttributes = Model.Local.ContainsKey("animationAttributes") ? Model.Local.Get<string>("animationAttributes") : "";
     var animationId = Model.Local.ContainsKey("animationId") ? Model.Local.Get<string>("animationId") : null;
 
@@ -42,6 +44,11 @@
     }
     var paragraphRect = contextObject.GetRect();
     var paragraphTextStyle = GetTextStyle(contextObject);
+    if (wideTextBoxLayout)
+    {
+        paragraphTextStyle = RemoveCssProperty(paragraphTextStyle, "line-height");
+        paragraphTextStyle += " white-space: nowrap;";
+    }
     var paragraphBoxStyle = marginStyle + paddingStyle;
     var paragraphStyle = paragraphBoxStyle + paragraphTextStyle;
     var animationWrapperStyle = "position: relative; left: 0px; top: 0px; " + paragraphBoxStyle;
@@ -64,6 +71,44 @@
     {
         return TextHelper.GetTextStyle(paragraph.ParagraphFormat.GetEffective(), Model);
     }
+
+    int CountVisiblePortions(Paragraph paragraph)
+    {
+        int count = 0;
+        for (int i = 0; i < paragraph.Portions.Count; i++)
+        {
+            var portion = paragraph.Portions[i];
+            if (!string.IsNullOrEmpty(portion.Text))
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    string RemoveCssProperty(string style, string propertyName)
+    {
+        var result = new List<string>();
+        foreach (var declaration in style.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var trimmedDeclaration = declaration.Trim();
+            if (!StartsWithIgnoreCase(trimmedDeclaration, propertyName + ":"))
+            {
+                result.Add(trimmedDeclaration + ";");
+            }
+        }
+
+        return string.Join(" ", result.ToArray());
+    }
+
+    bool StartsWithIgnoreCase(string text, string value)
+    {
+        return text != null
+            && value != null
+            && text.Length >= value.Length
+            && string.Compare(text, 0, value, 0, value.Length, true) == 0;
+    }
 }
 
 @Raw(paragraphStartMarkup)
@@ -78,6 +123,8 @@
         var subModel = Model.SubModel(portion);
         subModel.Local.Put("parentTextFrame", parentTextFrame);
         subModel.Local.Put("tableContent", tableContentFlag);
+        subModel.Local.Put("wideTextBoxLayout", wideTextBoxLayout);
+        subModel.Local.Put("singleVisiblePortionParagraph", singleVisiblePortion);
         subModel.Local.Put("isFirst", portion == contextObject.Portions[0]);
         subModel.Local.Put("isLast", portion == contextObject.Portions[contextObject.Portions.Count - 1]);
         subModel.Local.Put("paragraph", contextObject);

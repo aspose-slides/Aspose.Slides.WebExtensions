@@ -16,10 +16,52 @@
 {
     string GetTextStyle(Portion portion, TextFrame textFrame, bool isTableContent, bool disableFontLigatures)
     {
-        return TextHelper.GetTextStyle(portion.PortionFormat.GetEffective(), textFrame.TextFrameFormat.GetEffective(), isTableContent, Model, disableFontLigatures);
+        var style = TextHelper.GetTextStyle(portion.PortionFormat.GetEffective(), textFrame.TextFrameFormat.GetEffective(), isTableContent, Model, disableFontLigatures);
+        if (Model.Local.ContainsKey("wideTextBoxLayout") && Model.Local.Get<bool>("wideTextBoxLayout"))
+        {
+            style = RemoveCssProperty(style, "line-height");
+            style = RemoveCssProperty(style, "white-space");
+            style += " white-space: nowrap;";
+        }
+        if (!isTableContent
+            && Model.Local.ContainsKey("singleVisiblePortionParagraph")
+            && Model.Local.Get<bool>("singleVisiblePortionParagraph"))
+        {
+            style += " display: block;";
+        }
+        return style;
     }
+
+    string RemoveCssProperty(string style, string propertyName)
+    {
+        var result = new List<string>();
+        foreach (var declaration in style.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var trimmedDeclaration = declaration.Trim();
+            if (!StartsWithIgnoreCase(trimmedDeclaration, propertyName + ":"))
+            {
+                result.Add(trimmedDeclaration + ";");
+            }
+        }
+
+        return string.Join(" ", result.ToArray());
+    }
+
+    bool StartsWithIgnoreCase(string text, string value)
+    {
+        return text != null
+            && value != null
+            && text.Length >= value.Length
+            && string.Compare(text, 0, value, 0, value.Length, true) == 0;
+    }
+
     string FixVerticalTabulation(string text, bool isLast, bool isFirst)
     {
+        if (Model.Local.ContainsKey("wideTextBoxLayout") && Model.Local.Get<bool>("wideTextBoxLayout"))
+        {
+            if (string.IsNullOrEmpty(text) && isLast && isFirst) text = " ";
+            return text.Replace("\v", " ");
+        }
         if (text.Length > 1 && text.EndsWith("\v") && isLast) text = text.Substring(0, text.Length - 1) + "<br /><br />";
         else if (string.IsNullOrEmpty(text) && isLast && isFirst) text = " ";
         return text.Replace("\v", "<br />");

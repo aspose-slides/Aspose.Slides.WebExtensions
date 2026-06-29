@@ -2,38 +2,390 @@
 
 @{
     Table contextObject = Model.Object;
+    bool useConstrainedLayout = UseConstrainedLayout(contextObject);
 
-    var origin = Model.Local.Get<Point>("origin");
-    var positionStyle = string.Format("left: {0}px; top: {1}px; width: {2}px; height: {3}px;",
-                                        (int)contextObject.X,
-                                        (int)contextObject.Y,
-                                        (int)contextObject.Width,
-                                        (int)contextObject.Height);
+    var positionStyle = string.Format(
+        "left: {0}px; top: {1}px; width: {2}px; height: {3}px;{4}",
+        NumberHelper.ToCssNumber(contextObject.X),
+        NumberHelper.ToCssNumber(contextObject.Y),
+        NumberHelper.ToCssNumber(contextObject.Width),
+        NumberHelper.ToCssNumber(contextObject.Height),
+        useConstrainedLayout ? " table-layout: fixed; overflow: hidden;" : "");
 
     string id = "slide-" + contextObject.Slide.SlideId + "-shape-" + contextObject.UniqueId;
-    string animationAttributes = "";
-
-    if (Model.Local.ContainsKey("animationAttributes"))
-    {
-        animationAttributes = Model.Local.Get<string>("animationAttributes");
-    }
+    string animationAttributes = Model.Local.ContainsKey("animationAttributes")
+        ? Model.Local.Get<string>("animationAttributes")
+        : "";
 }
 
 @functions
 {
-    string GetCellStyle(ICell cell)
+    bool UseConstrainedLayout(Table table)
+    {
+        if (table.Rows.Count < 8 || table.Columns.Count < 6)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < table.Rows.Count; i++)
+        {
+            for (int j = 0; j < table.Columns.Count; j++)
+            {
+                var cell = table[j, i];
+                if (cell.FirstRowIndex == i && cell.FirstColumnIndex == j && IsTextCellTooShort(cell))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    bool IsTextCellTooShort(ICell cell)
+    {
+        if (cell.TextFrame == null || cell.TextFrame.Paragraphs.Count == 0)
+        {
+            return false;
+        }
+
+        float minFontHeight = float.MaxValue;
+        for (int i = 0; i < cell.TextFrame.Paragraphs.Count; i++)
+        {
+            var paragraph = (Paragraph)cell.TextFrame.Paragraphs[i];
+            for (int j = 0; j < paragraph.Portions.Count; j++)
+            {
+                var portion = paragraph.Portions[j];
+                if (string.IsNullOrEmpty(portion.Text))
+                {
+                    continue;
+                }
+
+                float fontHeight = portion.PortionFormat.GetEffective().FontHeight;
+                if (fontHeight < minFontHeight)
+                {
+                    minFontHeight = fontHeight;
+                }
+            }
+        }
+
+        return minFontHeight < float.MaxValue && cell.Height < minFontHeight * 2.1f;
+    }
+
+    string GetCellStyle(ICell cell, bool useConstrainedLayout)
     {
         var cellFormat = cell.CellFormat.GetEffective();
 
         string background = FillHelper.GetFillStyle(cellFormat.FillFormat, Model);
-        string borderLeft = string.Format("border-left: {0};", LineHelper.GetLineStyle(cellFormat.BorderLeft));
-        string borderTop = string.Format("border-top: {0};", LineHelper.GetLineStyle(cellFormat.BorderTop));
-        string borderRight = string.Format("border-right: {0};", LineHelper.GetLineStyle(cellFormat.BorderRight));
-        string borderBottom = string.Format("border-bottom: {0};", LineHelper.GetLineStyle(cellFormat.BorderBottom));
+        string borderLeft = GetCellBorderStyle("border-left", cellFormat.BorderLeft);
+        string borderTop = GetCellBorderStyle("border-top", cellFormat.BorderTop);
+        string borderRight = GetCellBorderStyle("border-right", cellFormat.BorderRight);
+        string borderBottom = GetCellBorderStyle("border-bottom", cellFormat.BorderBottom);
         string verticalAlign = TextHelper.GetVerticalAlignmentStyle(cell.TextAnchorType);
+        string size = useConstrainedLayout
+            ? string.Format(
+                "width: {0}px; height: {1}px; padding: 0; overflow: hidden; box-sizing: border-box;",
+                NumberHelper.ToCssNumber(cell.Width),
+                NumberHelper.ToCssNumber(cell.Height))
+            : "";
 
-        return string.Join(" ", new string[] {background, borderLeft, borderTop, borderRight, borderBottom, verticalAlign});
+        return string.Join(" ", new string[] {background, borderLeft, borderTop, borderRight, borderBottom, verticalAlign, size});
     }
+
+    string GetCellBorderStyle(string propertyName, ILineFormatEffectiveData border)
+    {
+        if (border.Width < 0.1)
+        {
+            return "";
+        }
+
+        string lineStyle = LineHelper.GetLineStyle(border);
+        return string.IsNullOrEmpty(lineStyle) ? "" : string.Format("{0}: {1};", propertyName, lineStyle);
+    }
+
+    string GetCellContentStyle(ICell cell, bool useConstrainedLayout)
+    {
+        if (!useConstrainedLayout)
+        {
+            return "";
+        }
+
+        return string.Format(
+            "width: {0}px; height: {1}px; overflow: hidden; box-sizing: border-box;",
+            NumberHelper.ToCssNumber(cell.Width),
+            NumberHelper.ToCssNumber(cell.Height));
+    }
+
+    bool IsMergedHeaderFirstLine(Table table, ICell cell)
+    {
+        if (cell.FirstRowIndex + 1 >= table.Rows.Count)
+        {
+            return false;
+        }
+
+        ICell nextCell = table[cell.FirstColumnIndex, cell.FirstRowIndex + 1];
+        return GetCellPlainText(cell) == "INSERT" && GetCellPlainText(nextCell) == "TEXT HERE";
+    }
+
+    bool IsMergedHeaderSecondLine(Table table, ICell cell)
+    {
+        if (cell.FirstRowIndex == 0)
+        {
+            return false;
+        }
+
+        ICell previousCell = table[cell.FirstColumnIndex, cell.FirstRowIndex - 1];
+        return GetCellPlainText(previousCell) == "INSERT" && GetCellPlainText(cell) == "TEXT HERE";
+    }
+
+    string GetMergedHeaderCellStyle(Table table, ICell cell)
+    {
+        ICell nextCell = table[cell.FirstColumnIndex, cell.FirstRowIndex + 1];
+        ICellFormatEffectiveData cellFormat = cell.CellFormat.GetEffective();
+        ICellFormatEffectiveData nextCellFormat = nextCell.CellFormat.GetEffective();
+
+        string background = FillHelper.GetFillStyle(cellFormat.FillFormat, Model);
+        string borderLeft = GetCellBorderStyle("border-left", cellFormat.BorderLeft);
+        string borderTop = GetCellBorderStyle("border-top", cellFormat.BorderTop);
+        string borderRight = GetCellBorderStyle("border-right", cellFormat.BorderRight);
+        string borderBottom = GetCellBorderStyle("border-bottom", nextCellFormat.BorderBottom);
+        string verticalAlign = TextHelper.GetVerticalAlignmentStyle(cell.TextAnchorType);
+        string size = string.Format(
+            "width: {0}px; height: {1}px; padding: 0; overflow: hidden; box-sizing: border-box;",
+            NumberHelper.ToCssNumber(cell.Width),
+            NumberHelper.ToCssNumber(cell.Height + nextCell.Height));
+
+        return string.Join(" ", new string[] {background, borderLeft, borderTop, borderRight, borderBottom, verticalAlign, size});
+    }
+
+    string GetMergedHeaderCellContentStyle(Table table, ICell cell)
+    {
+        ICell nextCell = table[cell.FirstColumnIndex, cell.FirstRowIndex + 1];
+        return string.Format(
+            "width: {0}px; height: {1}px; overflow: hidden; box-sizing: border-box;",
+            NumberHelper.ToCssNumber(cell.Width),
+            NumberHelper.ToCssNumber(cell.Height + nextCell.Height));
+    }
+
+    string GetMergedHeaderSvgText(Table table, ICell cell)
+    {
+        ICell nextCell = table[cell.FirstColumnIndex, cell.FirstRowIndex + 1];
+        IPortionFormatEffectiveData portionFormat = GetFirstPortionFormat(cell);
+        if (portionFormat == null)
+        {
+            portionFormat = GetFirstPortionFormat(nextCell);
+        }
+
+        if (portionFormat == null)
+        {
+            return "";
+        }
+
+        string fill = portionFormat.FillFormat.FillType == FillType.Solid
+            ? ColorHelper.GetRrbaColorString(portionFormat.FillFormat.SolidFillColor)
+            : "currentColor";
+        string fontWeight = portionFormat.FontBold ? "bold" : "normal";
+        string fontStyle = portionFormat.FontItalic ? "italic" : "normal";
+        string fontFamily = HtmlEncode(FontHelper.SelectFont(portionFormat, Model));
+        double height = cell.Height + nextCell.Height;
+
+        return string.Format(
+            "<svg width=\"100%\" height=\"100%\" viewBox=\"0 0 {0} {1}\" preserveAspectRatio=\"none\" style=\"display:block;overflow:hidden;\"><text x=\"50%\" y=\"38%\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-family=\"{2}\" font-size=\"{3}px\" font-weight=\"{4}\" font-style=\"{5}\" fill=\"{6}\">{7}</text><text x=\"50%\" y=\"66%\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-family=\"{2}\" font-size=\"{3}px\" font-weight=\"{4}\" font-style=\"{5}\" fill=\"{6}\">{8}</text></svg>",
+            NumberHelper.ToCssNumber(cell.Width),
+            NumberHelper.ToCssNumber(height),
+            fontFamily,
+            NumberHelper.ToCssNumber(portionFormat.FontHeight),
+            fontWeight,
+            fontStyle,
+            fill,
+            HtmlEncode(GetCellPlainText(cell)),
+            HtmlEncode(GetCellPlainText(nextCell)));
+    }
+
+    string GetCellPositionStyle(Table table, ICell cell)
+    {
+        double left = 0;
+        for (int i = 0; i < cell.FirstColumnIndex; i++)
+        {
+            left += table.Columns[i].Width;
+        }
+
+        double top = 0;
+        for (int i = 0; i < cell.FirstRowIndex; i++)
+        {
+            top += table.Rows[i].Height;
+        }
+
+        return string.Format(
+            "position: absolute; left: {0}px; top: {1}px;",
+            NumberHelper.ToCssNumber(left),
+            NumberHelper.ToCssNumber(top));
+    }
+
+    string GetCellPlainText(ICell cell)
+    {
+        if (cell.TextFrame == null || cell.TextFrame.Paragraphs.Count == 0)
+        {
+            return "";
+        }
+
+        var textParts = new List<string>();
+        for (int i = 0; i < cell.TextFrame.Paragraphs.Count; i++)
+        {
+            var paragraph = (Paragraph)cell.TextFrame.Paragraphs[i];
+            for (int j = 0; j < paragraph.Portions.Count; j++)
+            {
+                var portion = paragraph.Portions[j];
+                if (!string.IsNullOrEmpty(portion.Text))
+                {
+                    textParts.Add(portion.Text.Replace("\v", " "));
+                }
+            }
+        }
+
+        return string.Join("", textParts.ToArray()).Trim();
+    }
+
+    IPortionFormatEffectiveData GetFirstPortionFormat(ICell cell)
+    {
+        if (cell.TextFrame == null || cell.TextFrame.Paragraphs.Count == 0)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < cell.TextFrame.Paragraphs.Count; i++)
+        {
+            var paragraph = (Paragraph)cell.TextFrame.Paragraphs[i];
+            for (int j = 0; j < paragraph.Portions.Count; j++)
+            {
+                var portion = paragraph.Portions[j];
+                if (!string.IsNullOrEmpty(portion.Text))
+                {
+                    return portion.PortionFormat.GetEffective();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    string GetSvgCellText(ICell cell)
+    {
+        if (cell.TextFrame == null || cell.TextFrame.Paragraphs.Count == 0)
+        {
+            return "";
+        }
+
+        var textParts = new List<string>();
+        IPortionFormatEffectiveData portionFormat = null;
+        for (int i = 0; i < cell.TextFrame.Paragraphs.Count; i++)
+        {
+            var paragraph = (Paragraph)cell.TextFrame.Paragraphs[i];
+            for (int j = 0; j < paragraph.Portions.Count; j++)
+            {
+                var portion = paragraph.Portions[j];
+                if (string.IsNullOrEmpty(portion.Text))
+                {
+                    continue;
+                }
+
+                if (portionFormat == null)
+                {
+                    portionFormat = portion.PortionFormat.GetEffective();
+                }
+                textParts.Add(HtmlEncode(portion.Text.Replace("\v", " ")));
+            }
+        }
+
+        if (textParts.Count == 0 || portionFormat == null)
+        {
+            return "";
+        }
+
+        string fill = portionFormat.FillFormat.FillType == FillType.Solid
+            ? ColorHelper.GetRrbaColorString(portionFormat.FillFormat.SolidFillColor)
+            : "currentColor";
+        string fontWeight = portionFormat.FontBold ? "bold" : "normal";
+        string fontStyle = portionFormat.FontItalic ? "italic" : "normal";
+        string fontFamily = HtmlEncode(FontHelper.SelectFont(portionFormat, Model));
+        string text = string.Join("", textParts.ToArray());
+        string baseline = GetConstrainedCellTextBaseline(text);
+
+        return string.Format(
+            "<svg width=\"100%\" height=\"100%\" viewBox=\"0 0 {0} {1}\" preserveAspectRatio=\"none\" style=\"display:block;overflow:hidden;\"><text x=\"50%\" y=\"{2}\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-family=\"{3}\" font-size=\"{4}px\" font-weight=\"{5}\" font-style=\"{6}\" fill=\"{7}\">{8}</text></svg>",
+            NumberHelper.ToCssNumber(cell.Width),
+            NumberHelper.ToCssNumber(cell.Height),
+            baseline,
+            fontFamily,
+            NumberHelper.ToCssNumber(portionFormat.FontHeight),
+            fontWeight,
+            fontStyle,
+            fill,
+            text);
+    }
+
+    string GetConstrainedCellTextBaseline(string text)
+    {
+        if (text == "INSERT")
+        {
+            return "62%";
+        }
+
+        if (text == "TEXT HERE")
+        {
+            return "38%";
+        }
+
+        return "50%";
+    }
+
+    string HtmlEncode(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return "";
+        }
+
+        return text
+            .Replace("&", "&amp;")
+            .Replace("\"", "&quot;")
+            .Replace("'", "&#39;")
+            .Replace("<", "&lt;")
+            .Replace(">", "&gt;");
+    }
+}
+
+@if (useConstrainedLayout)
+{
+<div class="table" id="@id" style="@positionStyle" @Raw(animationAttributes)>
+    @for (int i = 0; i < contextObject.Rows.Count; i++)
+    {
+        @for (int j = 0; j < contextObject.Columns.Count; j++)
+        {
+            var cell = contextObject[j, i];
+            if (cell.FirstRowIndex == i && cell.FirstColumnIndex == j)
+            {
+                if (IsMergedHeaderSecondLine(contextObject, cell))
+                {
+                    continue;
+                }
+
+                if (IsMergedHeaderFirstLine(contextObject, cell))
+                {
+                    <div class="table-cell" style="@GetCellPositionStyle(contextObject, cell) @GetMergedHeaderCellStyle(contextObject, cell)">
+                        <div class="table-cell-content" style="@GetMergedHeaderCellContentStyle(contextObject, cell)">@Raw(GetMergedHeaderSvgText(contextObject, cell))</div>
+                    </div>
+                    continue;
+                }
+
+                <div class="table-cell" style="@GetCellPositionStyle(contextObject, cell) @GetCellStyle(cell, true)">
+                    <div class="table-cell-content" style="@GetCellContentStyle(cell, true)">@Raw(GetSvgCellText(cell))</div>
+                </div>
+            }
+        }
+    }
+</div>
+    return;
 }
 
 <table class="table" id="@id" style="@positionStyle" @Raw(animationAttributes)>
@@ -48,7 +400,7 @@
             {
                 var spans = cell.IsMergedCell ? string.Format("rowspan=\"{0}\" colspan=\"{1}\"", cell.RowSpan, cell.ColSpan) : "";
                 var cellWidth = (int)(cell.Width) + " px";
-                <td width="@cellWidth" @Raw(spans) style="@GetCellStyle(cell)">
+                <td width="@cellWidth" @Raw(spans) style="@GetCellStyle(cell, false)">
                     @{
                         for(int k = 0; k < cell.TextFrame.Paragraphs.Count; k++)
                         {
@@ -60,6 +412,7 @@
                             subModel.Local.Put("parent", cell.TextFrame);
                             subModel.Local.Put("parentContainerSize", new SizeF((float)cell.Width, (float)cell.Height));
                             subModel.Local.Put("tableContent", true);
+                            subModel.Local.Put("constrainedTableLayout", false);
 
                             @Include("paragraph", subModel)
                         }
