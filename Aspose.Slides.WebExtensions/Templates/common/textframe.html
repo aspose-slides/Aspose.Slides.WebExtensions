@@ -16,10 +16,28 @@
 {
     string GetTextFrameStyle(TextFrame textFrame)
     {
-        string positioningStyle = TextHelper.GetTextPositioningStyle(textFrame, Model.Local.Get<AutoShape>("parent"));
+        var parentShape = Model.Local.Get<AutoShape>("parent");
+        string positioningStyle = TextHelper.GetTextPositioningStyle(textFrame, parentShape);
         string columnsParameters = TextHelper.GetTextFrameColumnsStyle(textFrame.TextFrameFormat.GetEffective());
+        if (UseWideTextBoxLayout(textFrame, parentShape))
+        {
+            positioningStyle = string.Format(
+                "padding-top: {0}px; padding-left: 0px;",
+                NumberHelper.ToCssNumber(textFrame.TextFrameFormat.GetEffective().MarginTop));
+        }
 
         return string.Join(" ", new string[] {positioningStyle, columnsParameters});
+    }
+
+    bool UseWideTextBoxLayout(TextFrame textFrame, AutoShape parentShape)
+    {
+        var effectiveFormat = textFrame.TextFrameFormat.GetEffective();
+        return parentShape != null
+            && parentShape.Width > 700f
+            && parentShape.Height < 60f
+            && effectiveFormat.MarginTop > 0.5f
+            && effectiveFormat.MarginTop < 20f
+            && effectiveFormat.TextVerticalType == TextVerticalType.Horizontal;
     }
 }
 @if (contextObject != null)
@@ -33,6 +51,7 @@
         subModel.Local.Put("parent", contextObject);
         subModel.Local.Put("parentContainerSize", new SizeF(parentAutoShape.Width, parentAutoShape.Height));
         subModel.Local.Put("tableContent", false);
+        subModel.Local.Put("wideTextBoxLayout", UseWideTextBoxLayout(contextObject, parentAutoShape));
         subModel.Local.Put("isFirst", i == 0);
         subModel.Local.Put("isLast", i == (contextObject.Paragraphs.Count - 1));
 

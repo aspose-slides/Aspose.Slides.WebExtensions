@@ -152,7 +152,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
             bool isHyperLink = false;
             float fontHeight = format.FontHeight;
 
-            string fontLigatures = disableFontLigatures ? "font-variant-ligatures : none" : "";
+            string fontLigatures = disableFontLigatures ? "font-variant-ligatures : none;" : "";
 
             string fontFillStyle = FillHelper.GetFillStyle(format.FillFormat, model);
             TemplateContext<Portion> portion = model as TemplateContext<Portion>;
