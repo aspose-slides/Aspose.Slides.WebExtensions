@@ -1,14 +1,13 @@
 ﻿// Copyright (c) 2001-2025 Aspose Pty Ltd. All Rights Reserved.
 
+using Aspose.Slides.Export;
 using Aspose.Slides.Export.Web;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using Aspose.Slides.Util;
-using System.Collections.Generic;
-using Aspose.Slides.Export;
 
 namespace Aspose.Slides.WebExtensions.Helpers
 {
@@ -29,19 +28,17 @@ namespace Aspose.Slides.WebExtensions.Helpers
             else
             {
                 byte[] dataSource = image.BinaryData;
-                if (image.ContentType == "image/x-emf" || image.ContentType == "image/x-wmf")
-                {
-                    float dpiScale = 96f / 72f;
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        using (Bitmap bitmap = MetafileToBitmap(image))
-                            bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                byte[] compressedImageData = GetCompressedImage(image, model);
+                bool hasCompressedImage = compressedImageData != null;
+                if (hasCompressedImage)
+                    dataSource = compressedImageData;
 
-                        ms.Flush();
-                        dataSource = ms.ToArray();
-                    }
+                if (!hasCompressedImage &&
+                    (image.ContentType == "image/x-emf" || image.ContentType == "image/x-wmf"))
+                {
+                    dataSource = MetafileRasterizer.RasterizeToPng(image);
                 }
-                else if (image.ContentType == "image/tiff")
+                else if (!hasCompressedImage && image.ContentType == "image/tiff")
                 {
                     using (MemoryStream ms = new MemoryStream())
                     {
@@ -177,22 +174,6 @@ namespace Aspose.Slides.WebExtensions.Helpers
             }
             return null;
         }
-        public static Bitmap MetafileToBitmap(IPPImage image)
-        {
-            Metafile metafile = (Metafile)Image.FromStream(new MemoryStream(image.BinaryData));
-            int h = metafile.Height;
-            int w = metafile.Width;
-            Bitmap bitmap = new Bitmap(w, h);
-        
-            using (Graphics g = Graphics.FromImage(bitmap))
-            {
-                g.Clear(Color.Transparent);
-                g.SmoothingMode = SmoothingMode.None;
-                g.DrawImage(metafile, 0, 0, w, h);
-            }
-
-            return bitmap;
-        }
         public static string GetImagePositioningStyle(PictureFrame pictureFrame, Point origin)
         {
             var transform = "";
@@ -282,6 +263,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
         }
         public static string ApplyDPI(string imgSrc, TemplateContext<PictureFrame> model, PicturesCompression dpi)
         {
+            if (model.Global.ContainsKey("picturesCompression"))
+                return imgSrc;
+
             const string b64prefix = "data:image/png;base64, ";
             int resolution = 72;
             switch (dpi)
@@ -335,6 +319,33 @@ namespace Aspose.Slides.WebExtensions.Helpers
             return CompressImage(originImage, newSize, originImage.PixelFormat, new RectangleF(0, 0, originImage.Width, originImage.Height));
         }
 
+        private static byte[] GetCompressedImage<T>(
+            IPPImage image,
+            TemplateContext<T> model)
+        {
+            if (!model.Global.ContainsKey("picturesCompression"))
+                return null;
+
+            ISlideComponent slideComponent = model.Object as ISlideComponent;
+            return ImageCompressorHelper.Compress(
+                slideComponent.AsIPresentationComponent.Presentation,
+                image,
+                model.Global.Get<PicturesCompression>("picturesCompression"));
+        }
+
+        internal static byte[] GetCompressedImage(
+            WebDocument document,
+            IPresentation presentation,
+            IPPImage image)
+        {
+            if (!document.Global.ContainsKey("picturesCompression"))
+                return null;
+
+            return ImageCompressorHelper.Compress(
+                presentation,
+                image,
+                document.Global.Get<PicturesCompression>("picturesCompression"));
+        }
 
         public static SizeF GetCompressedSize(SizeF sourceImageSize, int dpi, SizeF bounds, RectangleF rect)
         {

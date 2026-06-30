@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Aspose.Slides.WebExtensions
 {
@@ -62,6 +63,17 @@ namespace Aspose.Slides.WebExtensions
             WebDocumentOptions options,
             string templatesPath,
             string outputPath,
+            PicturesCompression picturesCompression)
+        {
+            return ToSinglePageWebDocumentCore(
+                pres, options, templatesPath, outputPath, null, null, picturesCompression);
+        }
+
+        public static WebDocument ToSinglePageWebDocument(
+            this Presentation pres,
+            WebDocumentOptions options,
+            string templatesPath,
+            string outputPath,
             int[] slideIndicies)
         {
             return ToSinglePageWebDocument(pres, options, templatesPath, outputPath, slideIndicies, null);
@@ -84,6 +96,19 @@ namespace Aspose.Slides.WebExtensions
             string outputPath,
             int[] slideIndicies,
             ISlidesLayoutOptions notesCommentsLayoutingOptions)
+        {
+            return ToSinglePageWebDocumentCore(
+                pres, options, templatesPath, outputPath, slideIndicies, notesCommentsLayoutingOptions, null);
+        }
+
+        private static WebDocument ToSinglePageWebDocumentCore(
+            Presentation pres,
+            WebDocumentOptions options,
+            string templatesPath,
+            string outputPath,
+            int[] slideIndicies,
+            ISlidesLayoutOptions notesCommentsLayoutingOptions,
+            PicturesCompression? picturesCompression)
         {
             CheckArguments(options, templatesPath, outputPath);
 
@@ -113,6 +138,9 @@ namespace Aspose.Slides.WebExtensions
                 }
             }
             document.Global.Put("slideIndicies", slideIndicies);
+
+            if (picturesCompression.HasValue)
+                document.Global.Put("picturesCompression", picturesCompression);
 
             document.AddCommonInputOutput(options, templatesPath, outputPath, pres);
 
@@ -151,6 +179,17 @@ namespace Aspose.Slides.WebExtensions
             WebDocumentOptions options,
             string templatesPath,
             string outputPath,
+            PicturesCompression picturesCompression)
+        {
+            return ToMultiPageWebDocumentCore(
+                pres, options, templatesPath, outputPath, null, null, picturesCompression);
+        }
+
+        public static WebDocument ToMultiPageWebDocument(
+            this Presentation pres,
+            WebDocumentOptions options,
+            string templatesPath,
+            string outputPath,
             int[] slideIndicies)
         {
             return ToMultiPageWebDocument(pres, options, templatesPath, outputPath, slideIndicies, null);
@@ -173,6 +212,19 @@ namespace Aspose.Slides.WebExtensions
             string outputPath,
             int[] slideIndicies,
             ISlidesLayoutOptions notesCommentsLayoutingOptions)
+        {
+            return ToMultiPageWebDocumentCore(
+                pres, options, templatesPath, outputPath, slideIndicies, notesCommentsLayoutingOptions, null);
+        }
+
+        private static WebDocument ToMultiPageWebDocumentCore(
+            Presentation pres,
+            WebDocumentOptions options,
+            string templatesPath,
+            string outputPath,
+            int[] slideIndicies,
+            ISlidesLayoutOptions notesCommentsLayoutingOptions,
+            PicturesCompression? picturesCompression)
         {
             CheckArguments(options, templatesPath, outputPath);
 
@@ -207,6 +259,9 @@ namespace Aspose.Slides.WebExtensions
                 }
             }
             document.Global.Put("slideIndicies", slideIndicies);
+
+            if (picturesCompression.HasValue)
+                document.Global.Put("picturesCompression", picturesCompression.Value);
 
             document.AddCommonInputOutput(options, templatesPath, outputPath, pres);
 
@@ -335,8 +390,19 @@ namespace Aspose.Slides.WebExtensions
 
                 path = Path.Combine(outputPath, string.Format("image{0}.{1}", index, ext));
 
-                var outputFile = document.Output.Add(path, image);
-                document.Output.BindResource(outputFile, image);
+                byte[] compressedImageData = ImageHelper.GetCompressedImage(document, pres, image);
+                if (compressedImageData != null)
+                {
+                    var _path = Path.ChangeExtension(path, "png");
+                    IImage outputImage = Images.FromStream(new MemoryStream(compressedImageData));
+                    var compressedOutputFile = document.Output.Add(_path, outputImage);
+                    document.Output.BindResource(compressedOutputFile, image);
+                }
+                else
+                {
+                    var outputFile = document.Output.Add(path, image);
+                    document.Output.BindResource(outputFile, image);
+                }
             }
         }
 
