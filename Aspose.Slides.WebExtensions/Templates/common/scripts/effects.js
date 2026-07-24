@@ -199,6 +199,8 @@ function GetAnimationEffect(type, subtype, shapeId, duration, delay, extra) {
             return new EmphasisComplementaryColorEffect(shapeId, duration, delay, subtype, extra);    
         case 'EmphasisComplementaryColor2':
             return new EmphasisComplementaryColor2Effect(shapeId, duration, delay, subtype, extra);        
+        case 'MediaCallMediaPlay':
+            return new MediaCallMediaPlayEffect(shapeId, duration, delay, subtype, extra);
             
         default:
             return new EmptyEffect(shapeId, duration, delay, type);
@@ -222,7 +224,8 @@ class Effect {
                             height: element ? element.style.height : '',
                             opacity: element ? element.style.opacity : '',
                             background: element ? element.style.backgroundColor : '',
-                            border: element ? element.style.border : ''
+                            border: element ? element.style.border : '',
+                            transform: element ? element.style.transform : ''
                           };
         var cssLeft = parseInt($(this.shapeId).css('left').replace('px', ''));
         var cssTop = parseInt($(this.shapeId).css('top').replace('px', ''));
@@ -258,7 +261,7 @@ class Effect {
         $(this.shapeId).css('background-color', this.shapeStyle.background);
         $(this.shapeId).css('border', this.shapeStyle.border);
         
-        $(this.shapeId).css({'transform': ''});
+        $(this.shapeId).css('transform', this.shapeStyle.transform);
         $(this.shapeId).css('clip-path', '');
         $(this.shapeId).show();
     }
@@ -2109,23 +2112,55 @@ class ExitCurveUpDownEffect extends Effect {
 class EmphasisSpinEffect extends Effect {
     
     Prepare() {
-        var shapeId = this.shapeId;
+    }
         
-        this.effectTimeline = anime.timeline({
-            targets: shapeId,
-            autoplay: false,
-            easing: 'linear'
-        });
-    
-        this.effectTimeline.add({
-            duration: this.duration,
-            delay: this.delay,
-            rotateZ: this.extra    
-        });
+    Play() {
+        this.StartSpin();
     }
     
-    Finish() {
-        $(this.shapeId).css('transform', 'rotateZ(' + this.extra + 'deg)');
+    Restart() {
+        this.StartSpin();
+    }
+    
+    Pause() {
+        if (this.spinTimeout != null) {
+            window.clearTimeout(this.spinTimeout);
+            this.spinTimeout = null;
+        }
+        if (this.effectTimeline != null)
+            this.effectTimeline.pause();
+    }
+
+    StartSpin() {
+        this.Pause();
+        var self = this;
+        var start = function() {
+            self.spinTimeout = null;
+
+            var element = $(self.shapeId)[0];
+            if (element == null)
+                return;
+
+            if (self.startAngle == null || self.endAngle == null)
+                return;
+
+            var repeatCount = parseFloat(self.repeatCount);
+            self.effectTimeline = anime({
+                targets: element,
+                autoplay: false,
+                easing: 'linear',
+                duration: self.duration,
+                rotateZ: [self.startAngle, self.endAngle],
+                loop: repeatCount > 1 ? repeatCount : false,
+                direction: repeatCount > 1 ? 'alternate' : 'normal'
+            });
+            self.effectTimeline.play();
+        };
+
+        if (this.delay > 0)
+            this.spinTimeout = window.setTimeout(start, this.delay);
+        else
+            start();
     }
 }
 
@@ -2353,11 +2388,88 @@ class EmphasisTransparencyEffect extends Effect {
             delay: this.delay,
             opacity: this.extra
         });
+
+        if (this.autoReverse) {
+            this.effectTimeline.add({
+                duration: this.duration,
+                opacity: 1
+            });
+        }
     }
     
     Finish() {
-        $(this.shapeId).css('opacity', this.extra);
+        $(this.shapeId).css('opacity', this.autoReverse ? 1 : this.extra);
     }
+}
+
+class MediaCallMediaPlayEffect extends Effect {
+    Prepare() { }
+
+    Play() {
+        this.StartPlayback();
+    }
+
+    Restart() {
+        this.StartPlayback();
+    }
+
+    Pause() { }
+
+    Finish() {
+        if (this.playTimeout != null) {
+            window.clearTimeout(this.playTimeout);
+            this.playTimeout = null;
+        }
+
+        var media = $(this.shapeId)[0];
+        if (media != null) {
+            media.pause();
+            media.currentTime = 0;
+        }
+    }
+
+    StartPlayback() {
+        if (this.playTimeout != null)
+            window.clearTimeout(this.playTimeout);
+
+        var self = this;
+        var play = function() {
+            self.playTimeout = null;
+            var media = $(self.shapeId)[0];
+            if (media == null)
+                return;
+
+            media.currentTime = 0;
+            var playback = media.play();
+            if (playback != null)
+                playback.catch(function() {
+                    document.addEventListener('click', function() {
+                        media.currentTime = 0;
+                        var retry = media.play();
+                        if (retry != null)
+                            retry.catch(function() { });
+                    }, { once: true, capture: true });
+                });
+        };
+
+        if (this.delay > 0)
+            this.playTimeout = window.setTimeout(play, this.delay);
+        else
+            play();
+    }
+}
+
+function GetElementRotationAngle(element) {
+    var transform = window.getComputedStyle(element).transform;
+    if (transform == null || transform === 'none')
+        return 0;
+    var values = transform.match(/^matrix\(([^)]+)\)$/);
+    if (values == null)
+        return 0;
+    var matrix = values[1].split(',');
+    var a = parseFloat(matrix[0]);
+    var b = parseFloat(matrix[1]);
+    return Math.atan2(b, a) * 180 / Math.PI;
 }
 
 class EmphasisBlinkEffect extends Effect {
@@ -2837,4 +2949,3 @@ function hslToRgb(h, s, l){
 
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
-

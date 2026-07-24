@@ -1,0 +1,15 @@
+@inherits RazorEngineCore.RazorEngineTemplateBase<TemplateContext<AudioFrame>>
+
+@{
+    var contextObject = Model.Object;
+    string audioSource = SlideHelper.GetAudioURL(contextObject.EmbeddedAudio, Model);
+    string id = "slide-" + contextObject.Slide.SlideId + "-shape-" + contextObject.UniqueId;
+    string animationAttributes = Model.Local.ContainsKey("animationAttributes")
+        ? Model.Local.Get<string>("animationAttributes")
+        : "";
+}
+
+<audio id="@id" @Raw(animationAttributes)>
+    <source src="@audioSource" type="@contextObject.EmbeddedAudio.ContentType">
+    Your browser does not support the audio tag.
+</audio>

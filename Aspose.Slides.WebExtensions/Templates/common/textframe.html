@@ -9,7 +9,7 @@
     var slide = parentAutoShape.Slide as ISlide;
     var paragraphAnimationData = (contextObject != null && slide != null)
         ? SlideHelper.GetSlidesParagraphAnimationCollection(slide)
-        : new Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, IAudio>>();
+        : new Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, AnimationAudioData>>();
 }
 
 @functions
@@ -69,7 +69,9 @@
             animationAttributes += "data-animation-delay=\"" + NumberHelper.ToCssNumber(paragraphAnimation.Item4) + "\" ";
             animationAttributes += "data-animation-clickTarget=\"" + paragraphAnimation.Item5 + "\" ";
             animationAttributes += "data-animation-extra=\"" + paragraphAnimation.Item6 + "\" ";
-            animationAttributes += "data-animation-sound=\"" + SlideHelper.GetAudioURL(paragraphAnimation.Item8, Model) + "\" ";
+            animationAttributes += "data-animation-sound=\"" + SlideHelper.GetAudioURL(paragraphAnimation.Item8.Audio, Model) + "\" ";
+            animationAttributes += "data-animation-repeat=\"" + NumberHelper.ToCssNumber(paragraphAnimation.Item8.RepeatCount) + "\" ";
+            animationAttributes += "data-animation-auto-reverse=\"" + paragraphAnimation.Item8.AutoReverse.ToString().ToLowerInvariant() + "\" ";
             animationAttributes += "data-animation-index=\"" + paragraphAnimation.Item7 + "\" ";
 
             string animationId = "slide-" + slide.SlideId + "-shape-" + parentAutoShape.UniqueId + "-paragraph-" + i;
