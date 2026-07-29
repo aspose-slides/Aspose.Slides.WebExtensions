@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2001-2020 Aspose Pty Ltd. All Rights Reserved.
 
 using Aspose.Slides.Charts;
+using Aspose.Slides.Animation;
 using Aspose.Slides.Export;
 using Aspose.Slides.Export.Web;
 using Aspose.Slides.WebExtensions.Helpers;
@@ -327,6 +328,7 @@ namespace Aspose.Slides.WebExtensions
 
             document.AddEmbeddedFontsOutput(document.Global.Get<string>("fontsPath"), pres);
             document.AddVideoOutput(document.Global.Get<string>("mediaPath"), pres);
+            SlideHelper.AddAudioOutput(document, document.Global.Get<string>("mediaPath"), pres);
 
             if (!options.EmbedImages)
             {
@@ -497,6 +499,54 @@ namespace Aspose.Slides.WebExtensions
                 var outputFile = document.Output.Add(path, video);
                 document.Output.BindResource(outputFile, video);
             }
+        }
+        public static void AddAudioOutput(this WebDocument document, string outputPath, Presentation pres)
+        {
+            var audioCollection = new List<IAudio>();
+            foreach (Slide slide in pres.Slides)
+            {
+                CollectAudio(slide.Timeline.MainSequence, audioCollection);
+                foreach (ISequence sequence in slide.Timeline.InteractiveSequences)
+                    CollectAudio(sequence, audioCollection);
+
+                CollectAudio(slide.LayoutSlide.Timeline.MainSequence, audioCollection);
+                foreach (ISequence sequence in slide.LayoutSlide.Timeline.InteractiveSequences)
+                    CollectAudio(sequence, audioCollection);
+
+                CollectAudio(slide.LayoutSlide.MasterSlide.Timeline.MainSequence, audioCollection);
+                foreach (ISequence sequence in slide.LayoutSlide.MasterSlide.Timeline.InteractiveSequences)
+                    CollectAudio(sequence, audioCollection);
+            }
+
+            for (int i = 0; i < audioCollection.Count; i++)
+            {
+                IAudio audio = audioCollection[i];
+                string path = Path.Combine(outputPath, string.Format("audio{0}.{1}", i, GetAudioFileExtension(audio.ContentType)));
+                var outputFile = document.Output.Add(path, audio);
+                document.Output.BindResource(outputFile, audio);
+            }
+        }
+
+        private static void CollectAudio(ISequence sequence, List<IAudio> audioCollection)
+        {
+            foreach (IEffect effect in sequence)
+            {
+                if (effect.Sound != null && !audioCollection.Contains(effect.Sound))
+                    audioCollection.Add(effect.Sound);
+            }
+        }
+
+        private static string GetAudioFileExtension(string contentType)
+        {
+            if (string.Equals(contentType, "audio/mpeg", StringComparison.OrdinalIgnoreCase))
+                return "mp3";
+            if (string.Equals(contentType, "audio/x-wav", StringComparison.OrdinalIgnoreCase))
+                return "wav";
+
+            int separatorIndex = contentType == null ? -1 : contentType.IndexOf('/');
+            return separatorIndex >= 0 && separatorIndex < contentType.Length - 1
+                ? contentType.Substring(separatorIndex + 1)
+                : "wav";
         }
 
         public static void AddScriptsOutput(this WebDocument document, string outputPath, string inputFile, string scriptName)

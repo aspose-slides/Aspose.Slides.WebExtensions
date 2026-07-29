@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using Aspose.Slides.Animation;
 using Aspose.Slides.Export;
 using Aspose.Slides.Export.Web;
@@ -128,9 +129,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
             return result;
         }
 
-        public static Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int>>> GetSlidesAnimationCollection(ISlide slide)
+        public static Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, IAudio>>> GetSlidesAnimationCollection(ISlide slide)
         {
-            var result = new Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int>>>();
+            var result = new Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, IAudio>>>();
 
             int onclickIndex = 0;
             onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.MasterSlide.Timeline.MainSequence, result, null, onclickIndex);
@@ -147,9 +148,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
             return result;
         }
 
-        public static Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int>> GetSlidesParagraphAnimationCollection(ISlide slide)
+        public static Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, IAudio>> GetSlidesParagraphAnimationCollection(ISlide slide)
         {
-            var result = new Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int>>();
+            var result = new Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, IAudio>>();
 
             int onclickIndex = 0;
             onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.MasterSlide.Timeline.MainSequence, null, result, onclickIndex);
@@ -168,8 +169,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
         private static int FillSequenceEffectCollection(
             ISequence sequence,
-            Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int>>> shapeEffectsCollection,
-            Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int>> paragraphEffectsCollection,
+            Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, IAudio>>> shapeEffectsCollection,
+            Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, IAudio>> paragraphEffectsCollection,
             int onclickIndex)
         {
             float prevDelay = 0;
@@ -265,14 +266,15 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     extra = GetDestinationColor(shape, toColor);
 
                 IParagraph paragraph = GetEffectParagraph(sequence, effect);
-                var effectData = new Tuple<string, string, float, float, string, string, int>(
+                var effectData = new Tuple<string, string, float, float, string, string, int, IAudio>(
                     classType.ToString() + type.ToString(),
                     subType.ToString(),
                     duration,
                     totalDelay,
                     targetShapeId,
                     extra,
-                    onclickIndex);
+                    onclickIndex,
+                    effect.Sound);
 
                 if (paragraph != null)
                 {
@@ -282,7 +284,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 else if (shapeEffectsCollection != null)
                 {
                     if (!shapeEffectsCollection.ContainsKey(shape))
-                        shapeEffectsCollection.Add(shape, new List<Tuple<string, string, float, float, string, string, int>>());
+                        shapeEffectsCollection.Add(shape, new List<Tuple<string, string, float, float, string, string, int, IAudio>>());
 
                     shapeEffectsCollection[shape].Add(effectData);
                 }
@@ -437,5 +439,16 @@ namespace Aspose.Slides.WebExtensions.Helpers
             slideHeght = frameHeight.ToString();
             if (!handoutIsSet) slideHandoutStyles = "";
         }
+
+        public static string GetAudioURL<T>(IAudio audio, TemplateContext<T> model)
+        {
+            if (audio == null || audio.BinaryData == null || audio.BinaryData.Length == 0)
+                return string.Empty;
+
+            string audioPath = model.Output.GetResourcePath(audio);
+            string slidesPath = model.Global.Get<string>("slidesPath");
+            return ShapeHelper.ConvertPathToRelative(audioPath, slidesPath);
+        }
+
     }
 }

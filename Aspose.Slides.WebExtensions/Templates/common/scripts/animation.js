@@ -225,13 +225,14 @@ function FillSlideShapeAnimations(slideId) {
                 while (animations[clickTarget].length <= animationIndex)
                     animations[clickTarget].push([]);
 
-                animations[clickTarget][animationIndex].push(GetAnimationEffect(
+                animations[clickTarget][animationIndex].push(GetAnimationEffectWithSound(
                     $(this).attr("data-animation-type" + attrSuffix),
                     $(this).attr("data-animation-subtype" + attrSuffix),
                     '#' + this.id,
                     $(this).attr("data-animation-duration" + attrSuffix),
                     $(this).attr("data-animation-delay" + attrSuffix),
-                    $(this).attr("data-animation-extra" + attrSuffix)));
+                    $(this).attr("data-animation-extra" + attrSuffix),
+                    $(this).attr("data-animation-sound" + attrSuffix)));
             }
         }
     });
@@ -249,10 +250,29 @@ function CreateAnimationEffects(animatedShapesId) {
     
     var result = [];
     for (var i = 0; i < animatedShapesId.length; i++) {
-        result.push(GetAnimationEffect($(animatedShapesId[i]).data("animation-type"), $(animatedShapesId[i]).data("animation-subtype"),animatedShapesId[i], $(animatedShapesId[i]).data("animation-duration"), $(animatedShapesId[i]).data("animation-delay"), $(animatedShapesId[i]).data("animation-extra")));
+        result.push(GetAnimationEffectWithSound($(animatedShapesId[i]).data("animation-type"), $(animatedShapesId[i]).data("animation-subtype"),animatedShapesId[i], $(animatedShapesId[i]).data("animation-duration"), $(animatedShapesId[i]).data("animation-delay"), $(animatedShapesId[i]).data("animation-extra"), $(animatedShapesId[i]).data("animation-sound")));
     }
     
     return result;
+}
+
+function GetAnimationEffectWithSound(type, subtype, shapeId, duration, delay, extra, sound) {
+    var effect = GetAnimationEffect(type, subtype, shapeId, duration, delay, extra);
+    effect.sound = sound;
+    effect.soundDelay = parseFloat(delay) * 1000;
+    return effect;
+}
+
+function PlayEffectSound(sound, delay) {
+    if (sound == null || sound === '')
+        return;
+
+    window.setTimeout(function() {
+        var audio = new Audio(sound);
+        var playback = audio.play();
+        if (playback != null)
+            playback.catch(function() {});
+    }, isNaN(delay) ? 0 : delay);
 }
 
 function PauseAllEffects(animations) {
@@ -474,8 +494,10 @@ function RestartEffectsTimeline(effectsCollection) {
 
 function PlayEffectsTimeline(effectsCollection) {
     if (effectsCollection != null)
-        for (var i = 0; i < effectsCollection.length; i++)
+        for (var i = 0; i < effectsCollection.length; i++) {
             effectsCollection[i].Play();
+            PlayEffectSound(effectsCollection[i].sound, effectsCollection[i].soundDelay);
+        }
 }
 
 function RestoreEffectsTimeline(effectsCollection) {

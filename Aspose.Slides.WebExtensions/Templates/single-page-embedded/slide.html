@@ -10,7 +10,7 @@
 }
 
 @{
-    void EmitShape(IShape shape, Slide contextObject, bool animateTransitions, int slideNumber, Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int>>> slideAnimationData)
+    void EmitShape(IShape shape, Slide contextObject, bool animateTransitions, int slideNumber, Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, IAudio>>> slideAnimationData)
 {
     var margin = Model.Global.Get<int>("slideMargin");
     var visibleSlideNumber = animateTransitions ? 1 : slideNumber;
@@ -31,6 +31,7 @@
             animationAttributes += "data-animation-delay=\"" + NumberHelper.ToCssNumber(shapeAnimationData.Item4) + "\" ";
             animationAttributes += "data-animation-clickTarget=\"" + shapeAnimationData.Item5 + "\" ";
             animationAttributes += "data-animation-extra=\"" + shapeAnimationData.Item6 + "\" ";
+            animationAttributes += "data-animation-sound=\"" + SlideHelper.GetAudioURL(shapeAnimationData.Item8, Model) + "\" ";
             animationAttributes += "data-animation-index=\"" + shapeAnimationData.Item7 + "\" ";
         }
         else
@@ -45,6 +46,7 @@
                 animationAttributes += "data-animation-delay-" + i + "=\"" + NumberHelper.ToCssNumber(shapeAnimationData.Item4) + "\" ";
                 animationAttributes += "data-animation-clickTarget-" + i + "=\"" + shapeAnimationData.Item5 + "\" ";
                 animationAttributes += "data-animation-extra-" + i + "=\"" + shapeAnimationData.Item6 + "\" ";
+                animationAttributes += "data-animation-sound-" + i + "=\"" + SlideHelper.GetAudioURL(shapeAnimationData.Item8, Model) + "\" ";
                 animationAttributes += "data-animation-index-" + i + "=\"" + shapeAnimationData.Item7 + "\" ";
             }
         }
