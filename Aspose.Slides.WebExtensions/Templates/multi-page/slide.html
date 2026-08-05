@@ -1,5 +1,4 @@
 ﻿@inherits RazorEngineCore.RazorEngineTemplateBase<TemplateContext<Slide>>
-
 @{
     Slide contextObject = Model.Object;
     bool animateTransitions = Model.Global.Get<bool>("animateTransitions");
@@ -30,6 +29,13 @@
         subModel.Local.Put<Point> ("origin", origin);
 
         @Include("videoframe", subModel)
+    }
+    else if (shape is AudioFrame)
+    {
+        var subModel = Model.SubModel((AudioFrame)shape);
+        subModel.Local.Put<Point> ("origin", origin);
+
+        @Include("audioframe", subModel)
     }
     else if (shape is PictureFrame)
     {

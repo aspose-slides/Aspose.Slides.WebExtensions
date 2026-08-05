@@ -232,6 +232,7 @@ namespace SinglePageApp
             document.Input.AddTemplate<Paragraph>("bullet", Path.Combine(templatesPath, "bullet.html"));
             document.Input.AddTemplate<Portion>("portion", Path.Combine(templatesPath, "portion.html"));
             document.Input.AddTemplate<VideoFrame>("videoframe", Path.Combine(templatesPath, "videoframe.html"));
+            document.Input.AddTemplate<AudioFrame>("audioframe", Path.Combine(templatesPath, "audioframe.html"));
             document.Input.AddTemplate<PictureFrame>("pictureframe", Path.Combine(templatesPath, "pictureframe.html")); ;
             document.Input.AddTemplate<Shape>("shape", Path.Combine(templatesPath, "shape.html"));
 
@@ -268,6 +269,7 @@ namespace SinglePageApp
             document.Input.AddTemplate<Paragraph>("bullet", Path.Combine(templatesPath, "bullet.html"));
             document.Input.AddTemplate<Portion>("portion", Path.Combine(templatesPath, "portion.html"));
             document.Input.AddTemplate<VideoFrame>("videoframe", Path.Combine(templatesPath, "videoframe.html"));
+            document.Input.AddTemplate<AudioFrame>("audioframe", Path.Combine(templatesPath, "audioframe.html"));
             document.Input.AddTemplate<PictureFrame>("pictureframe", Path.Combine(templatesPath, "pictureframe.html"));
             document.Input.AddTemplate<Table>("table", Path.Combine(templatesPath, "table.html"));
             document.Input.AddTemplate<Shape>("shape", Path.Combine(templatesPath, "shape.html"));
@@ -296,6 +298,7 @@ namespace SinglePageApp
         {
             document.AddEmbeddedFontsOutput(document.Global.Get<string>("fontsPath"), pres);
             document.AddVideoOutput(document.Global.Get<string>("mediaPath"), pres);
+            document.AddAudioOutput(document.Global.Get<string>("mediaPath"), pres);
             
             if (!embedImages)
             {

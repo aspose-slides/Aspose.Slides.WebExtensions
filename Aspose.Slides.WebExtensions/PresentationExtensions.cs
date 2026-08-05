@@ -314,6 +314,7 @@ namespace Aspose.Slides.WebExtensions
             document.Input.AddTemplate<Portion>("portion", Path.Combine(templatesPath, "portion.html"));
 
             document.Input.AddTemplate<VideoFrame>("videoframe", Path.Combine(templatesPath, "videoframe.html"));
+            document.Input.AddTemplate<AudioFrame>("audioframe", Path.Combine(templatesPath, "audioframe.html"));
 
             document.Input.AddTemplate<PictureFrame>("pictureframe", Path.Combine(templatesPath, "pictureframe.html"));
             document.Input.AddTemplate<Table>("table", Path.Combine(templatesPath, "table.html"));
@@ -328,7 +329,7 @@ namespace Aspose.Slides.WebExtensions
 
             document.AddEmbeddedFontsOutput(document.Global.Get<string>("fontsPath"), pres);
             document.AddVideoOutput(document.Global.Get<string>("mediaPath"), pres);
-            SlideHelper.AddAudioOutput(document, document.Global.Get<string>("mediaPath"), pres);
+            document.AddAudioOutput(document.Global.Get<string>("mediaPath"), pres);
 
             if (!options.EmbedImages)
             {
@@ -503,6 +504,10 @@ namespace Aspose.Slides.WebExtensions
         public static void AddAudioOutput(this WebDocument document, string outputPath, Presentation pres)
         {
             var audioCollection = new List<IAudio>();
+
+            foreach (AudioFrame audioFrame in ShapeHelper.GetListOfShapes<AudioFrame>(pres))
+                AddAudio(audioCollection, audioFrame.EmbeddedAudio);
+
             foreach (Slide slide in pres.Slides)
             {
                 CollectAudio(slide.Timeline.MainSequence, audioCollection);
@@ -530,10 +535,13 @@ namespace Aspose.Slides.WebExtensions
         private static void CollectAudio(ISequence sequence, List<IAudio> audioCollection)
         {
             foreach (IEffect effect in sequence)
-            {
-                if (effect.Sound != null && !audioCollection.Contains(effect.Sound))
-                    audioCollection.Add(effect.Sound);
-            }
+                AddAudio(audioCollection, effect.Sound);
+        }
+
+        private static void AddAudio(List<IAudio> audioCollection, IAudio audio)
+        {
+            if (audio != null && !audioCollection.Contains(audio))
+                audioCollection.Add(audio);
         }
 
         private static string GetAudioFileExtension(string contentType)

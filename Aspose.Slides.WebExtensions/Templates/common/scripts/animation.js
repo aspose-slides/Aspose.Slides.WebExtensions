@@ -20,6 +20,7 @@ var animations = {};
 var prevAnimations = {};
 var shapeAnimationsIndices = {};
 var noAnimationSlideClick = false;
+var autoStartAnimationsAwaitingUserGesture = false;
 var clipContentCache = {};
 
 var timelineBarsCache = {};
@@ -123,6 +124,7 @@ function AnimateShapes(slideId) {
             // prepare animations for this slide
             animations = {};
             FillSlideShapeAnimations(slideId);
+            ConfigureSpinEffects(animations);
             animationsCache[slideId] = animations;
         }
         
@@ -133,6 +135,7 @@ function AnimateShapes(slideId) {
             shapeAnimationsIndices[targetShape] = -1;
         
         noAnimationSlideClick = false;
+        autoStartAnimationsAwaitingUserGesture = false;
         
         for (var targetShape in animations) {
             if (targetShape != 'slide') {
@@ -161,6 +164,10 @@ function PlayTransitionEnd() {
         RestoreAllEffects(prevAnimations);
         if (transitionTargetSlideAnimationsState == 'all') {
             FinishAnimationsForTarget('slide');
+        }
+        else if (HasAutoStartAnimations()) {
+            autoStartAnimationsAwaitingUserGesture = true;
+            UpdateNavigationButtonsState();
         }
         else {
             PlayNextAnimationsForTarget('slide', false);
@@ -232,7 +239,9 @@ function FillSlideShapeAnimations(slideId) {
                     $(this).attr("data-animation-duration" + attrSuffix),
                     $(this).attr("data-animation-delay" + attrSuffix),
                     $(this).attr("data-animation-extra" + attrSuffix),
-                    $(this).attr("data-animation-sound" + attrSuffix)));
+                    $(this).attr("data-animation-sound" + attrSuffix),
+                    $(this).attr("data-animation-repeat" + attrSuffix),
+                    $(this).attr("data-animation-auto-reverse" + attrSuffix)));
             }
         }
     });
@@ -250,16 +259,49 @@ function CreateAnimationEffects(animatedShapesId) {
     
     var result = [];
     for (var i = 0; i < animatedShapesId.length; i++) {
-        result.push(GetAnimationEffectWithSound($(animatedShapesId[i]).data("animation-type"), $(animatedShapesId[i]).data("animation-subtype"),animatedShapesId[i], $(animatedShapesId[i]).data("animation-duration"), $(animatedShapesId[i]).data("animation-delay"), $(animatedShapesId[i]).data("animation-extra"), $(animatedShapesId[i]).data("animation-sound")));
+        result.push(GetAnimationEffectWithSound($(animatedShapesId[i]).data("animation-type"), $(animatedShapesId[i]).data("animation-subtype"),animatedShapesId[i], $(animatedShapesId[i]).data("animation-duration"), $(animatedShapesId[i]).data("animation-delay"), $(animatedShapesId[i]).data("animation-extra"), $(animatedShapesId[i]).data("animation-sound"), $(animatedShapesId[i]).data("animation-repeat"), $(animatedShapesId[i]).data("animation-auto-reverse")));
     }
     
     return result;
 }
 
-function GetAnimationEffectWithSound(type, subtype, shapeId, duration, delay, extra, sound) {
+function HasAutoStartAnimations() {
+    return animations['slide'] != null && !IsEmptyAnimationStep('slide', 0);
+}
+
+function ConfigureSpinEffects(animations) {
+    var spinStates = {};
+    for (var targetShape in animations) {
+        for (var animationIndex = 0; animationIndex < animations[targetShape].length; animationIndex++) {
+            var effects = animations[targetShape][animationIndex];
+            for (var effectIndex = 0; effectIndex < effects.length; effectIndex++) {
+                var effect = effects[effectIndex];
+                if (!(effect instanceof EmphasisSpinEffect))
+                    continue;
+                var state = spinStates[effect.shapeId];
+                if (state == null) {
+                    var element = $(effect.shapeId)[0];
+                    state = { angle: GetElementRotationAngle(element) };
+                    spinStates[effect.shapeId] = state;
+                }
+                var rotation = parseFloat(effect.extra);
+                if (isNaN(rotation))
+                    continue;
+
+                effect.startAngle = state.angle;
+                effect.endAngle = state.angle + rotation;
+                state.angle = effect.endAngle;
+            }
+        }
+    }
+}
+
+function GetAnimationEffectWithSound(type, subtype, shapeId, duration, delay, extra, sound, repeatCount, autoReverse) {
     var effect = GetAnimationEffect(type, subtype, shapeId, duration, delay, extra);
     effect.sound = sound;
     effect.soundDelay = parseFloat(delay) * 1000;
+    effect.repeatCount = parseFloat(repeatCount);
+    effect.autoReverse = autoReverse === true || autoReverse === 'true';
     return effect;
 }
 
@@ -305,6 +347,8 @@ function PrepareAllEffects(animations) {
 }
 
 function PlayNextAnimationsForTarget(target, skipEmptySteps) {
+    if (target == 'slide' && autoStartAnimationsAwaitingUserGesture)
+        autoStartAnimationsAwaitingUserGesture = false;
     
     if (animations[target] != null) {
     

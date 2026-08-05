@@ -11,6 +11,20 @@ using Aspose.Slides.SlideShow;
 
 namespace Aspose.Slides.WebExtensions.Helpers
 {
+    public sealed class AnimationAudioData
+    {
+        public AnimationAudioData(IAudio audio, float repeatCount, bool autoReverse)
+        {
+            Audio = audio;
+            RepeatCount = repeatCount;
+            AutoReverse = autoReverse;
+        }
+
+        public IAudio Audio { get; private set; }
+        public float RepeatCount { get; private set; }
+        public bool AutoReverse { get; private set; }
+    }
+
     public static class SlideHelper
     {
         static int prevPage = 0;
@@ -129,9 +143,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
             return result;
         }
 
-        public static Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, IAudio>>> GetSlidesAnimationCollection(ISlide slide)
+        public static Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, AnimationAudioData>>> GetSlidesAnimationCollection(ISlide slide)
         {
-            var result = new Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, IAudio>>>();
+            var result = new Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, AnimationAudioData>>>();
 
             int onclickIndex = 0;
             onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.MasterSlide.Timeline.MainSequence, result, null, onclickIndex);
@@ -148,9 +162,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
             return result;
         }
 
-        public static Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, IAudio>> GetSlidesParagraphAnimationCollection(ISlide slide)
+        public static Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, AnimationAudioData>> GetSlidesParagraphAnimationCollection(ISlide slide)
         {
-            var result = new Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, IAudio>>();
+            var result = new Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, AnimationAudioData>>();
 
             int onclickIndex = 0;
             onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.MasterSlide.Timeline.MainSequence, null, result, onclickIndex);
@@ -169,8 +183,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
         private static int FillSequenceEffectCollection(
             ISequence sequence,
-            Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, IAudio>>> shapeEffectsCollection,
-            Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, IAudio>> paragraphEffectsCollection,
+            Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, AnimationAudioData>>> shapeEffectsCollection,
+            Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, AnimationAudioData>> paragraphEffectsCollection,
             int onclickIndex)
         {
             float prevDelay = 0;
@@ -266,7 +280,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     extra = GetDestinationColor(shape, toColor);
 
                 IParagraph paragraph = GetEffectParagraph(sequence, effect);
-                var effectData = new Tuple<string, string, float, float, string, string, int, IAudio>(
+                var effectData = new Tuple<string, string, float, float, string, string, int, AnimationAudioData>(
                     classType.ToString() + type.ToString(),
                     subType.ToString(),
                     duration,
@@ -274,7 +288,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     targetShapeId,
                     extra,
                     onclickIndex,
-                    effect.Sound);
+                    new AnimationAudioData(effect.Sound, effect.Timing.RepeatCount, effect.Timing.AutoReverse));
 
                 if (paragraph != null)
                 {
@@ -284,7 +298,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 else if (shapeEffectsCollection != null)
                 {
                     if (!shapeEffectsCollection.ContainsKey(shape))
-                        shapeEffectsCollection.Add(shape, new List<Tuple<string, string, float, float, string, string, int, IAudio>>());
+                        shapeEffectsCollection.Add(shape, new List<Tuple<string, string, float, float, string, string, int, AnimationAudioData>>());
 
                     shapeEffectsCollection[shape].Add(effectData);
                 }
