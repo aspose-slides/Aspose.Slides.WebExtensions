@@ -55,20 +55,44 @@ namespace Aspose.Slides.WebExtensions.Helpers
         }
         public static string ConvertPathToRelative(string toPath, string fromPath)
         {
-            // fixing paths with no root by adding fake root drive letter
-            if (!Path.IsPathRooted(toPath))
-                toPath = @"C:\" + toPath;
-            if (!Path.IsPathRooted(fromPath))
-                fromPath = @"C:\" + fromPath;
-            if (!fromPath.EndsWith("\\"))
-                fromPath += "\\";
+            toPath = NormalizePath(toPath);
+            fromPath = NormalizePath(fromPath);
+
+            bool toIsRooted = IsRootedPath(toPath);
+            bool fromIsRooted = IsRootedPath(fromPath);
+
+            if (!toIsRooted)
+                toPath = "/" + toPath;
+
+            if (!fromIsRooted)
+                fromPath = "/" + fromPath;
+
+            if (!fromPath.EndsWith("/"))
+                fromPath += "/";
 
             Uri fromUri = new Uri(fromPath);
             Uri toUri = new Uri(toPath);
 
             Uri relativeUri = fromUri.MakeRelativeUri(toUri);
-            string result = Uri.UnescapeDataString(relativeUri.ToString()).Replace('\\', '/');
-            return result;
+
+            return Uri.UnescapeDataString(relativeUri.ToString());
+        }
+
+        private static string NormalizePath(string path)
+        {
+            return path.Replace('\\', '/');
+        }
+
+        private static bool IsRootedPath(string path)
+        {
+            if (path.StartsWith("/"))
+                return true;
+
+            // Windows drive path: C:/...
+            return path.Length >= 3 &&
+                   Char.IsLetter(path[0]) &&
+                   path[1] == ':' &&
+                   path[2] == '/';
         }
 
         public static List<T> GetListOfShapes<T>(IPresentation pres)

@@ -25,7 +25,7 @@
     string GetShapeStyle(AutoShape shape)
     {
         string background = FillHelper.GetFillStyle(shape.FillFormat.GetEffective(), Model);
-        string borderStyle = string.Format("border: {0};", LineHelper.GetLineStyle(shape.LineFormat.GetEffective()));
+        string borderStyle = LineHelper.GetBorderStyle(shape.LineFormat.GetEffective());
         string transformStyle = ((int)shape.Rotation == 0) ? "" : String.Format("transform: rotate({0}deg);", (int)shape.Rotation);
 
         return string.Join(" ", new string[] {background, borderStyle, transformStyle});

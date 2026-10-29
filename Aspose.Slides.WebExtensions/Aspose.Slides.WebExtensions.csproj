@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Templates\common\audioframe.html" />
     <None Remove="Templates\common\autoshape.html" />
     <None Remove="Templates\common\bullet.html" />
     <None Remove="Templates\common\paragraph.html" />
@@ -31,6 +32,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Templates\common\audioframe.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Templates\common\autoshape.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -109,7 +113,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspose.Slides.NET" Version="26.8.0" />
+    <PackageReference Include="Aspose.Slides.NET" Version="26.11.0" />
     <PackageReference Include="MimeTypesMap" Version="1.0.9" />
     <PackageReference Include="RazorEngineCore" Version="2026.1.1" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />

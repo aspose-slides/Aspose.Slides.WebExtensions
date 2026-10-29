@@ -47,7 +47,23 @@
     if (wideTextBoxLayout)
     {
         paragraphTextStyle = RemoveCssProperty(paragraphTextStyle, "line-height");
-        paragraphTextStyle += " white-space: nowrap;";
+        bool hasParagraphText = false;
+        char firstCharacter = '\0';
+        char lastCharacter = '\0';
+        foreach (var portion in contextObject.Portions)
+        {
+            string portionText = portion.Text;
+            if (string.IsNullOrEmpty(portionText)) continue;
+            if (!hasParagraphText)
+            {
+                firstCharacter = portionText[0];
+                hasParagraphText = true;
+            }
+            lastCharacter = portionText[portionText.Length - 1];
+        }
+        bool preserveWhitespace = hasParagraphText
+            && (char.IsWhiteSpace(firstCharacter) || char.IsWhiteSpace(lastCharacter));
+        paragraphTextStyle += preserveWhitespace ? " white-space: pre-wrap;" : " white-space: nowrap;";
     }
     var paragraphBoxStyle = marginStyle + paddingStyle;
     var paragraphStyle = paragraphBoxStyle + paragraphTextStyle;

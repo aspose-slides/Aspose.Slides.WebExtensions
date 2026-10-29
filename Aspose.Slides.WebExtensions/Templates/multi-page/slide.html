@@ -101,7 +101,7 @@
 			var tX = (Lsh - M) - ((1 - kX) * Wsl / 2);
 			var tY = (Tsh - M) - ((1 - kY) * Hsl / 2);
 
-			string borderStyle = string.Format("border: {0};", LineHelper.GetLineStyle(shape.LineFormat.GetEffective()));
+			string borderStyle = LineHelper.GetBorderStyle(shape.LineFormat.GetEffective());
 			slideStyle += string.Format(
 				" transform: matrix({0},0,0,{1},{2},{3}); transform-origin: {4}px {5}px; {6}",
 				NumberHelper.ToCssNumber(kX),
