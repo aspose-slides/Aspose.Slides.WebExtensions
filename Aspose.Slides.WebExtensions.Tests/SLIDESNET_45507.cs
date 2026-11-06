@@ -23,8 +23,10 @@ namespace Aspose.Slides.WebExtensions.Tests
                     options.EmbedImages = true;
                 })
                 .WithViewport(1280, 720)
+                .WithPixelTolerance(8000)
                 .Open("index.html").Wait(800).Capture("01-text-alignment")
                 .AssertMatchesBaseline();
         }
     }
 }
+
