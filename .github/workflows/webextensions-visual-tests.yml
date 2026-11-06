@@ -1,0 +1,38 @@
+name: WebExtensions visual tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  visual-regression:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Restore and build visual tests
+        run: dotnet build Aspose.Slides.WebExtensions.Tests/Aspose.Slides.WebExtensions.Tests.csproj --configuration Release --framework net6.0
+
+      - name: Install Playwright Chromium
+        shell: pwsh
+        run: ./Aspose.Slides.WebExtensions.Tests/bin/Release/net6.0/playwright.ps1 install chromium
+
+      - name: Run GitHub Actions visual tests
+        run: dotnet test Aspose.Slides.WebExtensions.Tests/Aspose.Slides.WebExtensions.Tests.csproj --no-build --configuration Release --framework net6.0 --filter "TestCategory=GitHubActions" --logger "trx;LogFileName=webextensions-visual-tests.trx" --results-directory TestResults
+
+      - name: Upload test results and visual diffs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: webextensions-visual-test-results
+          path: |
+            TestResults/**/*.trx
+            Aspose.Slides.WebExtensions.Tests/TestData/Out/SLIDESNET_45507/**
+          if-no-files-found: ignore
