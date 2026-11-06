@@ -144,9 +144,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
             {
                 case TextAlignment.Center:
                 case TextAlignment.Distributed:
-                case TextAlignment.Justify:
-                case TextAlignment.JustifyLow:
                     return "text-align: center;";
+                case TextAlignment.Justify:
+                    return "text-align: justify;";
                 case TextAlignment.Right:
                     return "text-align: right;";
                 default:

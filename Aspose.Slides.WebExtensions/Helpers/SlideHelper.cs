@@ -143,9 +143,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
             return result;
         }
 
-        public static Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, AnimationAudioData>>> GetSlidesAnimationCollection(ISlide slide)
+        public static Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, Tuple<AnimationAudioData, object>>>> GetSlidesAnimationCollection(ISlide slide)
         {
-            var result = new Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, AnimationAudioData>>>();
+            var result = new Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, Tuple<AnimationAudioData, object>>>>();
 
             int onclickIndex = 0;
             onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.MasterSlide.Timeline.MainSequence, result, null, onclickIndex);
@@ -162,9 +162,9 @@ namespace Aspose.Slides.WebExtensions.Helpers
             return result;
         }
 
-        public static Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, AnimationAudioData>> GetSlidesParagraphAnimationCollection(ISlide slide)
+        public static Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, Tuple<AnimationAudioData, object>>> GetSlidesParagraphAnimationCollection(ISlide slide)
         {
-            var result = new Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, AnimationAudioData>>();
+            var result = new Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, Tuple<AnimationAudioData, object>>>();
 
             int onclickIndex = 0;
             onclickIndex = FillSequenceEffectCollection(slide.LayoutSlide.MasterSlide.Timeline.MainSequence, null, result, onclickIndex);
@@ -183,8 +183,8 @@ namespace Aspose.Slides.WebExtensions.Helpers
 
         private static int FillSequenceEffectCollection(
             ISequence sequence,
-            Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, AnimationAudioData>>> shapeEffectsCollection,
-            Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, AnimationAudioData>> paragraphEffectsCollection,
+            Dictionary<IShape, List<Tuple<string, string, float, float, string, string, int, Tuple<AnimationAudioData, object>>>> shapeEffectsCollection,
+            Dictionary<IParagraph, Tuple<string, string, float, float, string, string, int, Tuple<AnimationAudioData, object>>> paragraphEffectsCollection,
             int onclickIndex)
         {
             float prevDelay = 0;
@@ -280,7 +280,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     extra = GetDestinationColor(shape, toColor);
 
                 IParagraph paragraph = GetEffectParagraph(sequence, effect);
-                var effectData = new Tuple<string, string, float, float, string, string, int, AnimationAudioData>(
+                var effectData = new Tuple<string, string, float, float, string, string, int, Tuple<AnimationAudioData, object>>(
                     classType.ToString() + type.ToString(),
                     subType.ToString(),
                     duration,
@@ -288,7 +288,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                     targetShapeId,
                     extra,
                     onclickIndex,
-                    new AnimationAudioData(effect.Sound, effect.Timing.RepeatCount, effect.Timing.AutoReverse));
+                    new Tuple<AnimationAudioData, object>(new AnimationAudioData(effect.Sound, effect.Timing.RepeatCount, effect.Timing.AutoReverse), effect));
 
                 if (paragraph != null)
                 {
@@ -298,7 +298,7 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 else if (shapeEffectsCollection != null)
                 {
                     if (!shapeEffectsCollection.ContainsKey(shape))
-                        shapeEffectsCollection.Add(shape, new List<Tuple<string, string, float, float, string, string, int, AnimationAudioData>>());
+                        shapeEffectsCollection.Add(shape, new List<Tuple<string, string, float, float, string, string, int, Tuple<AnimationAudioData, object>>>());
 
                     shapeEffectsCollection[shape].Add(effectData);
                 }

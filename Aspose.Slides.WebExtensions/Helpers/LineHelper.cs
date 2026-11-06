@@ -14,6 +14,12 @@ namespace Aspose.Slides.WebExtensions.Helpers
                 return "";
         }
         
+        public static string GetBorderStyle(ILineFormatEffectiveData lineFormat)
+        {
+            string lineStyle = GetLineStyle(lineFormat);
+            return string.IsNullOrEmpty(lineStyle) ? "" : string.Format("border: {0};", lineStyle);
+        }
+        
         public static string GetCssLineType(LineDashStyle lineStyle)
         {
             switch (lineStyle)
